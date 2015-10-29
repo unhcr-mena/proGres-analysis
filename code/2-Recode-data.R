@@ -67,22 +67,6 @@ progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "9"] <- "
 progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Manager", "Professional", "Technician", "Clerk", "ServiceMarket", "Agricultural", "Craft", "Machine", "Elementary", "Military", "UnknownOccup", "NoOccup", "Student"))
 #summary(progres.case$occupationcat)
 
-### creatting a smaller dataset
-
-progres.case.test <-progres.case[ progres.case$coal1 == "Irbid", c("CountryOrigin",
-                                                                   "season",
-                                                                   "YearArrival" ,
-                                                                   "Num_Inds2",
-                                                                   "dem_marriage",
-                                                                   "dem_sex",
-                                                                   "dem_ethn",
-                                                                   "dem_religion",
-                                                                   "cool1",
-                                                                   "coal2",
-                                                                   "edu_highest_t", "occupationcode")  ]
-str(progres.case.test)
-progres.case.test <- droplevels(progres.case.test)
-
 
 
 #progres.case$occupationcat <- substr(progres.case$occupationcode, 1,1 )
