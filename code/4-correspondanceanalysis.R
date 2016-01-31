@@ -19,10 +19,13 @@ progres.case.test <-progres.case[ progres.case$coal1 == "Irbid", c("CountryOrigi
                                                                    "edu_highest_t", "occupationcode")  ]
 str(progres.case.test)
 progres.case.test <- droplevels(progres.case.test)
+ 
+
+progres.case.JOR <-progres.case[ progres.case$CountryAsylum == "JOR", ]
 
 
 ## We need to generate sample in order to create the MCA object
-progres.case.sample <- progres.case[sample(1:nrow(progres.case), 5000,replace=FALSE),
+progres.case.sample <- progres.case[sample(1:nrow(progres.case.JOR), 5000,replace=FALSE),
                                     c("CountryOrigin",
                                     "season",
                                      "YearArrival" ,
@@ -35,7 +38,7 @@ progres.case.sample <- progres.case[sample(1:nrow(progres.case), 5000,replace=FA
                                     # "coal2",
                                      "edu_highest_t")
                                     ]
-progres.case.sample$YearArrival <- as.factor(progres.case.sample$YearArrival)
+
 
 progres.case.sample <- droplevels(progres.case.sample)
 

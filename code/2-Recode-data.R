@@ -8,10 +8,9 @@ progres.case <- read.csv("data/progrescase.csv")
 
 ## Integer as factor
 progres.case$Num_Inds2 <- as.factor(progres.case$Num_Inds)
-progres.case$YearArrivalf <- as.factor(progres.case$YearArrival)
+progres.case$YearArrival <- as.factor(progres.case$YearArrival) 
 
-
-## Calucalting dependency ration
+## Calculating dependency ration
 
 progres.case$dependency <- (progres.case$Child_0_14+progres.case$Eldern_65) / progres.case$Work_15_64
 progres.case$youthdependency <- progres.case$Child_0_14 / progres.case$Work_15_64
@@ -31,7 +30,7 @@ progres.case$season <- recode(progres.case$season,"'March'='Spring'; 'April'='Sp
 
 progres.case$season <- factor(progres.case$season, levels = c("Spring", "Summer", "Autumn", "Winter"))
 
-progres.case$Montharrival <- factor(progres.case$Montharrival, levels = c("March","April","May","June","July","August","September","October","November","December","January","February"))
+progres.case$Montharrival <- factor(progres.case$Montharrival, levels = c("January","February","March","April","May","June","July","August","September","October","November","December"))
 
 
 progres.case$edu_highest_t <- progres.case$edu_highest
@@ -65,7 +64,7 @@ progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "8"] <- "
 progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "9"] <- "Elementary"
 
 progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Manager", "Professional", "Technician", "Clerk", "ServiceMarket", "Agricultural", "Craft", "Machine", "Elementary", "Military", "UnknownOccup", "NoOccup", "Student"))
-#summary(progres.case$occupationcat)
+summary(progres.case$occupationcat)
 
 
 
@@ -77,51 +76,41 @@ progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Man
 ##########
 # Age group:
 progres.case$dem_age_grp1 <- ifelse(progres.case$dem_age < 35, 1, 0)
-
-progres.case$dem_age_grp2 <- ifelse((progres.case$dem_age >= 35) &
-                                      (progres.case$dem_age < 55), 1, 0)
-
+progres.case$dem_age_grp2 <- ifelse((progres.case$dem_age >= 35) &  (progres.case$dem_age < 55), 1, 0)
 progres.case$dem_age_grp3 <- ifelse(progres.case$dem_age >= 55, 1, 0)
 
 progres.case$dem_PA_grp0 <- ifelse(progres.case$dem_age < 15, 1, 0)
-
 progres.case$dem_PA_grp1 <- ifelse(progres.case$dem_age < 18, 1, 0)
-
-progres.case$dem_PA_grp2 <- ifelse((progres.case$dem_age > 17) &
-                                     (progres.case$dem_age < 60), 1, 0)
-
+progres.case$dem_PA_grp2 <- ifelse((progres.case$dem_age > 17) & (progres.case$dem_age < 60), 1, 0)
 progres.case$dem_PA_grp3 <- ifelse(progres.case$dem_age > 59, 1, 0)
 
 
 progres.case$age.PA1 <- ifelse(progres.case$dem_age < 35, 1, 0)
-
-progres.case$age.PA2 <- ifelse((progres.case$dem_age > 34) &
-                                 (progres.case$dem_age < 55), 1, 0)
-
+progres.case$age.PA2 <- ifelse((progres.case$dem_age > 34) & (progres.case$dem_age < 55), 1, 0)
 progres.case$age.PA3 <- ifelse(progres.case$dem_age > 54, 1, 0)
 
+
+##
+
+str(progres.case)
+
 # Percentage of children:
-progres.case$p.child.grp1 <- ifelse(progres.case$percentage_0_14 == 0, 1, 0)
-
-progres.case$p.child.grp2 <- ifelse((progres.case$percentage_0_14 > 0) &
-                                      (progres.case$percentage_0_14 < 50), 1, 0)
-
-progres.case$p.child.grp3 <- ifelse((progres.case$percentage_0_14 >= 50) &
-                                      (progres.case$percentage_0_14 < 75), 1, 0)
-
-progres.case$p.child.grp4 <- ifelse(progres.case$percentage_0_14 >= 75, 1, 0)
+progres.case$p.child.grp1 <- ifelse(progres.case$Child_0_14/progres.case$Num_Inds == 0, 1, 0)
+progres.case$p.child.grp2 <- ifelse((progres.case$Child_0_14/progres.case$Num_Inds > 0) & (progres.case$Child_0_14/progres.case$Num_Inds < 0.50), 1, 0)
+progres.case$p.child.grp3 <- ifelse((progres.case$Child_0_14/progres.case$Num_Inds >= 0.50) & (progres.case$Child_0_14/progres.case$Num_Inds < 0.75), 1, 0)
+progres.case$p.child.grp4 <- ifelse(progres.case$Child_0_14/progres.case$Num_Inds >= 0.75, 1, 0)
 
 
 
 ##########
 # Marital status:
-progres.case$mar_widow <- ifelse(progres.case$dem_marriage == "WD Widowed", 1, 0) # niente
-progres.case$mar_single <- ifelse(progres.case$dem_marriage == "SN Single", 1, 0) # significativa e buon R2
-progres.case$mar_divorced <- ifelse(progres.case$dem_marriage == "DV Divorced", 1, 0) # significativa ma poco R2
-progres.case$mar_married <- ifelse(progres.case$dem_marriage == "MA Married", 1, 0) # significative e OK R2
-progres.case$mar_engaged <- ifelse(progres.case$dem_marriage == "EG Engaged", 1, 0) # significativa ma poco R2
-progres.case$mar_g_divorced <- ifelse((progres.case$dem_marriage == "DV Divorced" | progres.case$dem_marriage == "SR Separated"), 1, 0) # significativa ma poco R2
-progres.case$mar_g_married <- ifelse((progres.case$dem_marriage == "MA Married" | progres.case$dem_marriage == "CL Common Law Married" | progres.case$dem_marriage == "EG Engaged"), 1, 0) # significativa e OK R2 ma meno rispetto a married-only
+progres.case$mar_widow <- ifelse(progres.case$dem_marriage == "WD Widowed", 1, 0) 
+progres.case$mar_single <- ifelse(progres.case$dem_marriage == "SN Single", 1, 0) 
+progres.case$mar_divorced <- ifelse(progres.case$dem_marriage == "DV Divorced", 1, 0) 
+progres.case$mar_married <- ifelse(progres.case$dem_marriage == "MA Married", 1, 0) 
+progres.case$mar_engaged <- ifelse(progres.case$dem_marriage == "EG Engaged", 1, 0) 
+progres.case$mar_g_divorced <- ifelse((progres.case$dem_marriage == "DV Divorced" | progres.case$dem_marriage == "SR Separated"), 1, 0) 
+progres.case$mar_g_married <- ifelse((progres.case$dem_marriage == "MA Married" | progres.case$dem_marriage == "CL Common Law Married" | progres.case$dem_marriage == "EG Engaged"), 1, 0) 
 
 
 ##########
