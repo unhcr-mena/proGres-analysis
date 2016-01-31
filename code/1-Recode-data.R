@@ -1,4 +1,7 @@
-### Recoding the dataset
+
+###########################################
+### Recoding the Case level Information
+###########################################
 library("car")
 rm(progres.case)
 progres.case <- read.csv("data/progrescase.csv")
@@ -150,3 +153,19 @@ progres.case$edu.highest.grp5 <- ifelse((progres.case$edu_highest == "PG Post un
                                            progres.case$edu_highest == "UG University level"), 1, 0)
 
 
+
+###########################################
+### Recoding specific needs at the case level
+###########################################
+
+progres.specificneed <- read.csv("data/progresspecificneed.csv")
+
+
+
+
+###################################################
+######## Saving reworked case information
+###################################################
+
+
+write.csv(progres.case, file = "data/progrescase2.csv",na="")
