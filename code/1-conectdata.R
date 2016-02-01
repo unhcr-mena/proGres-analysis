@@ -25,7 +25,7 @@ write.csv(progres.specificneed, file = "data/progresspecificneed.csv",na="")
 progres.event        <- sqlFetch(dbhandleprogres, "caseevent")
 write.csv(progres.event, file = "data/progresevent.csv",na="")
 
-progres.eventrst        <- sqlFetch(dbhandleprogres, "caseeventrst")
+progres.eventrst        <- sqlFetch(dbhandleprogres, "caseeventrst19")
 write.csv(progres.eventrst, file = "data/progreseventrst.csv",na="")
 
 

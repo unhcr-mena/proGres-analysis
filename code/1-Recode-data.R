@@ -160,12 +160,95 @@ progres.case$edu.highest.grp5 <- ifelse((progres.case$edu_highest == "PG Post un
 
 progres.specificneed <- read.csv("data/progresspecificneed.csv")
 
+summary(progres.specificneed)
+
+## sound slike there are duplicate for individuals
+progres.specificneed.unique <- unique(progres.specificneed[,c("CaseNo","IndividualID","VulnerabilityCode","VulnerabilityText")])
 
 
+## Let's recode the vulnerability Text
+library("car")
+progres.specificneed.unique$VulnerabilityText <- recode(progres.specificneed.unique$VulnerabilityText,'"Child at risk" = "Child.at.risk"; 
+                                                    "Family unity"= "Family.unity";
+                                                    "Older person at risk" = "Older.person.at.risk";
+                                                    "Pregnant or lactating" = "Pregnant.or.lactating";
+                                                    "Single parent"= "Single.parent";
+                                                    "Serious medical condition" = "Serious.medical.condition";  
+                                                    "Specific legal and physical protection needs" = "Specific.legal.physical.protection.needs"; 
+                                                    "Unaccompanied or separated child" = "Unaccompanied.or.separated.child";
+                                                    "Woman at risk" = "Woman.at.risk"')
+
+## let's build the summary per case
+progres.specificneed.case <-  melt(progres.specificneed.unique, id.vars = c("CaseNo","VulnerabilityText"))
+
+
+progres.specificneed.case2 <- dcast(progres.specificneed.case, CaseNo ~ VulnerabilityText)
+
+### merging back with progres case info
+
+progres.case.sp <- merge(x=progres.case, y=progres.specificneed.case2, all.x=TRUE)
+
+
+
+###########################################
+### Recoding Voluntary return Events
+###########################################
+
+
+progres.event <- read.csv("data/progresevent.csv")
+#ReasonCode <- as.data.frame(levels(as.factor(progres.event$ReasonCode)))
+progres.event$EventReasonText <- ""
+progres.event$EventReasonText[progres.event$ReasonCode=='SP1'] <- 'ret.Returned.to.territory.of.origin'
+progres.event$EventReasonText[progres.event$ReasonCode=='SP2'] <- 'ret.Departed.to.3rd.country'
+progres.event$EventReasonText[progres.event$ReasonCode=='3rdCO'] <- 'ret.Departed.to.3rd.country'
+progres.event$EventReasonText[progres.event$ReasonCode=='SP4'] <- 'ret.Whereabouts.unknown'
+progres.event$EventReasonText <- as.factor(progres.event$EventReasonText)
+
+plot(progres.event$EventReasonText)
+
+progres.event.case <-  melt(progres.event, id.vars = c("CaseNo","EventLogEffectiveDate","EventReasonText"))
+progres.event.case2 <- dcast(progres.event.case, CaseNo + EventLogEffectiveDate ~ EventReasonText)
+
+progres.case.sp.dep <- merge(x=progres.case.sp, y=progres.event.case2, all.x=TRUE)
+
+###########################################
+### Recoding RST accepted
+###########################################
+
+progres.eventrst <- read.csv("data/progreseventrst.csv")
+summary(progres.eventrst)
+str(progres.eventrst)
+#EventReasonText <- as.data.frame(levels(as.factor(progres.eventrst$EventReasonText)))
+ReasonCode <- as.data.frame(levels(as.factor(progres.eventrst$ReasonCode)))
+progres.eventrst$EventReasonText <- ""
+progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='FAM01'] <- 'rst.Family.reunification'
+progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='LPN01'] <- 'rst.Legal.physical.protection.needs'
+progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='MED01'] <- 'rst.Medical needs'
+progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='OLD01'] <- 'rst.elderly.refugees'
+progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='AWR01'] <- 'rst.Woman.at.risk'
+progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='RLI01'] <- 'rst.Refugee.without.local.integration.prospects'
+progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='SVT01'] <- 'rst.Survivor.of.violence.and.torture'
+progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='CHL01'] <- 'rst.Child.or.adolescent'
+progres.eventrst$EventReasonText <- as.factor(progres.eventrst$EventReasonText)
+
+## let's build the summary per case
+progres.eventrst.case <-  melt(progres.eventrst, id.vars = c("CaseNo","EventLogEffectiveDate","EventReasonText"))
+progres.eventrst.case2 <- dcast(progres.eventrst.case, CaseNo + EventLogEffectiveDate ~ EventReasonText)
+
+progres.case.sp.dep.rst <- merge(x=progres.case.sp.dep, y=progres.eventrst.case2, all.x=TRUE)
+
+## sound slike there are duplicate for individuals
+#progres.eventrst.unique <- unique(progres.eventrst[,c("CaseNo","CountryCode","ReasonCode","EventReasonText")])
+
+###########################################
+### Recoding Assistance at the case level
+###########################################
+assistancecase <- read.csv("data/assistancecase.csv")
+summary(assistancecase)
 
 ###################################################
 ######## Saving reworked case information
 ###################################################
 
 
-write.csv(progres.case, file = "data/progrescase2.csv",na="")
+write.csv(progres.case.sp, file = "data/progrescase2.csv",na="")

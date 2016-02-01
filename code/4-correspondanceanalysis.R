@@ -3,7 +3,7 @@
 ####################################################################################
 ## http://rpubs.com/gaston/MCA
 
-
+progres.case <- read.csv("data/progrescase2.csv")
 
 ### creatting a smaller dataset
 progres.case.test <-progres.case[ progres.case$coal1 == "Irbid", c("CountryOrigin",
