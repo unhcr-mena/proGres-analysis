@@ -26,7 +26,9 @@ levels(as.factor(data.str$class))
 
 ## extracting unique choice questions
 data.class2graph  <- data.str[(data.str$class=="Factor w/ 3 levels" | data.str$class=="Factor w/ 4 levels"| data.str$class=="Factor w/ 5 levels"| 
-                                 data.str$class=="Factor w/ 6 levels"|  data.str$class=="Factor w/ 7 levels"),]
+                                 data.str$class=="Factor w/ 6 levels"|  data.str$class=="Factor w/ 7 levels"|  data.str$class=="Factor w/ 8 levels"|
+                                 data.str$class=="Factor w/ 9 levels"|  data.str$class=="Factor w/ 12 levels"|  data.str$class=="Factor w/ 13 levels"|
+                                 data.str$class=="Factor w/ 14 levels"),]
 
 class2graph <- data.class2graph$variable
 data.single <- data[class2graph]
@@ -112,7 +114,7 @@ ggsave("out/barseason.png", bar.season, width=8, height=6,units="in", dpi=300)
 #### Bar graph to show repartition for categories
 
 data$occupationcat <- reorder(data$occupationcat, sum(data$Num_Inds))
-data$occupationcat <- factor(data$occupationcat, levels = data$occupationcat[order(sum(data$Num_Inds)] )
+data$occupationcat <- factor(data$occupationcat, levels = data$occupationcat[order(sum(data$Num_Inds)])
 
 bar.occupationcat <- ggplot( #order_by(occupationcat, ~ Num_Inds, data, sum),
                              data=data[data$CountryOrigin == "SYR",], 
@@ -120,27 +122,27 @@ bar.occupationcat <- ggplot( #order_by(occupationcat, ~ Num_Inds, data, sum),
                                 )) + 
   geom_bar( stat="identity",fill="#2a87c8",colour="#2a87c8") +
   # geom_text(aes(label=occupationcat), vjust=0) +
-  facet_wrap( ~ edu_highest_t, ncol=2) +
+  facet_wrap( ~ edu_highest_t, ncol=3) +
   guides(fill=FALSE) + 
   xlab("occupation Category of principal applicant") + 
   ylab("# of Ind") +
   scale_y_continuous(labels=format_si())+
   coord_flip() + 
-  ggtitle("Numnber of ind per occupation Category of principal applicant")
+  ggtitle("Number of Ind per occupation Category of principal applicant for Syrians")
 
-ggsave("out/occupationcat.png", bar.occupationcat, width=8, height=6,units="in", dpi=300)
+ggsave("out/occupationcat.png", bar.occupationcat, width=12, height=12,units="in", dpi=300)
 
 
 bar.edu_highest_t <- ggplot(data=data[data$CountryOrigin == "SYR",], 
   aes(x=edu_highest_t , y=Num_Inds, fill=occupationcat )) + 
   geom_bar( stat="identity",fill="#2a87c8",colour="#2a87c8") +
-  #facet_wrap( ~ occupationcat, ncol=3) +
+  facet_wrap( ~ CountryOriginCategory, ncol=3) +
   guides(fill=FALSE) + 
   xlab("Education level of principal applicant") + 
   ylab("# of Ind") +
   scale_y_continuous(labels=format_si())+
   coord_flip() + 
-  ggtitle("Numnber of ind per Education Level of principal applicant")
+  ggtitle("Number of Ind per Education Level of principal applicant for Syrians")
 ggsave("out/edu_highest_t.png", bar.edu_highest_t, width=8, height=6,units="in", dpi=300) 
 
 
@@ -149,9 +151,10 @@ bar.YearArrival <- ggplot(data=data[data$YearArrival > 2011,], aes(x=YearArrival
   # geom_text(aes(label=variable), vjust=0) +
   guides(fill=FALSE) + 
   # coord_flip()+
+  facet_wrap( ~ CountryAsylum, ncol=3) +
   xlab("year of Arrival") + 
   ylab("# of Ind") +
   scale_y_continuous(labels=format_si())+
   coord_flip()+ 
   ggtitle("Arrival per Year - after 2011")
-ggsave("out/YearArrival.png", bar.YearArrival, width=8, height=6,units="in", dpi=300)
+ggsave("out/YearArrival.png", bar.YearArrival, width=12, height=12,units="in", dpi=300)

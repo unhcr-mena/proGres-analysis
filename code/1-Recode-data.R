@@ -2,7 +2,7 @@
 ###########################################
 ### Recoding the Case level Information
 ###########################################
-library("car")
+
 rm(progres.case)
 progres.case <- read.csv("data/progrescase.csv")
 
@@ -22,8 +22,122 @@ progres.case$elederndependency <- progres.case$Eldern_65 / progres.case$Work_15_
 ## Adding Age cohort
 
 
-## Aggregating season according to month
+##########
+# Aggregating country of Origin
 
+#ctrorigin <- as.data.frame(table(progres.case$CountryOrigin))
+#rm(ctrorigin)
+#summary(progres.case$CountryOrigin)
+#levels(progres.case$CountryOrigin)
+
+
+progres.case$CountryOriginCategory <- recode(progres.case$CountryOrigin,"'SYR'='SYR';
+                                        'IRQ'='IRQ';
+                                        'SOM'='SOM';
+                                        'AFG'='AFG';
+                                        'IRN'='IRN';
+                                        'SUD'='SUD';
+                                        'ETH'='ETH';
+                                        'ERT'='ERT';
+                                        'PAL'='PAL';
+                                        'TUR'='TUR';
+                                        'PAK'='ASIA';
+                                        'YEM'='MENA';
+                                        'SSD'='AFR';
+                                        'NIG'='AFR';
+                                        'ICO'='AFR';
+                                        'COD'='AFR';
+                                        'UGA'='AFR';
+                                        'BGD'='ASIA';
+                                        'ARE'='MENA';
+                                        'CMR'='AFR';
+                                        'UZB'='ASIA';
+                                        'COB'='AFR';
+                                        'TKM'='ASIA';
+                                        'MLI'='AFR';
+                                        'GUI'='AFR';
+                                        'CAR'='AFR';
+                                        'LBY'='MENA';
+                                        'KGZ'='ASIA';
+                                        'LEB'='MENA';
+                                        'CHD'='AFR';
+                                        'TJK'='ASIA';
+                                        'MOR'='AFR';
+                                        'JOR'='MENA';
+                                        'SEN'='AFR';
+                                        'KUW'='MENA';
+                                        'MNG'='OTH';
+                                        'ALG'='MENA';
+                                        'GHA'='AFR';
+                                        'TUN'='MENA';
+                                        'SLE'='AFR';
+                                        'LBR'='AFR';
+                                        'RUS'='OTH';
+                                        'KEN'='AFR';
+                                        'CHI'='ASIA';
+                                        'LKA'='ASIA';
+                                        'BDI'='AFR';
+                                        'KAZ'='ASIA';
+                                        'PHI'='ASIA';
+                                        'ZZZ'='OTH';
+                                        'MYA'='ASIA';
+                                        'SAU'='MENA';
+                                        'BAH'='MENA';
+                                        'RWA'='AFR';
+                                        'IND'='ASIA';
+                                        'TOG'='AFR';
+                                        'DJB'='AFR';
+                                        'GAM'='AFR';
+                                        'NGR'='AFR';
+                                        'ZIM'='AFR';
+                                        'ANG'='AFR';
+                                        'BKF'='AFR';
+                                        'NEP'='ASIA';
+                                        'SRV'='OTH';
+                                        'U'='OTH';
+                                        'BEN'='AFR';
+                                        'TAN'='AFR';
+                                        'UKR'='OTH';
+                                        'MAD'='AFR';
+                                        'GAB'='AFR';
+                                        'INS'='ASIA';
+                                        'MAU'='AFR';
+                                        'TIB'='ASIA';
+                                        'UAE'='MENA';
+                                        'BSN'='OTH';
+                                        'COI'='AFR';
+                                        'OMN'='MENA';
+                                        'GNB'='AFR';
+                                        'DOM'='OTH';
+                                        'ISR'='MENA';
+                                        '-'='OTH';
+                                        'ARM'='ASIA';
+                                        'AZE'='ASIA';
+                                        'BLR'='OTH';
+                                        'CUB'='OTH';
+                                        'FRA'='OTH';
+                                        'HAI'='OTH';
+                                        'RSA'='OTH';
+                                        'ARG'='OTH';
+                                        'GBR'='OTH';
+                                        'KRN'='OTH';
+                                        'MDA'='OTH';
+                                        'MTS'='OTH';
+                                        'PER'='OTH';
+                                        'SCG'='OTH';
+                                        'SOL'='OTH';
+                                        'SUR'='OTH';
+                                        'YUG'='OTH'")
+
+##########
+# Aggregating country of Asylum
+
+#ctrAsylum <- as.data.frame(table(progres.case$CountryAsylum))
+#rm(ctrAsylum)
+### Not necessary
+
+##########
+# Aggregating season according to month
 
 progres.case$season <- progres.case$Montharrival
 #levels(progres.case$Montharrival)
@@ -33,10 +147,10 @@ progres.case$season <- recode(progres.case$season,"'March'='Spring'; 'April'='Sp
                               'January'='Winter';  'February'='Winter'; 'December'='Winter' ")
 
 progres.case$season <- factor(progres.case$season, levels = c("Spring", "Summer", "Autumn", "Winter"))
-
 progres.case$Montharrival <- factor(progres.case$Montharrival, levels = c("January","February","March","April","May","June","July","August","September","October","November","December"))
 
-
+##########
+# Recoding Education
 progres.case$edu_highest_t <- progres.case$edu_highest
 progres.case$edu_highest_t <- recode(progres.case$edu_highest_t,"'01' = 'E1year'; '02' = 'E2year';  
                                      '03' = 'E3year';  '04' = 'E4year';   '05' = 'E5year';  
@@ -48,7 +162,9 @@ progres.case$edu_highest_t <- recode(progres.case$edu_highest_t,"'01' = 'E1year'
 
 progres.case$edu_highest_t <- factor(progres.case$edu_highest_t, levels = c("Unknown", "NoEduc", "InformEduc", "E1year", "E2year", "E3year", "E4year", "E5year", "E6year", "E7year", "E8year", "E9year", "E10year", "E11year", "E12year", "E13year", "E14year", "TechnVoc", "Univ", "PostUniv"))
 
-## Extracting main ocupation category from occupation code 
+
+##########
+# Extracting main ocupation category from occupation code 
 
 summary(progres.case$occupationcode)
 progres.case$occupationcat <- "UnknownOccup"
@@ -208,7 +324,7 @@ progres.event$EventReasonText[progres.event$ReasonCode=='3rdCO'] <- 'ret.Departe
 progres.event$EventReasonText[progres.event$ReasonCode=='SP4'] <- 'ret.Whereabouts.unknown'
 progres.event$EventReasonText <- as.factor(progres.event$EventReasonText)
 
-plot(progres.event$EventReasonText)
+# plot(progres.event$EventReasonText)
 
 progres.event.case <-  melt(progres.event, id.vars = c("CaseNo","EventLogEffectiveDate","EventReasonText"))
 progres.event.case2 <- dcast(progres.event.case, CaseNo + EventLogEffectiveDate ~ EventReasonText)

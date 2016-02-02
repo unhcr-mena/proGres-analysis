@@ -5,9 +5,24 @@ date: "2 February 2016"
 output: html_document
 ---
 
-
+The information recorded in the Refugee Registration Database covers not only basic demographic characteristics but also identification of Specific Needs and recording of Events such a Ressettlement Acception or Volonary Dpearture.
 
 ## Descriptive Analysis
+
+
+```{r , echo=FALSE}
+
+## Load the preprocessed dataset 
+data <- read.csv("data/progrescase2.csv")
+
+
+```
+
+
+```{r, echo=FALSE}
+box.month <- ggplot(data[data$CountryOrigin == "SYR",], aes(x=Montharrival, y=Num_Inds, fill=Montharrival) ) + 
+  geom_boxplot() 
+```
 
 
 ## Exploratory Analysis
@@ -15,18 +30,3 @@ output: html_document
 
 ## Regression Analysis
 
-```{r , echo=FALSE}
-
-## Load the preprocessed dataset 
-data <- read.csv("data/progrescase2.csv")
-
-summary(cars)
-```
-
-You can also embed plots, for example:
-
-```{r, echo=FALSE}
-plot(cars)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

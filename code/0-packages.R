@@ -43,7 +43,7 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
               "ROCR", 
               "rpart", "rpart.plot", # "sas7bdat", 
               "snow", "speedglm", "tree",
-              
+              "prettyR",
               "formatR" #, "gWidgetsRGtk2" # used to format the code
               #"XLConnect" ## Read and write excel files
               
@@ -55,10 +55,10 @@ if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
 rm(packages)
 
 # loads packages into memory
-
+library(prettyR)
 library(plyr)
 library(reshape2) ## Restructure data between wide and long format before plotting them - melt and cast
-gpclibPermit()
+#gpclibPermit()
 library(zoo) ## Manage reformatting of date
 library(date)
 library(lubridate)
