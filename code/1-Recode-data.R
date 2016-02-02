@@ -20,7 +20,98 @@ progres.case$youthdependency <- progres.case$Child_0_14 / progres.case$Work_15_6
 progres.case$elederndependency <- progres.case$Eldern_65 / progres.case$Work_15_64
 
 ## Adding Age cohort
+progres.case$agecohort <- cut(progres.case$dem_age,c(0,18,25,35,59,Inf))
 
+##########
+# Aggregating arrival year
+#summary(progres.case$YearArrival)
+#YearArrival <- as.data.frame(table(progres.case$YearArrival))
+#rm(YearArrival)
+
+progres.case$YearArrivalCategory <- recode(progres.case$YearArrival,"'1899'='1900-1980';
+                                                                      '1928'='1900-1980';
+                                                                      '1932'='1900-1980';
+                                                                      '1935'='1900-1980';
+                                                                      '1936'='1900-1980';
+                                                                      '1937'='1900-1980';
+                                                                      '1938'='1900-1980';
+                                                                      '1939'='1900-1980';
+                                                                      '1940'='1900-1980';
+                                                                      '1941'='1900-1980';
+                                                                      '1942'='1900-1980';
+                                                                      '1943'='1900-1980';
+                                                                      '1944'='1900-1980';
+                                                                      '1945'='1900-1980';
+                                                                      '1946'='1900-1980';
+                                                                      '1947'='1900-1980';
+                                                                      '1948'='1900-1980';
+                                                                      '1949'='1900-1980';
+                                                                      '1950'='1900-1980';
+                                                                      '1951'='1900-1980';
+                                                                      '1952'='1900-1980';
+                                                                      '1953'='1900-1980';
+                                                                      '1954'='1900-1980';
+                                                                      '1955'='1900-1980';
+                                                                      '1956'='1900-1980';
+                                                                      '1957'='1900-1980';
+                                                                      '1958'='1900-1980';
+                                                                      '1959'='1900-1980';
+                                                                      '1960'='1900-1980';
+                                                                      '1961'='1900-1980';
+                                                                      '1962'='1900-1980';
+                                                                      '1963'='1900-1980';
+                                                                      '1964'='1900-1980';
+                                                                      '1965'='1900-1980';
+                                                                      '1966'='1900-1980';
+                                                                      '1967'='1900-1980';
+                                                                      '1968'='1900-1980';
+                                                                      '1969'='1900-1980';
+                                                                      '1970'='1900-1980';
+                                                                      '1971'='1900-1980';
+                                                                      '1972'='1900-1980';
+                                                                      '1973'='1900-1980';
+                                                                      '1974'='1900-1980';
+                                                                      '1975'='1900-1980';
+                                                                      '1976'='1900-1980';
+                                                                      '1977'='1900-1980';
+                                                                      '1978'='1900-1980';
+                                                                      '1979'='1900-1980';
+                                                                      '1980'='1900-1980';
+                                                                      '1981'='1981-1990';
+                                                                      '1982'='1981-1990';
+                                                                      '1983'='1981-1990';
+                                                                      '1984'='1981-1990';
+                                                                      '1985'='1981-1990';
+                                                                      '1986'='1981-1990';
+                                                                      '1987'='1981-1990';
+                                                                      '1988'='1981-1990';
+                                                                      '1989'='1981-1990';
+                                                                      '1990'='1981-1990';
+                                                                      '1991'='1991-2000';
+                                                                      '1992'='1991-2000';
+                                                                      '1993'='1991-2000';
+                                                                      '1994'='1991-2000';
+                                                                      '1995'='1991-2000';
+                                                                      '1996'='1991-2000';
+                                                                      '1997'='1991-2000';
+                                                                      '1998'='1991-2000';
+                                                                      '1999'='1991-2000';
+                                                                      '2000'='1991-2000';
+                                                                      '2001'='2001-2005';
+                                                                      '2002'='2001-2005';
+                                                                      '2003'='2001-2005';
+                                                                      '2004'='2001-2005';
+                                                                      '2005'='2001-2005';
+                                                                      '2006'='2006-2010';
+                                                                      '2007'='2006-2010';
+                                                                      '2008'='2006-2010';
+                                                                      '2009'='2006-2010';
+                                                                      '2010'='2006-2010';
+                                                                      '2011'='2011';
+                                                                      '2012'='2012';
+                                                                      '2013'='2013';
+                                                                      '2014'='2014';
+                                                                      '2015'='2015'")
 
 ##########
 # Aggregating country of Origin
@@ -147,7 +238,11 @@ progres.case$season <- recode(progres.case$season,"'March'='Spring'; 'April'='Sp
                               'January'='Winter';  'February'='Winter'; 'December'='Winter' ")
 
 progres.case$season <- factor(progres.case$season, levels = c("Spring", "Summer", "Autumn", "Winter"))
-progres.case$Montharrival <- factor(progres.case$Montharrival, levels = c("January","February","March","April","May","June","July","August","September","October","November","December"))
+
+progres.case$season <- recode(progres.case$season,"'January'='Jan';  'February'='Febr';'March'='Mar';
+                               'April'='Apr';  'May'='May'; 'June'='Jun'; 'July'='Jul';  'August'='Aug'; 
+                              'September'='Sept'; 'October'='Oct'; 'November'='Nov'; 'December'='Dec' ")
+progres.case$Montharrival <- factor(progres.case$Montharrival, levels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"))
 
 ##########
 # Recoding Education
