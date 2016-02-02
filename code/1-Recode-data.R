@@ -21,6 +21,7 @@ progres.case$elederndependency <- progres.case$Eldern_65 / progres.case$Work_15_
 
 ## Adding Age cohort
 
+
 ## Aggregating season according to month
 
 
@@ -47,8 +48,6 @@ progres.case$edu_highest_t <- recode(progres.case$edu_highest_t,"'01' = 'E1year'
 
 progres.case$edu_highest_t <- factor(progres.case$edu_highest_t, levels = c("Unknown", "NoEduc", "InformEduc", "E1year", "E2year", "E3year", "E4year", "E5year", "E6year", "E7year", "E8year", "E9year", "E10year", "E11year", "E12year", "E13year", "E14year", "TechnVoc", "Univ", "PostUniv"))
 
-
-
 ## Extracting main ocupation category from occupation code 
 
 summary(progres.case$occupationcode)
@@ -69,15 +68,23 @@ progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "9"] <- "
 progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Manager", "Professional", "Technician", "Clerk", "ServiceMarket", "Agricultural", "Craft", "Machine", "Elementary", "Military", "UnknownOccup", "NoOccup", "Student"))
 summary(progres.case$occupationcat)
 
-
-
 #progres.case$occupationcat <- substr(progres.case$occupationcode, 1,1 )
 #str(progres.case$occupationcat)
+
+##  International Standard Classification of Occupations (ISCO) 
+# http://www.ilo.org/public/english/bureau/stat/isco/isco08/
+#ISCO.08 <- read.csv("data/ISCO-08.csv")
+#names(ISCO.08)
+#corrtab88.08 <- read.csv("data/corrtab88-08.csv")
+#names(corrtab88.08)
+#isco <- merge(x=ISCO.08, y=corrtab88.08, by.x="ISCO08Code", by.y="ISCO.08.Code")
+#write.csv(isco, "out/isco.csv")
+#names(isco)
 
 
 
 ##########
-# Age group:
+# Age group
 progres.case$dem_age_grp1 <- ifelse(progres.case$dem_age < 35, 1, 0)
 progres.case$dem_age_grp2 <- ifelse((progres.case$dem_age >= 35) &  (progres.case$dem_age < 55), 1, 0)
 progres.case$dem_age_grp3 <- ifelse(progres.case$dem_age >= 55, 1, 0)
@@ -87,26 +94,21 @@ progres.case$dem_PA_grp1 <- ifelse(progres.case$dem_age < 18, 1, 0)
 progres.case$dem_PA_grp2 <- ifelse((progres.case$dem_age > 17) & (progres.case$dem_age < 60), 1, 0)
 progres.case$dem_PA_grp3 <- ifelse(progres.case$dem_age > 59, 1, 0)
 
-
 progres.case$age.PA1 <- ifelse(progres.case$dem_age < 35, 1, 0)
 progres.case$age.PA2 <- ifelse((progres.case$dem_age > 34) & (progres.case$dem_age < 55), 1, 0)
 progres.case$age.PA3 <- ifelse(progres.case$dem_age > 54, 1, 0)
 
 
-##
-
-str(progres.case)
-
-# Percentage of children:
+##########
+# Percentage of children
 progres.case$p.child.grp1 <- ifelse(progres.case$Child_0_14/progres.case$Num_Inds == 0, 1, 0)
 progres.case$p.child.grp2 <- ifelse((progres.case$Child_0_14/progres.case$Num_Inds > 0) & (progres.case$Child_0_14/progres.case$Num_Inds < 0.50), 1, 0)
 progres.case$p.child.grp3 <- ifelse((progres.case$Child_0_14/progres.case$Num_Inds >= 0.50) & (progres.case$Child_0_14/progres.case$Num_Inds < 0.75), 1, 0)
 progres.case$p.child.grp4 <- ifelse(progres.case$Child_0_14/progres.case$Num_Inds >= 0.75, 1, 0)
 
 
-
 ##########
-# Marital status:
+# Marital status
 progres.case$mar_widow <- ifelse(progres.case$dem_marriage == "WD Widowed", 1, 0) 
 progres.case$mar_single <- ifelse(progres.case$dem_marriage == "SN Single", 1, 0) 
 progres.case$mar_divorced <- ifelse(progres.case$dem_marriage == "DV Divorced", 1, 0) 
@@ -117,18 +119,18 @@ progres.case$mar_g_married <- ifelse((progres.case$dem_marriage == "MA Married" 
 
 
 ##########
-# Ethnicity, religion, birth:
+# Ethnicity, religion, birth
 progres.case$ethn_arab <- ifelse(progres.case$dem_ethn == "Arab", 1, 0)
 progres.case$rel_sunni <- ifelse(progres.case$dem_religion == "SUN Sunni", 1, 0)
 progres.case$bir_syria <- ifelse(progres.case$dem_birth_country == "SYR", 1, 0)
 
 ##########
-# Gender PA:
+# Gender PA
 progres.case$gender.male <- ifelse(progres.case$dem_sex == "Male", 1, 0)
 progres.case$gender.female <- ifelse(progres.case$dem_sex == "Female", 1, 0)
 
 ##########
-# Educational attainment:
+# Educational attainment
 progres.case$edu.highest.grp1 <- ifelse((progres.case$edu_highest == "NE No education" | 
                                            progres.case$edu_highest == "KG Kindergarten" | 
                                            progres.case$edu_highest == "1 year (or Grade 1)" | 
@@ -151,6 +153,10 @@ progres.case$edu.highest.grp4 <- ifelse((progres.case$edu_highest == "12 years (
 
 progres.case$edu.highest.grp5 <- ifelse((progres.case$edu_highest == "PG Post university level" | 
                                            progres.case$edu_highest == "UG University level"), 1, 0)
+
+
+
+
 
 
 
@@ -189,11 +195,9 @@ progres.specificneed.case2 <- dcast(progres.specificneed.case, CaseNo ~ Vulnerab
 progres.case.sp <- merge(x=progres.case, y=progres.specificneed.case2, all.x=TRUE)
 
 
-
 ###########################################
 ### Recoding Voluntary return Events
 ###########################################
-
 
 progres.event <- read.csv("data/progresevent.csv")
 #ReasonCode <- as.data.frame(levels(as.factor(progres.event$ReasonCode)))
@@ -216,8 +220,8 @@ progres.case.sp.dep <- merge(x=progres.case.sp, y=progres.event.case2, all.x=TRU
 ###########################################
 
 progres.eventrst <- read.csv("data/progreseventrst.csv")
-summary(progres.eventrst)
-str(progres.eventrst)
+#summary(progres.eventrst)
+#str(progres.eventrst)
 #EventReasonText <- as.data.frame(levels(as.factor(progres.eventrst$EventReasonText)))
 ReasonCode <- as.data.frame(levels(as.factor(progres.eventrst$ReasonCode)))
 progres.eventrst$EventReasonText <- ""
@@ -244,11 +248,26 @@ progres.case.sp.dep.rst <- merge(x=progres.case.sp.dep, y=progres.eventrst.case2
 ### Recoding Assistance at the case level
 ###########################################
 assistancecase <- read.csv("data/assistancecase.csv")
-summary(assistancecase)
+#summary(assistancecase)
 
 ###################################################
 ######## Saving reworked case information
 ###################################################
 
+write.csv(progres.case.sp.dep.rst, file = "data/progrescase2.csv",na="")
 
-write.csv(progres.case.sp, file = "data/progrescase2.csv",na="")
+rm(assistancecase)
+rm(progres.case)
+rm(progres.case.sp)
+rm(progres.case.sp.dep)
+rm(progres.event)
+rm(progres.event.case)
+rm(progres.event.case2)
+rm(progres.eventrst)
+rm(progres.eventrst.case)
+rm(progres.eventrst.case2)
+rm(progres.specificneed)
+rm(progres.specificneed.case)
+rm(progres.specificneed.case2)
+rm(progres.specificneed.unique)
+rm(ReasonCode)

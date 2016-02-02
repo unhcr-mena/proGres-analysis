@@ -1,0 +1,32 @@
+---
+title: "Statistical Analysis of Refugees Profile"
+author: "UNHCR MENA"
+date: "2 February 2016"
+output: html_document
+---
+
+
+
+## Descriptive Analysis
+
+
+## Exploratory Analysis
+
+
+## Regression Analysis
+
+```{r , echo=FALSE}
+
+## Load the preprocessed dataset 
+data <- read.csv("data/progrescase2.csv")
+
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

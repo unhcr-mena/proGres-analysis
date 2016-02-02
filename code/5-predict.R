@@ -1,6 +1,11 @@
 
-rm(progres.case.sp)
-progres.case.sp <- read.csv("data/progrescase2.csv")
+#rm(progres.case.sp.dep.rst)
+#progres.case.sp.dep.rst <- read.csv("data/progrescase2.csv")
+
+
+
+
+
 
 
 ###########################################
@@ -8,7 +13,7 @@ progres.case.sp <- read.csv("data/progrescase2.csv")
 ###########################################
 #progres.case.Family.unity <- progres.case.sp[ progres.case.sp$Family.unity >= 1, ]
 progres.case.sp$Family.unity.yes[progres.case.sp$Family.unity >= 1, ] <- 'yes'
-str(progres.case.sp)
+str(progres.case.sp.dep.rst)
 cor(progres.case.sp)    
 
 boxplot(progres.case.sp$Family.unity)
@@ -23,6 +28,49 @@ reg.Family.unity <- glm(Family.unity ~ edu_highest_t +
                         # family=binomial,
            data=progres.case.sp)
 summary(reg.Family.unity)
+
+
+##################
+### Partioning
+## ?rpart
+
+Family.unity.part <- rpart(Family.unity,data=progres.case.sp,control=rpart.control(minsplit=20,cp=0))
+
+## trying 3 classification
+fit <- rpart(Family.unity ~ edu_highest_t + 
+               dem_marriage +
+               YearArrival + 
+               CountryOrigin  +
+               CountryAsylum +
+               occupationcat, data = progres.case.sp)
+fit2 <- rpart(Family.unity ~ edu_highest_t + 
+                dem_marriage +
+                YearArrival + 
+                CountryOrigin  +
+                CountryAsylum +
+                occupationcat, data = progres.case.sp,
+              parms = list(prior = c(.65,.35), split = "information"))
+fit3 <- rpart(Family.unity ~ edu_highest_t + 
+                dem_marriage +
+                YearArrival + 
+                CountryOrigin  +
+                CountryAsylum +
+                occupationcat, data = progres.case.sp,
+              control = rpart.control(cp = 0.05))
+
+
+## displaying decision three
+par(mfrow = c(1,2), xpd = NA) # otherwise on some devices the text is clipped
+plot(fit)
+text(fit, use.n = TRUE)
+plot(fit2)
+text(fit2, use.n = TRUE)
+
+
+par(mfrow = c(1,2), xpd = NA) # otherwise on some devices the text is clipped
+rpart.plot(fit,extra=4)
+rpart.plot(fit2,extra=4)
+
 
 # AUTOMATED STEPWISE REGRESSIONS
 ##########################################################################

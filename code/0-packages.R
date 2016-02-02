@@ -6,16 +6,11 @@
 
 packages <- c("ggplot2", # package for elegant data visualization using the Grammar of Graphics
               "Hmisc", # generate a detailled describtion of a given dataset 
-              "AER",  # interesting datasets
-              "lattice", 
-              "MASS", 
-              "rattle",
-              "gvlma", "glmulti",
+             # "AER",  # interesting datasets
+              "lattice",
               "VGAM",
               "aod",
               "fields", 
-              "scatterplot3d", "cluster", 
-              "ade4",  "psych", 
               "stringr", # manipulation of string data
               "ellipse",
               "pastecs","car","XML",
@@ -30,8 +25,28 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
               "raster","classInt","lubridate","date","gdata","gridExtra","scales",
               "ggthemes", ## load different custmised theme: excel, stata, economist, tufte, wall street journal...
               "xkcd", ## Style from the xkcd comics 
+              
+              "rattle",
+              "gvlma", "glmulti",
+              "scatterplot3d", "cluster", 
+              "ade4",  "psych", 
+              "ada", "ade4", "arules", "arulesViz", "boot",
+              "C50", "car", "caret", #"CHAID",
+               "combinat",
+              "corrplot", "doSNOW", "e1071", "extraTrees",
+              "FactoMineR", "foreach", "foreign", "gbm", 
+              "glmnet", "gmodels", "grplasso", "ipred",
+              "kernlab", "leaps", "LiblineaR",
+              "MASS", "missForest", "nnet", "plsRglm", "misc3d",
+              "prim", "pROC", "questionr", "randomForest",
+              "randtoolbox", "rgl", #"rgrs",
+              "ROCR", 
+              "rpart", "rpart.plot", # "sas7bdat", 
+              "snow", "speedglm", "tree",
+              
               "formatR" #, "gWidgetsRGtk2" # used to format the code
               #"XLConnect" ## Read and write excel files
+              
 )
 if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
   install.packages(setdiff(packages, rownames(installed.packages())))  
@@ -40,15 +55,30 @@ if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
 rm(packages)
 
 # loads packages into memory
-library(lattice)
-library(car)
-library(rattle)
+
 library(plyr)
+library(reshape2) ## Restructure data between wide and long format before plotting them - melt and cast
+gpclibPermit()
+library(zoo) ## Manage reformatting of date
+library(date)
+library(lubridate)
+
+############################################
+#### graphic 
 library(ggplot2) ## The grammar of graphics!
+library(directlabels)
 library(extrafont) ## Additional fonts
 library(ggthemes) ## Additional themes for gplot2
-library(zoo) ## Manage reformatting of date
-library(reshape2) ## Restructure data between wide and long format before plotting them - melt and cast
+library(gdata)
+library(gridExtra)
+library(scales)
+
+
+
+library(lattice)
+
+############################################
+#### Spatial Packages
 library(maptools) ## Create maps
 library(rgdal) ## Open geographic files
 library(rgeos)
@@ -56,38 +86,72 @@ library(maptools)
 library(ggmap) ## get background map from google map
 library(sp) ## Spatial library
 library(raster) ## Managing raster dataset
-library(RColorBrewer) ## Color palette
 library(classInt) ## Classififcation
 library(hexbin) ## Hexa binning
-library(plyr)
-gpclibPermit()
-library(lubridate)
-library(date)
-library(gdata)
-library(gridExtra)
-library(scales)
+
+
+############################################
+## Code reformatting
 library(formatR)
 #library(RGtk2)
 #library(gWidgetsRGtk2)
-
-## gui for Code reformatting
 ## tidy.gui('RGtk2')
 
+############################################
+#### Regressions
+library(rattle)
+library(ada)
+library(ade4)
+library(arules)
+library(arulesViz)
+library(boot)
+library(C50)
+library(car)
+library(caret)
+#library(CHAID)
+library(combinat)
+library(corrplot)
+library(doSNOW)
+library(e1071)
+library(extraTrees)
+library(FactoMineR)
+library(foreach)
+library(gbm)
+library(glmnet)
 library(glmulti)
+library(gmodels)
+library(grplasso)
+library(ipred)
+library(kernlab)
+library(leaps)
+library(LiblineaR)
+library(MASS)
+library(missForest)
+library(nnet)
+library(plsRglm)
+library(prim)
+library(pROC)
+library(questionr)
+library(randomForest)
+library(randtoolbox)
+library(rgl)
+#library(rgrs)
+library(ROCR)
+library(rpart)
+library(rpart.plot)
+library(snow)
+library(speedglm)
+library(tree)
+
+########################################
+### Read other format
+#library(foreign)
+#library(sas7bdat)
 
 
-library(plyr)
-library(ggplot2)
-library(RColorBrewer)
-library(directlabels)
-library(ggthemes)
-###########Likert Analyisis
-## http://jason.bryer.org/likert/
-#library(devtools)
-#install_github('jbryer/likert')
-library(likert)
-library(reshape)
-
+############################################
+## Color palette
+library(RColorBrewer) 
 
 #display.brewer.all()
 # Choose a qualitative color palette with blue and red
@@ -101,7 +165,51 @@ library(reshape)
 #display.brewer.pal(9, 'YlGn')
 #cbSeqColors = brewer.pal(9, 'YlGn')[3:9]
 
+### Customised theme
+### http://docs.ggplot2.org/dev/vignettes/themes.html
+# theme_edouard()
 
+theme_edouard <- function(base_size = 12) {
+  structure(list(
+    axis.line =         theme_blank(),
+    axis.text.x =       theme_text(size = base_size * 0.6 , lineheight = 0.9, vjust = 1),element_text(family="Helvetica"),
+    axis.text.y =       theme_text(size = base_size * 0.6, lineheight = 0.9, hjust = 1),element_text(family="Helvetica"),
+    axis.ticks =        theme_segment(colour = "black", size = 0.2),
+    axis.title.x =      theme_text(size = base_size, vjust = 1),
+    axis.title.y =      theme_text(size = base_size, angle = 90, vjust = 0.5),
+    axis.ticks.length = unit(0.3, "lines"),
+    axis.ticks.margin = unit(0.5, "lines"),
+    
+    legend.background = theme_rect(colour=NA), 
+    legend.key =        theme_rect(colour = "grey80"),
+    legend.key.size =   unit(1.2, "lines"),
+    legend.text =       theme_text(size = base_size * 0.7),element_text(family="Helvetica"),
+    legend.title =      theme_text(size = base_size * 0.8, face = "bold", hjust = 0),element_text(family="Helvetica"),
+    legend.position =   "right",
+    
+    panel.background =  theme_rect(fill = "white", colour = NA), 
+    panel.border =      theme_rect(fill = NA, colour="grey50"), 
+    panel.grid.major =  theme_line(colour = "grey90", size = 0.2),
+    panel.grid.minor =  theme_line(colour = "grey98", size = 0.5),
+    panel.margin =      unit(0.25, "lines"),
+    
+    strip.background =  theme_rect(fill = "grey80", colour = "grey50"), 
+    strip.text.x =      theme_text(size = base_size * 0.6),element_text(family="Helvetica", face="italic"),
+    strip.text.y =      theme_text(size = base_size * 0.6, angle = -90),element_text(family="Helvetica", face="italic"),
+    
+    plot.background =   theme_rect(colour = NA),
+    plot.title =        theme_text(size = base_size * 1.2),element_text(family="Helvetica", face="bold"),
+    plot.margin =       unit(c(1, 1, 0.5, 0.5), "lines")
+  ), class = "options")
+}
+
+
+
+########### Likert Analyisis
+## http://jason.bryer.org/likert/
+#library(devtools)
+#install_github('jbryer/likert')
+#library(likert)
 
 #
 format_si <- function(...) {
@@ -149,56 +257,7 @@ psum <- function(..., na.rm=FALSE) {
 }
 
 
-### Customised theme
-### http://docs.ggplot2.org/dev/vignettes/themes.html
-# theme_edouard()
 
-theme_edouard <- function(base_size = 12) {
-  structure(list(
-    axis.line =         theme_blank(),
-    axis.text.x =       theme_text(size = base_size * 0.6 , lineheight = 0.9, vjust = 1),element_text(family="Helvetica"),
-    axis.text.y =       theme_text(size = base_size * 0.6, lineheight = 0.9, hjust = 1),element_text(family="Helvetica"),
-    axis.ticks =        theme_segment(colour = "black", size = 0.2),
-    axis.title.x =      theme_text(size = base_size, vjust = 1),
-    axis.title.y =      theme_text(size = base_size, angle = 90, vjust = 0.5),
-    axis.ticks.length = unit(0.3, "lines"),
-    axis.ticks.margin = unit(0.5, "lines"),
-    
-    legend.background = theme_rect(colour=NA), 
-    legend.key =        theme_rect(colour = "grey80"),
-    legend.key.size =   unit(1.2, "lines"),
-    legend.text =       theme_text(size = base_size * 0.7),element_text(family="Helvetica"),
-    legend.title =      theme_text(size = base_size * 0.8, face = "bold", hjust = 0),element_text(family="Helvetica"),
-    legend.position =   "right",
-    
-    panel.background =  theme_rect(fill = "white", colour = NA), 
-    panel.border =      theme_rect(fill = NA, colour="grey50"), 
-    panel.grid.major =  theme_line(colour = "grey90", size = 0.2),
-    panel.grid.minor =  theme_line(colour = "grey98", size = 0.5),
-    panel.margin =      unit(0.25, "lines"),
-    
-    strip.background =  theme_rect(fill = "grey80", colour = "grey50"), 
-    strip.text.x =      theme_text(size = base_size * 0.6),element_text(family="Helvetica", face="italic"),
-    strip.text.y =      theme_text(size = base_size * 0.6, angle = -90),element_text(family="Helvetica", face="italic"),
-    
-    plot.background =   theme_rect(colour = NA),
-    plot.title =        theme_text(size = base_size * 1.2),element_text(family="Helvetica", face="bold"),
-    plot.margin =       unit(c(1, 1, 0.5, 0.5), "lines")
-  ), class = "options")
-}
-
-
-
-
-require(maptools) ## Create maps
-require(rgdal) ## Open geographic files
-require(rgeos)
-
-library(rgeos)
-library(sp) 
-library(maptools)
-library(rgdal)
-library(sp)
 
 IntersectPtWithPoly <- function(x, y) {
   # Extracts values from a SpatialPolygonDataFrame with
