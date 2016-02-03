@@ -7,7 +7,6 @@ source("code/0-packages.R")
 
 rm(progres.case)
 progres.case <- read.csv("data/progrescase.csv")
-
 #str(progres.case)
 
 ##############################
@@ -15,7 +14,6 @@ progres.case <- read.csv("data/progrescase.csv")
 progres.case$Num_Inds2 <- as.factor(progres.case$Num_Inds)
 #Num_Inds2 <- as.data.frame(table(progres.case$Num_Inds2))
 #rm(Num_Inds2)
-
 progres.case$Num_Inds2 <- recode(progres.case$Num_Inds2,"'1'='Case.size.1';
                                                                       '2'='Case.size.2';
                                                                       '3'='Case.size.3';
@@ -37,12 +35,19 @@ progres.case$Num_Inds2 <- recode(progres.case$Num_Inds2,"'1'='Case.size.1';
                                                                       '19'='Case.size.7.and.more';
                                                                       '20'='Case.size.7.and.more'")
 
-
 ##############################
 ## Calculating dependency ration
-progres.case$dependency <-  cut( (progres.case$Child_0_14+progres.case$Eldern_65) / progres.case$Work_15_64,c(0,0.2,0.4,0.6,0.8,Inf))
-progres.case$youthdependency <- cut(progres.case$Child_0_14 / progres.case$Work_15_64,c(0,0.2,0.4,0.6,0.8,Inf))
-progres.case$elederndependency <- cut(progres.case$Eldern_65 / progres.case$Work_15_64,c(0,0.2,0.4,0.6,0.8,Inf))
+progres.case$dependency <-  cut( (progres.case$Child_0_14+progres.case$Eldern_65) / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
+progres.case$dependency[is.na(progres.case$dependency)]<- "0"
+
+progres.case$youthdependency <- cut(progres.case$Child_0_14 / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
+progres.case$youthdependency[is.na(progres.case$youthdependency)]<- "0"
+
+progres.case$elederndependency <- cut(progres.case$Eldern_65 / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
+progres.case$elederndependency[is.na(progres.case$elederndependency)]<- "0"
+
+progres.case$female.ratio <- cut(progres.case$Female / progres.case$Num_Inds, c(0.001,0.2,0.4,0.6,0.8,Inf))
+progres.case$female.ratio[is.na(progres.case$female.ratio)]<- "0"
 
 ##############################
 # Percentage of children
@@ -52,15 +57,12 @@ progres.case$p.child.grp3 <- as.factor(ifelse((progres.case$Child_0_14/progres.c
 progres.case$p.child.grp4 <- as.factor(ifelse(progres.case$Child_0_14/progres.case$Num_Inds >= 0.75, 1, 0))
 
 
-
 ##############################
 ## Adding Age cohort of PA
 progres.case$agecohort <- cut(progres.case$dem_age,c(0,18,25,35,59,Inf))
 
-
 ##############################
 # Age group
-
 progres.case$dem_age_grp1 <- as.factor(ifelse(progres.case$dem_age < 35, 1, 0))
 progres.case$dem_age_grp2 <- as.factor(ifelse((progres.case$dem_age >= 35) &  (progres.case$dem_age < 55), 1, 0))
 progres.case$dem_age_grp3 <- as.factor(ifelse(progres.case$dem_age >= 55, 1, 0))
@@ -88,7 +90,6 @@ progres.case$STDEVAgeclass <- cut(progres.case$STDEV_Age,c(0,5,10,15,20,Inf))
 #summary(progres.case$YearArrival)
 #YearArrival <- as.data.frame(table(progres.case$YearArrival))
 #rm(YearArrival)
-
 progres.case$YearArrivalCategory <- as.factor(recode(progres.case$YearArrival,"'1899'='1900-1980';
                                                                       '1928'='1900-1980';
                                                                       '1932'='1900-1980';
@@ -176,13 +177,10 @@ progres.case$YearArrivalCategory <- as.factor(recode(progres.case$YearArrival,"'
 
 ##############################
 # Aggregating country of Origin
-
 #ctrorigin <- as.data.frame(table(progres.case$CountryOrigin))
 #rm(ctrorigin)
 #summary(progres.case$CountryOrigin)
 #levels(progres.case$CountryOrigin)
-
-
 progres.case$CountryOriginCategory <- recode(progres.case$CountryOrigin,"'SYR'='SYR';
                                         'IRQ'='IRQ';
                                         'SOM'='SOM';
@@ -283,16 +281,12 @@ progres.case$CountryOriginCategory <- recode(progres.case$CountryOrigin,"'SYR'='
 
 ##############################
 # Aggregating country of Asylum
-
 #ctrAsylum <- as.data.frame(table(progres.case$CountryAsylum))
 #rm(ctrAsylum)
 ### Not necessary
 
-
-
 ##############################
 # Aggregating season according to month
-
 progres.case$season <- progres.case$Montharrival
 #levels(progres.case$Montharrival)
 progres.case$season <- recode(progres.case$season,"'March'='Spring'; 'April'='Spring';    'May'='Spring';
@@ -306,8 +300,6 @@ progres.case$season <- recode(progres.case$season,"'January'='Jan';  'February'=
                                'April'='Apr';  'May'='May'; 'June'='Jun'; 'July'='Jul';  'August'='Aug'; 
                               'September'='Sept'; 'October'='Oct'; 'November'='Nov'; 'December'='Dec' ")
 progres.case$Montharrival <- factor(progres.case$Montharrival, levels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"))
-
-
 
 ##############################
 # Recoding Education
@@ -327,7 +319,7 @@ progres.case$edu_highest_t <- factor(progres.case$edu_highest_t, levels = c("Unk
                                                                             "Grade 11", "Grade 12", "Grade 13", "Grade 14",
                                                                             "Techn Vocational", "University level", "Post university level"))
 
-progres.case$edu_highestcat <- recode(progres.case$edu_highest_t,"'Unknown'='Other';
+progres.case$edu_highestcat <- recode(progres.case$edu_highest_t,"'Unknown'='Unknown';
                                       'Informal Education'='Other';
                                       'Techn Vocational'='Other';
                                       'No education'='Up to Grade 5';
@@ -349,12 +341,14 @@ progres.case$edu_highestcat <- recode(progres.case$edu_highest_t,"'Unknown'='Oth
                                       'University level'='Higher Education';
                                       'Post university level'='Higher Education'")
 
+progres.case$edu_highestcat[is.na(progres.case$edu_highestcat)]<- "Unknown"
+
 ##############################
 # Educational attainment
-progres.case$edu.highest.grp1 <- as.factor(ifelse((progres.case$edu_highest_t == "No education" | 
+progres.case$edu.highest.grp1 <- as.factor(ifelse((  progres.case$edu_highest_t == "No education" | 
                                            progres.case$edu_highest_t == "Kindergarten" | 
                                            progres.case$edu_highest_t == "Grade 1" | 
-                                           progres.case$edu_highes_tt == "Grade 2" | 
+                                           progres.case$edu_highest_t == "Grade 2" | 
                                            progres.case$edu_highest_t == "Grade 3" | 
                                            progres.case$edu_highest_t == "Grade 4" | 
                                            progres.case$edu_highest_t == "Grade 5"), 1, 0))
@@ -374,12 +368,8 @@ progres.case$edu.highest.grp4 <- as.factor(ifelse((progres.case$edu_highest_t ==
 progres.case$edu.highest.grp5 <- as.factor(ifelse((progres.case$edu_highest_t == "Post university level" | 
                                            progres.case$edu_highest_t == "University level"), 1, 0))
 
-
-
-
 ##############################
 # Extracting main ocupation category from occupation code 
-
 summary(progres.case$occupationcode)
 progres.case$occupationcat <- "UnknownOccup"
 progres.case$occupationcat[progres.case$occupationcode ==  "0001"] <- "Military"
@@ -395,12 +385,12 @@ progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "7"] <- "
 progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "8"] <- "Machine"
 progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "9"] <- "Elementary"
 
-progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Manager", "Professional", "Technician", "Clerk", "ServiceMarket", "Agricultural", "Craft", "Machine", "Elementary", "Military", "UnknownOccup", "NoOccup", "Student"))
-summary(progres.case$occupationcat)
+progres.case$occupationcat[is.na(progres.case$occupationcat)]<- "UnknownOccup"
 
+progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Manager", "Professional", "Technician", "Clerk", "ServiceMarket", "Agricultural", "Craft", "Machine", "Elementary", "Military", "UnknownOccup", "NoOccup", "Student"))
+#summary(progres.case$occupationcat)
 #progres.case$occupationcat <- substr(progres.case$occupationcode, 1,1 )
 #str(progres.case$occupationcat)
-
 ##  International Standard Classification of Occupations (ISCO) 
 # http://www.ilo.org/public/english/bureau/stat/isco/isco08/
 #ISCO.08 <- read.csv("data/ISCO-08.csv")
@@ -425,7 +415,6 @@ progres.case$dem_marriage <- recode(progres.case$dem_marriage,"'WD' = 'Widowed';
                                     'SR' = 'Separated';
                                     'CL' = 'Common Law Married'")
 
-
 progres.case$mar_widow <- as.factor(ifelse(progres.case$dem_marriage == "Widowed", 1, 0)) 
 progres.case$mar_single <- as.factor(ifelse(progres.case$dem_marriage == "Single", 1, 0))
 progres.case$mar_divorced <- as.factor(ifelse(progres.case$dem_marriage == "Divorced", 1, 0)) 
@@ -434,13 +423,11 @@ progres.case$mar_engaged <- as.factor(ifelse(progres.case$dem_marriage == "Engag
 progres.case$mar_g_divorced <- as.factor(ifelse((progres.case$dem_marriage == "Divorced" | progres.case$dem_marriage == "Separated"), 1, 0))
 progres.case$mar_g_married <- as.factor(ifelse((progres.case$dem_marriage == "Married" | progres.case$dem_marriage == "Common Law Married" | progres.case$dem_marriage == "Engaged"), 1, 0)) 
 
-
 ##############################
 # Ethnicity, religion, birth
 progres.case$ethn_arab <- as.factor(ifelse(progres.case$dem_ethn == "Arab", 1, 0))
 progres.case$rel_sunni <- as.factor(ifelse(progres.case$dem_religion == "SUN Sunni", 1, 0))
 progres.case$bir_syria <- as.factor(ifelse(progres.case$dem_birth_country == "SYR", 1, 0))
-
 
 ##############################
 # Gender PA
@@ -448,24 +435,14 @@ progres.case$gender.male <- ifelse(progres.case$dem_sex == "Male", 1, 0)
 progres.case$gender.female <- ifelse(progres.case$dem_sex == "Female", 1, 0)
 
 
-
-
-
-
 ###########################################
 ### Recoding specific needs at the case level
 ###########################################
-
 progres.specificneed <- read.csv("data/progresspecificneed.csv")
 
-summary(progres.specificneed)
-
-## sound slike there are duplicate for individuals
-progres.specificneed.unique <- unique(progres.specificneed[,c("CaseNo","IndividualID","VulnerabilityCode","VulnerabilityText")])
-
-
+#summary(progres.specificneed)
 ## Let's recode the vulnerability Text
-progres.specificneed.unique$VulnerabilityText <- recode(progres.specificneed.unique$VulnerabilityText,'"Child at risk" = "Child.at.risk"; 
+progres.specificneed$VulnerabilityText <- recode(progres.specificneed$VulnerabilityText,'"Child at risk" = "Child.at.risk"; 
                                                     "Family unity"= "Family.unity";
                                                     "Older person at risk" = "Older.person.at.risk";
                                                     "Pregnant or lactating" = "Pregnant.or.lactating";
@@ -475,21 +452,42 @@ progres.specificneed.unique$VulnerabilityText <- recode(progres.specificneed.uni
                                                     "Unaccompanied or separated child" = "Unaccompanied.or.separated.child";
                                                     "Woman at risk" = "Woman.at.risk"')
 
-## let's build the summary per case
-progres.specificneed.case <-  melt(progres.specificneed.unique, id.vars = c("CaseNo","VulnerabilityText"))
 
+## sound slike there are duplicate for individuals
+progres.specificneed.unique <- unique(progres.specificneed[,c("CaseNo","IndividualID","VulnerabilityCode","VulnerabilityText")])
+#progres.specificneed.unique.case <- unique(progres.specificneed[,c("CaseNo","VulnerabilityCode","VulnerabilityText")])
+#progres.specificneed.unique.case1 <- as.data.frame(unique(progres.specificneed[,c("CaseNo")]))
+
+## let's build the summary per case
+progres.specificneed.case <-  melt(progres.specificneed.unique, id.vars = c("CaseNo","VulnerabilityText"),
+                                   variable.name = "VulnerabilityText", 
+                                   value.name = "value", na.rm = TRUE)
 
 progres.specificneed.case2 <- dcast(progres.specificneed.case, CaseNo ~ VulnerabilityText)
+#names(progres.specificneed.case2)
+
 
 ### merging back with progres case info
 
 progres.case.sp <- merge(x=progres.case, y=progres.specificneed.case2, all.x=TRUE)
 
+progres.case.sp$Child.at.risk <- as.factor(ifelse(progres.case.sp$Child.at.risk>=1, "yes", "no"))                         
+progres.case.sp$Disability <- as.factor(ifelse(progres.case.sp$Disability>=1, "yes", "no"))                            
+progres.case.sp$Family.unity <- as.factor(ifelse(progres.case.sp$Family.unity>=1, "yes", "no"))
+progres.case.sp$Older.person.at.risk <- as.factor(ifelse(progres.case.sp$Older.person.at.risk>=1, "yes", "no"))
+progres.case.sp$Pregnant.or.lactating <- as.factor(ifelse(progres.case.sp$Pregnant.or.lactating>=1, "yes", "no"))                
+progres.case.sp$Serious.medical.condition <- as.factor(ifelse(progres.case.sp$Serious.medical.condition>=1, "yes", "no"))
+progres.case.sp$SGBV <- as.factor(ifelse(progres.case.sp$SGBV>=1, "yes", "no"))
+progres.case.sp$Single.parent <- as.factor(ifelse(progres.case.sp$Single.parent>=1, "yes", "no"))
+progres.case.sp$Specific.legal.physical.protection.needs <- as.factor(ifelse(progres.case.sp$Specific.legal.physical.protection.needs>=1, "yes", "no"))
+progres.case.sp$Torture <- as.factor(ifelse(progres.case.sp$Torture>=1, "yes", "no"))
+progres.case.sp$Unaccompanied.or.separated.child <- as.factor(ifelse(progres.case.sp$Unaccompanied.or.separated.child>=1, "yes", "no"))
+progres.case.sp$Woman.at.risk <- as.factor(ifelse(progres.case.sp$Woman.at.risk>=1, "yes", "no"))
+
 
 ###########################################
 ### Recoding Voluntary return Events
 ###########################################
-
 progres.event <- read.csv("data/progresevent.csv")
 #ReasonCode <- as.data.frame(levels(as.factor(progres.event$ReasonCode)))
 progres.event$EventReasonText <- ""
@@ -501,7 +499,7 @@ progres.event$EventReasonText <- as.factor(progres.event$EventReasonText)
 
 # plot(progres.event$EventReasonText)
 
-progres.event.case <-  melt(progres.event, id.vars = c("CaseNo","EventLogEffectiveDate","EventReasonText"))
+progres.event.case <-  melt(progres.event, id.vars = c("CaseNo","EventLogEffectiveDate","EventReasonText"), na.rm = TRUE)
 progres.event.case2 <- dcast(progres.event.case, CaseNo + EventLogEffectiveDate ~ EventReasonText)
 
 progres.case.sp.dep <- merge(x=progres.case.sp, y=progres.event.case2, all.x=TRUE)
@@ -509,7 +507,6 @@ progres.case.sp.dep <- merge(x=progres.case.sp, y=progres.event.case2, all.x=TRU
 ###########################################
 ### Recoding RST accepted
 ###########################################
-
 progres.eventrst <- read.csv("data/progreseventrst.csv")
 #summary(progres.eventrst)
 #str(progres.eventrst)
@@ -527,7 +524,7 @@ progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='CHL01'] <- 'rst.C
 progres.eventrst$EventReasonText <- as.factor(progres.eventrst$EventReasonText)
 
 ## let's build the summary per case
-progres.eventrst.case <-  melt(progres.eventrst, id.vars = c("CaseNo","EventLogEffectiveDate","EventReasonText"))
+progres.eventrst.case <-  melt(progres.eventrst, id.vars = c("CaseNo","EventLogEffectiveDate","EventReasonText"), na.rm = TRUE)
 progres.eventrst.case2 <- dcast(progres.eventrst.case, CaseNo + EventLogEffectiveDate ~ EventReasonText)
 
 progres.case.sp.dep.rst <- merge(x=progres.case.sp.dep, y=progres.eventrst.case2, all.x=TRUE)
