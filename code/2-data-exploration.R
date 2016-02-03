@@ -1,10 +1,16 @@
 
+source("code/0-packages.R")
+
 ## Exploration of data will provide a quick overview 
 
 #rm(progres.case.sp.dep.rst)
 #progres.case.sp.dep.rst <- read.csv("data/progrescase2.csv")
 
 data <- progres.case.sp.dep.rst
+
+
+data.str <- strtable(data, factor.values=as.integer)
+
 
 ### Exploring first correlations
 

@@ -1,3 +1,6 @@
+
+source("code/o-packages.R")
+
 ## Generation of a exploratory graphs
 
 ## Visual exploration of data will provide a quick overview 

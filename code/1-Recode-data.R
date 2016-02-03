@@ -1,4 +1,6 @@
 
+source("code/0-packages.R")
+
 ###########################################
 ### Recoding the Case level Information
 ###########################################
@@ -8,27 +10,86 @@ progres.case <- read.csv("data/progrescase.csv")
 
 #str(progres.case)
 
-
-## Integer as factor
+##############################
+## Case size  as factor
 progres.case$Num_Inds2 <- as.factor(progres.case$Num_Inds)
-progres.case$YearArrival <- as.factor(progres.case$YearArrival) 
+#Num_Inds2 <- as.data.frame(table(progres.case$Num_Inds2))
+#rm(Num_Inds2)
 
+progres.case$Num_Inds2 <- recode(progres.case$Num_Inds2,"'1'='Case.size.1';
+                                                                      '2'='Case.size.2';
+                                                                      '3'='Case.size.3';
+                                                                      '4'='Case.size.4';
+                                                                      '5'='Case.size.5';
+                                                                      '6'='Case.size.6';
+                                                                      '7'='Case.size.7.and.more';
+                                                                      '8'='Case.size.7.and.more';
+                                                                      '9'='Case.size.7.and.more';
+                                                                      '10'='Case.size.7.and.more';
+                                                                      '11'='Case.size.7.and.more';
+                                                                      '12'='Case.size.7.and.more';
+                                                                      '13'='Case.size.7.and.more';
+                                                                      '14'='Case.size.7.and.more';
+                                                                      '15'='Case.size.7.and.more';
+                                                                      '16'='Case.size.7.and.more';
+                                                                      '17'='Case.size.7.and.more';
+                                                                      '18'='Case.size.7.and.more';
+                                                                      '19'='Case.size.7.and.more';
+                                                                      '20'='Case.size.7.and.more'")
+
+
+##############################
 ## Calculating dependency ration
+progres.case$dependency <-  cut( (progres.case$Child_0_14+progres.case$Eldern_65) / progres.case$Work_15_64,c(0,0.2,0.4,0.6,0.8,Inf))
+progres.case$youthdependency <- cut(progres.case$Child_0_14 / progres.case$Work_15_64,c(0,0.2,0.4,0.6,0.8,Inf))
+progres.case$elederndependency <- cut(progres.case$Eldern_65 / progres.case$Work_15_64,c(0,0.2,0.4,0.6,0.8,Inf))
 
-progres.case$dependency <- (progres.case$Child_0_14+progres.case$Eldern_65) / progres.case$Work_15_64
-progres.case$youthdependency <- progres.case$Child_0_14 / progres.case$Work_15_64
-progres.case$elederndependency <- progres.case$Eldern_65 / progres.case$Work_15_64
+##############################
+# Percentage of children
+progres.case$p.child.grp1 <- as.factor(ifelse(progres.case$Child_0_14/progres.case$Num_Inds == 0, 1, 0))
+progres.case$p.child.grp2 <- as.factor(ifelse((progres.case$Child_0_14/progres.case$Num_Inds > 0) & (progres.case$Child_0_14/progres.case$Num_Inds < 0.50), 1, 0))
+progres.case$p.child.grp3 <- as.factor(ifelse((progres.case$Child_0_14/progres.case$Num_Inds >= 0.50) & (progres.case$Child_0_14/progres.case$Num_Inds < 0.75), 1, 0))
+progres.case$p.child.grp4 <- as.factor(ifelse(progres.case$Child_0_14/progres.case$Num_Inds >= 0.75, 1, 0))
 
-## Adding Age cohort
+
+
+##############################
+## Adding Age cohort of PA
 progres.case$agecohort <- cut(progres.case$dem_age,c(0,18,25,35,59,Inf))
 
-##########
+
+##############################
+# Age group
+
+progres.case$dem_age_grp1 <- as.factor(ifelse(progres.case$dem_age < 35, 1, 0))
+progres.case$dem_age_grp2 <- as.factor(ifelse((progres.case$dem_age >= 35) &  (progres.case$dem_age < 55), 1, 0))
+progres.case$dem_age_grp3 <- as.factor(ifelse(progres.case$dem_age >= 55, 1, 0))
+
+progres.case$dem_PA_grp0 <- as.factor(ifelse(progres.case$dem_age < 15, 1, 0))
+progres.case$dem_PA_grp1 <- as.factor(ifelse(progres.case$dem_age < 18, 1, 0))
+progres.case$dem_PA_grp2 <- as.factor(ifelse((progres.case$dem_age > 17) & (progres.case$dem_age < 60), 1, 0))
+progres.case$dem_PA_grp3 <- as.factor(ifelse(progres.case$dem_age > 59, 1, 0))
+
+progres.case$age.PA1 <- as.factor(ifelse(progres.case$dem_age < 35, 1, 0))
+progres.case$age.PA2 <- as.factor(ifelse((progres.case$dem_age > 34) & (progres.case$dem_age < 55), 1, 0))
+progres.case$age.PA3 <- as.factor(ifelse(progres.case$dem_age > 54, 1, 0))
+
+##############################
+## Adding Age cohort for Average age
+progres.case$AVGAgecohort <- cut(progres.case$AVG_Age,c(0,18,25,35,59,Inf))
+
+##############################
+## Adding class for standard age deviation
+#summary(progres.case$STDEV_Age)
+progres.case$STDEVAgeclass <- cut(progres.case$STDEV_Age,c(0,5,10,15,20,Inf))
+
+##############################
 # Aggregating arrival year
 #summary(progres.case$YearArrival)
 #YearArrival <- as.data.frame(table(progres.case$YearArrival))
 #rm(YearArrival)
 
-progres.case$YearArrivalCategory <- recode(progres.case$YearArrival,"'1899'='1900-1980';
+progres.case$YearArrivalCategory <- as.factor(recode(progres.case$YearArrival,"'1899'='1900-1980';
                                                                       '1928'='1900-1980';
                                                                       '1932'='1900-1980';
                                                                       '1935'='1900-1980';
@@ -111,9 +172,9 @@ progres.case$YearArrivalCategory <- recode(progres.case$YearArrival,"'1899'='190
                                                                       '2012'='2012';
                                                                       '2013'='2013';
                                                                       '2014'='2014';
-                                                                      '2015'='2015'")
+                                                                      '2015'='2015'"))
 
-##########
+##############################
 # Aggregating country of Origin
 
 #ctrorigin <- as.data.frame(table(progres.case$CountryOrigin))
@@ -220,14 +281,16 @@ progres.case$CountryOriginCategory <- recode(progres.case$CountryOrigin,"'SYR'='
                                         'SUR'='OTH';
                                         'YUG'='OTH'")
 
-##########
+##############################
 # Aggregating country of Asylum
 
 #ctrAsylum <- as.data.frame(table(progres.case$CountryAsylum))
 #rm(ctrAsylum)
 ### Not necessary
 
-##########
+
+
+##############################
 # Aggregating season according to month
 
 progres.case$season <- progres.case$Montharrival
@@ -244,21 +307,77 @@ progres.case$season <- recode(progres.case$season,"'January'='Jan';  'February'=
                               'September'='Sept'; 'October'='Oct'; 'November'='Nov'; 'December'='Dec' ")
 progres.case$Montharrival <- factor(progres.case$Montharrival, levels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"))
 
-##########
+
+
+##############################
 # Recoding Education
 progres.case$edu_highest_t <- progres.case$edu_highest
-progres.case$edu_highest_t <- recode(progres.case$edu_highest_t,"'01' = 'E1year'; '02' = 'E2year';  
-                                     '03' = 'E3year';  '04' = 'E4year';   '05' = 'E5year';  
-                                     '06' = 'E6year';   '07' = 'E7year';  '08' = 'E8year';  
-                                     '09' = 'E9year';    '10' = 'E10year';  '11' = 'E11year'; 
-                                     '12' = 'E12year';    '13' = 'E13year';   '14' = 'E14year';  
-                                     'IN' = 'InformEduc';    'NE' = 'NoEduc'; 'U' = 'Unknown'; 
-                                     'TC' = 'TechnVoc';     'UG' = 'Univ'; 'PG' = 'PostUniv' ")
+progres.case$edu_highest_t <- recode(progres.case$edu_highest_t,"'01' = 'Grade 1'; '02' = 'Grade 2';  
+                                     '03' = 'Grade 3';  '04' = '4 years (or Grade 4)';   '05' = 'Grade 5';  
+                                     '06' = 'Grade 6';   '07' = 'Grade 7';  '08' = 'Grade 8';  
+                                     '09' = 'Grade 9';    '10' = 'Grade 10';  '11' = 'Grade 11'; 
+                                     '12' = 'Grade 12';    '13' = 'Grade 13';   '14' = 'Grade 14';  
+                                     'IN' = 'Informal Education';    'NE' = 'No education'; 'U' = 'Unknown'; 
+                                     'TC' = 'Techn Vocational';     'UG' = 'University level'; 'PG' = 'Post university level';
+                                     'KG' = 'Kindergarten'")
 
-progres.case$edu_highest_t <- factor(progres.case$edu_highest_t, levels = c("Unknown", "NoEduc", "InformEduc", "E1year", "E2year", "E3year", "E4year", "E5year", "E6year", "E7year", "E8year", "E9year", "E10year", "E11year", "E12year", "E13year", "E14year", "TechnVoc", "Univ", "PostUniv"))
+progres.case$edu_highest_t <- factor(progres.case$edu_highest_t, levels = c("Unknown", "No education", "Informal Education","Kindergarten",
+                                                                            "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
+                                                                            "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
+                                                                            "Grade 11", "Grade 12", "Grade 13", "Grade 14",
+                                                                            "Techn Vocational", "University level", "Post university level"))
+
+progres.case$edu_highestcat <- recode(progres.case$edu_highest_t,"'Unknown'='Other';
+                                      'Informal Education'='Other';
+                                      'Techn Vocational'='Other';
+                                      'No education'='Up to Grade 5';
+                                      'Kindergarten'='Up to Grade 5';
+                                      'Grade 1'='Up to Grade 5';
+                                      'Grade 2'='Up to Grade 5';
+                                      'Grade 3'='Up to Grade 5';
+                                      'Grade 4'='Up to Grade 5';
+                                      'Grade 5'='Up to Grade 5';
+                                      'Grade 6'='Grade 6-8';
+                                      'Grade 7'='Grade 6-8';
+                                      'Grade 8'='Grade 6-8';
+                                      'Grade 9'='Grade  9-11';
+                                      'Grade 10'='Grade  9-11';
+                                      'Grade 11 '='Grade  9-11';
+                                      'Grade 12'='Grade  12-14';
+                                      'Grade 13'='Grade  12-14';
+                                      'Grade 14'='Grade  12-14';
+                                      'University level'='Higher Education';
+                                      'Post university level'='Higher Education'")
+
+##############################
+# Educational attainment
+progres.case$edu.highest.grp1 <- as.factor(ifelse((progres.case$edu_highest_t == "No education" | 
+                                           progres.case$edu_highest_t == "Kindergarten" | 
+                                           progres.case$edu_highest_t == "Grade 1" | 
+                                           progres.case$edu_highes_tt == "Grade 2" | 
+                                           progres.case$edu_highest_t == "Grade 3" | 
+                                           progres.case$edu_highest_t == "Grade 4" | 
+                                           progres.case$edu_highest_t == "Grade 5"), 1, 0))
+
+progres.case$edu.highest.grp2 <- as.factor(ifelse((progres.case$edu_highest_t == "Grade 6" | 
+                                           progres.case$edu_highest_t == "Grade 7" | 
+                                           progres.case$edu_highest_t == "Grade 8"), 1, 0))
+
+progres.case$edu.highest.grp3 <- as.factor(ifelse((progres.case$edu_highest_t == "Grade 9" | 
+                                           progres.case$edu_highest_t == "Grade 10" | 
+                                           progres.case$edu_highest_t == "Grade 11") , 1, 0))
+
+progres.case$edu.highest.grp4 <- as.factor(ifelse((progres.case$edu_highest_t == "Grade 12" | 
+                                           progres.case$edu_highest_t == "or Grade 13" | 
+                                           progres.case$edu_highest_t == "Grade 14") , 1, 0))
+
+progres.case$edu.highest.grp5 <- as.factor(ifelse((progres.case$edu_highest_t == "Post university level" | 
+                                           progres.case$edu_highest_t == "University level"), 1, 0))
 
 
-##########
+
+
+##############################
 # Extracting main ocupation category from occupation code 
 
 summary(progres.case$occupationcode)
@@ -293,78 +412,40 @@ summary(progres.case$occupationcat)
 #names(isco)
 
 
-
-##########
-# Age group
-progres.case$dem_age_grp1 <- ifelse(progres.case$dem_age < 35, 1, 0)
-progres.case$dem_age_grp2 <- ifelse((progres.case$dem_age >= 35) &  (progres.case$dem_age < 55), 1, 0)
-progres.case$dem_age_grp3 <- ifelse(progres.case$dem_age >= 55, 1, 0)
-
-progres.case$dem_PA_grp0 <- ifelse(progres.case$dem_age < 15, 1, 0)
-progres.case$dem_PA_grp1 <- ifelse(progres.case$dem_age < 18, 1, 0)
-progres.case$dem_PA_grp2 <- ifelse((progres.case$dem_age > 17) & (progres.case$dem_age < 60), 1, 0)
-progres.case$dem_PA_grp3 <- ifelse(progres.case$dem_age > 59, 1, 0)
-
-progres.case$age.PA1 <- ifelse(progres.case$dem_age < 35, 1, 0)
-progres.case$age.PA2 <- ifelse((progres.case$dem_age > 34) & (progres.case$dem_age < 55), 1, 0)
-progres.case$age.PA3 <- ifelse(progres.case$dem_age > 54, 1, 0)
-
-
-##########
-# Percentage of children
-progres.case$p.child.grp1 <- ifelse(progres.case$Child_0_14/progres.case$Num_Inds == 0, 1, 0)
-progres.case$p.child.grp2 <- ifelse((progres.case$Child_0_14/progres.case$Num_Inds > 0) & (progres.case$Child_0_14/progres.case$Num_Inds < 0.50), 1, 0)
-progres.case$p.child.grp3 <- ifelse((progres.case$Child_0_14/progres.case$Num_Inds >= 0.50) & (progres.case$Child_0_14/progres.case$Num_Inds < 0.75), 1, 0)
-progres.case$p.child.grp4 <- ifelse(progres.case$Child_0_14/progres.case$Num_Inds >= 0.75, 1, 0)
-
-
-##########
+##############################
 # Marital status
-progres.case$mar_widow <- ifelse(progres.case$dem_marriage == "WD Widowed", 1, 0) 
-progres.case$mar_single <- ifelse(progres.case$dem_marriage == "SN Single", 1, 0) 
-progres.case$mar_divorced <- ifelse(progres.case$dem_marriage == "DV Divorced", 1, 0) 
-progres.case$mar_married <- ifelse(progres.case$dem_marriage == "MA Married", 1, 0) 
-progres.case$mar_engaged <- ifelse(progres.case$dem_marriage == "EG Engaged", 1, 0) 
-progres.case$mar_g_divorced <- ifelse((progres.case$dem_marriage == "DV Divorced" | progres.case$dem_marriage == "SR Separated"), 1, 0) 
-progres.case$mar_g_married <- ifelse((progres.case$dem_marriage == "MA Married" | progres.case$dem_marriage == "CL Common Law Married" | progres.case$dem_marriage == "EG Engaged"), 1, 0) 
+#dem_marriage <- as.data.frame(table(data$dem_marriage))
+#rm(dem_marriage)
+progres.case$dem_marriage <- recode(progres.case$dem_marriage,"'WD' = 'Widowed';
+                                    'SN' = 'Single';
+                                    'DV' = 'Divorced';
+                                    'MA' = 'Married';
+                                    'EG' = 'Engaged';
+                                    'DV' = 'Divorced';
+                                    'SR' = 'Separated';
+                                    'CL' = 'Common Law Married'")
 
 
-##########
+progres.case$mar_widow <- as.factor(ifelse(progres.case$dem_marriage == "Widowed", 1, 0)) 
+progres.case$mar_single <- as.factor(ifelse(progres.case$dem_marriage == "Single", 1, 0))
+progres.case$mar_divorced <- as.factor(ifelse(progres.case$dem_marriage == "Divorced", 1, 0)) 
+progres.case$mar_married <- as.factor(ifelse(progres.case$dem_marriage == "Married", 1, 0)) 
+progres.case$mar_engaged <- as.factor(ifelse(progres.case$dem_marriage == "Engaged", 1, 0)) 
+progres.case$mar_g_divorced <- as.factor(ifelse((progres.case$dem_marriage == "Divorced" | progres.case$dem_marriage == "Separated"), 1, 0))
+progres.case$mar_g_married <- as.factor(ifelse((progres.case$dem_marriage == "Married" | progres.case$dem_marriage == "Common Law Married" | progres.case$dem_marriage == "Engaged"), 1, 0)) 
+
+
+##############################
 # Ethnicity, religion, birth
-progres.case$ethn_arab <- ifelse(progres.case$dem_ethn == "Arab", 1, 0)
-progres.case$rel_sunni <- ifelse(progres.case$dem_religion == "SUN Sunni", 1, 0)
-progres.case$bir_syria <- ifelse(progres.case$dem_birth_country == "SYR", 1, 0)
+progres.case$ethn_arab <- as.factor(ifelse(progres.case$dem_ethn == "Arab", 1, 0))
+progres.case$rel_sunni <- as.factor(ifelse(progres.case$dem_religion == "SUN Sunni", 1, 0))
+progres.case$bir_syria <- as.factor(ifelse(progres.case$dem_birth_country == "SYR", 1, 0))
 
-##########
+
+##############################
 # Gender PA
 progres.case$gender.male <- ifelse(progres.case$dem_sex == "Male", 1, 0)
 progres.case$gender.female <- ifelse(progres.case$dem_sex == "Female", 1, 0)
-
-##########
-# Educational attainment
-progres.case$edu.highest.grp1 <- ifelse((progres.case$edu_highest == "NE No education" | 
-                                           progres.case$edu_highest == "KG Kindergarten" | 
-                                           progres.case$edu_highest == "1 year (or Grade 1)" | 
-                                           progres.case$edu_highest == "2 years (or Grade 2)" | 
-                                           progres.case$edu_highest == "3 years (or Grade 3)" | 
-                                           progres.case$edu_highest == "4 years (or Grade 4)" | 
-                                           progres.case$edu_highest == "5 years (or Grade 5)"), 1, 0)
-
-progres.case$edu.highest.grp2 <- ifelse((progres.case$edu_highest == "6 years (or Grade 6)" | 
-                                           progres.case$edu_highest == "7 years (or Grade 7)" | 
-                                           progres.case$edu_highest == "8 years (or Grade 8)"), 1, 0)
-
-progres.case$edu.highest.grp3 <- ifelse((progres.case$edu_highest == "9 years (or Grade 9)" | 
-                                           progres.case$edu_highest == "10 years (or Grade 10)" | 
-                                           progres.case$edu_highest == "11 years (or Grade 11)") , 1, 0)
-
-progres.case$edu.highest.grp4 <- ifelse((progres.case$edu_highest == "12 years (or Grade 12)" | 
-                                           progres.case$edu_highest == "13 years (or Grade 13)" | 
-                                           progres.case$edu_highest == "14 years (or Grade 14)") , 1, 0)
-
-progres.case$edu.highest.grp5 <- ifelse((progres.case$edu_highest == "PG Post university level" | 
-                                           progres.case$edu_highest == "UG University level"), 1, 0)
-
 
 
 
@@ -384,7 +465,6 @@ progres.specificneed.unique <- unique(progres.specificneed[,c("CaseNo","Individu
 
 
 ## Let's recode the vulnerability Text
-library("car")
 progres.specificneed.unique$VulnerabilityText <- recode(progres.specificneed.unique$VulnerabilityText,'"Child at risk" = "Child.at.risk"; 
                                                     "Family unity"= "Family.unity";
                                                     "Older person at risk" = "Older.person.at.risk";
@@ -482,3 +562,9 @@ rm(progres.specificneed.case)
 rm(progres.specificneed.case2)
 rm(progres.specificneed.unique)
 rm(ReasonCode)
+
+
+data <- progres.case.sp.dep.rst
+
+## Description of all variables 
+data.str <- strtable(data, factor.values=as.integer)

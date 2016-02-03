@@ -25,7 +25,7 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
               "raster","classInt","lubridate","date","gdata","gridExtra","scales",
               "ggthemes", ## load different custmised theme: excel, stata, economist, tufte, wall street journal...
               "xkcd", ## Style from the xkcd comics 
-              
+              "Amelia",
               "rattle",
               "gvlma", "glmulti",
               "scatterplot3d", "cluster", 
@@ -38,7 +38,8 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
               "glmnet", "gmodels", "grplasso", "ipred",
               "kernlab", "leaps", "LiblineaR",
               "MASS", "missForest", "nnet", "plsRglm", "misc3d",
-              "prim", "pROC", "questionr", "randomForest",
+              "prim", "pROC", "pscl",
+              "questionr", "randomForest",
               "randtoolbox", "rgl", #"rgrs",
               "ROCR", 
               "rpart", "rpart.plot", # "sas7bdat", 
@@ -99,6 +100,9 @@ library(formatR)
 
 ############################################
 #### Regressions
+
+library(Amelia) ## For missing data
+
 library(rattle)
 library(ada)
 library(ade4)
@@ -130,6 +134,7 @@ library(missForest)
 library(nnet)
 library(plsRglm)
 library(prim)
+library(pscl) ## used to verify the prediction power of a logistic model
 library(pROC)
 library(questionr)
 library(randomForest)
