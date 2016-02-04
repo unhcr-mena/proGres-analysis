@@ -1,0 +1,286 @@
+---
+title: "Statistical Analysis of Refugee Profiles: Jordan"
+author: "UNHCR MENA Regional Protection Services - Edouard legoupil, Snr Information Management Officer"
+date: "2 February 2016"
+output: 
+  pdf_document: 
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+---
+
+The information recorded in the Refugee Registration Database covers not only basic demographic characteristics but also identification of Specific Needs and recording of Events such as Ressettlement Acceptation or Voluntary Departure. 
+
+Many reports are already produced from proGres but thye mostly look at univerate analysis i.e looking at easch variable within the dataset and displaying it one by one. The present document is an attempt to explore various dimensions interact between each others. 
+
+This analysis covers information aggregated at the refugee refugee household level and is based on the information that is consolidated in the regional datawarehouse.
+
+
+
+```{r , echo=FALSE, warning=FALSE, message=FALSE}
+
+# , cache=TRUE
+#getwd("D:/R-project/proGres-analysis")
+## Load the pre-processed dataset (cf "code/1-recode-data.R"")
+data <- read.csv("D:/R-project/proGres-analysis/data/progrescase2.csv")
+data <-data[ data$CountryAsylum == "JOR", ]
+## load all packages
+source("D:/R-project/proGres-analysis/code/0-packages.R")
+
+```
+
+# Excecutive Summary
+
+* 
+
+
+# Exploratory Analysis
+
+## Household characteristics
+
+```{r, echo=FALSE}
+
+## Cross tabulation - % - between age cohort of head of Household and average age cohort of household
+
+kable(prop.table(table(data$agecohort, data$AVGAgecohort, useNA = "ifany"),1)*100, digits = 1,
+caption = "Cross tabulation - % - between age cohort of head of Household and average age cohort of household")
+
+## Cross tabulation - % - between average age and standard deviation of age cohort of household
+kable(prop.table(table(data$AVGAgecohort, data$STDEVAgeclass, useNA = "ifany"),1)*100, digits = 1,
+      caption = "Cross Tabulation: Proportion of female Vs Occurence of Specific need related to Torture ")
+
+## Cross tabulation - % - between Year and Season of arrival
+kable(prop.table(table( data$YearArrivalCategory, data$season, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Year and Season of arrival")
+
+## Cross tabulation - % - between gender and marital Status of head of Household
+kable(prop.table(table(data$dem_marriagecat, data$dem_sex, useNA = "ifany"),1)*100, digits = 1,
+      caption = "Cross tabulation - % - between gender and marital Status of head of Household")
+
+## Cross tabulation - % - between Dependency and Female Ratio
+kable(prop.table(table(data$female.ratio, data$dependency, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Dependency and Female Ratio")
+
+## Cross tabulation - % - between Dependency per type
+kable(prop.table(table(data$youthdependency, data$elederndependency, useNA = "ifany"),1)*100, digits = 1,
+      caption = "Cross tabulation - % - between Dependency per type")
+
+## Cross tabulation - % - between Occupation & Education
+kable(prop.table(table(data$edu_highestcat, data$occupationcat, useNA = "ifany"),1)*100, digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+## Cross tabulation - % - between Occupation & Country of Origin
+kable(prop.table(table(data$occupationcat,data$CountryOriginCategory,  useNA = "ifany"),1)*100, digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Country of Origin")
+
+
+## Cross tabulation - % - between Education & Country of Origin
+kable(prop.table(table(data$edu_highestcat, data$CountryOriginCategory, useNA = "ifany"),1)*100, digits = 1,
+      caption = "Cross tabulation - % - between Education & Country of Origin")
+
+## Cross tabulation - % - between Arrival year & Country of Origin
+kable(prop.table(table(data$YearArrivalCategory, data$CountryOriginCategory,  useNA="ifany"),1)*100, digits = 1,
+      caption = "Cross tabulation - % - between Arrival year & Country of Origin")
+
+
+``` 
+
+
+## Specific needs Child at Risk
+
+```{r, echo=FALSE}
+
+kable(prop.table(table(data$female.ratio, data$Child.at.risk, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - female.ratio")
+
+
+
+kable(prop.table(table(data$edu_highestcat, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$YearArrivalCategory, data$Child.at.risk, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - Arrival year")
+
+
+kable(prop.table(table(data$dem_marriage, data$Child.at.risk, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - Marrital status of head of household")
+
+
+kable(prop.table(table(data$dem_sex, data$Child.at.risk,  useNA="ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - gender of head of household")
+
+``` 
+
+
+## Specific needs: Woman at risk
+
+```{r, echo=FALSE}
+
+# Cross tabulation - % - between age cohort of head of Household and average age cohort of household
+kable(prop.table(table(data$female.ratio, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$occupationcat, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$edu_highestcat, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$CountryAsylum, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$CountryOriginCategory, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$YearArrivalCategory, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$dem_marriage, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$dem_sex, data$Woman.at.risk,  useNA="ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Arrival year & Country of Origin")
+
+``` 
+
+
+## Specific needs: Torture
+
+```{r, echo=FALSE}
+
+# Cross tabulation - % - between age cohort of head of Household and average age cohort of household
+kable(prop.table(table(data$female.ratio, data$Torture, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$occupationcat, data$Torture, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$edu_highestcat, data$Torture, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$CountryAsylum, data$Torture, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$CountryOriginCategory, data$Torture, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$YearArrivalCategory, data$Torture, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$dem_marriage, data$Torture, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$dem_sex, data$Torture,  useNA="ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Arrival year & Country of Origin")
+
+``` 
+
+
+## Specific needs: Specific.legal.physical.protection.needs
+
+```{r, echo=FALSE}
+
+# Cross tabulation - % - between age cohort of head of Household and average age cohort of household
+kable(prop.table(table(data$female.ratio, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$occupationcat, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$edu_highestcat, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$CountryAsylum, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$CountryOriginCategory, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$YearArrivalCategory, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$dem_marriage, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$dem_sex, data$Specific.legal.physical.protection.needs,  useNA="ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Arrival year & Country of Origin")
+
+
+``` 
+
+## Specific needs: SGBV
+
+```{r, echo=FALSE}
+
+# Cross tabulation - % - between age cohort of head of Household and average age cohort of household
+kable(prop.table(table(data$female.ratio, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$occupationcat, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$edu_highestcat, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$CountryAsylum, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$CountryOriginCategory, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$YearArrivalCategory, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$dem_marriage, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+
+kable(prop.table(table(data$dem_sex, data$SGBV,  useNA="ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - between Arrival year & Country of Origin")
+
+``` 
+   
+
+# Multiple Correspondance analysis
+
+
+
+# Regression Analysis
+
+Logistic Regression can be used to predict certain characteristics or events linked to one household. 
+
+## Predicting Specific Needs
+
+## Predicting Resettlement Case acceptation
+
+## Predicting Voluntary Departure
+
+

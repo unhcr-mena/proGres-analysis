@@ -41,21 +41,28 @@ progres.case$dependency <-  cut( (progres.case$Child_0_14+progres.case$Eldern_65
 progres.case$dependency <- as.character(progres.case$dependency)
 progres.case$dependency[is.na(progres.case$dependency)]<- "0"
 progres.case$dependency <- as.factor(progres.case$dependency)
+progres.case$dependency <-  factor(progres.case$dependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+#<- relevel(sizes, "medium")
+# , levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]")
 
 progres.case$youthdependency <- cut(progres.case$Child_0_14 / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
 progres.case$youthdependency <- as.character(progres.case$youthdependency)
 progres.case$youthdependency[is.na(progres.case$youthdependency)]<- "0"
 progres.case$youthdependency <- as.factor(progres.case$youthdependency)
+progres.case$youthdependency <-  factor(progres.case$youthdependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
 
 progres.case$elederndependency <- cut(progres.case$Eldern_65 / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
 progres.case$elederndependency <- as.character(progres.case$elederndependency)
 progres.case$elederndependency[is.na(progres.case$elederndependency)]<- "0"
 progres.case$elederndependency <- as.factor(progres.case$elederndependency)
+progres.case$elederndependency <-  factor(progres.case$elederndependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
 
 progres.case$female.ratio <- cut(progres.case$Female / progres.case$Num_Inds, c(0.001,0.2,0.4,0.6,0.8,Inf))
 progres.case$female.ratio <- as.character(progres.case$female.ratio)
 progres.case$female.ratio[is.na(progres.case$female.ratio)]<- "0"
 progres.case$female.ratio <- as.factor(progres.case$female.ratio)
+progres.case$female.ratio <-  factor(progres.case$female.ratio, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+
 
 
 ##############################
@@ -88,6 +95,8 @@ progres.case$STDEVAgeclass <- cut(progres.case$STDEV_Age,c(0.001,5,10,15,20,Inf)
 progres.case$STDEVAgeclass <- as.character(progres.case$STDEVAgeclass)
 progres.case$STDEVAgeclass[is.na(progres.case$STDEVAgeclass)]<- "0"
 progres.case$STDEVAgeclass <- as.factor(progres.case$STDEVAgeclass)
+progres.case$female.ratio <- as.factor(progres.case$female.ratio)
+progres.case$STDEVAgeclass <-  factor(progres.case$STDEVAgeclass, levels = c( "0", "(0.001,5]", "(5,10]", "(10,15]", "(15,20]", "(20,Inf]"))
 
 ##############################
 # Percentage of children
@@ -298,12 +307,13 @@ progres.case$CountryOriginCategory <- recode(progres.case$CountryOrigin,"'SYR'='
 
 ##############################
 # Aggregating season according to month
-progres.case$season <- progres.case$Montharrival
+progres.case$season <- as.character(progres.case$Montharrival)
 #levels(progres.case$Montharrival)
 progres.case$season <- recode(progres.case$season,"'March'='Spring'; 'April'='Spring';    'May'='Spring';
                               'June'='Summer'; 'July'='Summer';  'August'='Summer'; 
                               'September'='Autumn'; 'October'='Autumn'; 'November'='Autumn'; 
                               'January'='Winter';  'February'='Winter'; 'December'='Winter' ")
+progres.case$season <- as.factor(progres.case$season)
 
 progres.case$season <- factor(progres.case$season, levels = c("Spring", "Summer", "Autumn", "Winter"))
 
@@ -354,6 +364,7 @@ progres.case$edu_highestcat <- recode(progres.case$edu_highest_t,"'Unknown'='Unk
 
 progres.case$edu_highestcat[is.na(progres.case$edu_highestcat)]<- "Unknown"
 
+progres.case$edu_highestcat <- as.factor(progres.case$edu_highestcat)
 progres.case$edu_highestcat <- factor(progres.case$edu_highestcat, levels = c("Unknown", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14", "Higher Education"))
 
 ##############################
@@ -419,22 +430,21 @@ progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Man
 # Marital status
 #dem_marriage <- as.data.frame(table(data$dem_marriage))
 #rm(dem_marriage)
-progres.case$dem_marriage <- recode(progres.case$dem_marriage,"'WD' = 'Widowed';
-                                    'SN' = 'Single';
-                                    'DV' = 'Divorced';
-                                    'MA' = 'Married';
-                                    'EG' = 'Engaged';
-                                    'DV' = 'Divorced';
-                                    'SR' = 'Separated';
-                                    'CL' = 'Common Law Married'")
+progres.case$dem_marriagecat <- recode(progres.case$dem_marriage,"'WD'='Widowed'; 'SN'='Single';'DV'='Divorced';'MA'='Married'; 'EG'='Engaged'; 'SR'='Separated'; 'CL'='Married'")
 
-progres.case$mar_widow <- as.factor(ifelse(progres.case$dem_marriage == "Widowed", 1, 0)) 
-progres.case$mar_single <- as.factor(ifelse(progres.case$dem_marriage == "Single", 1, 0))
-progres.case$mar_divorced <- as.factor(ifelse(progres.case$dem_marriage == "Divorced", 1, 0)) 
-progres.case$mar_married <- as.factor(ifelse(progres.case$dem_marriage == "Married", 1, 0)) 
-progres.case$mar_engaged <- as.factor(ifelse(progres.case$dem_marriage == "Engaged", 1, 0)) 
-progres.case$mar_g_divorced <- as.factor(ifelse((progres.case$dem_marriage == "Divorced" | progres.case$dem_marriage == "Separated"), 1, 0))
-progres.case$mar_g_married <- as.factor(ifelse((progres.case$dem_marriage == "Married" | progres.case$dem_marriage == "Common Law Married" | progres.case$dem_marriage == "Engaged"), 1, 0)) 
+progres.case$dem_marriagecat <- as.character(progres.case$dem_marriagecat)
+progres.case$dem_marriagecat[is.na(progres.case$dem_marriagecat)]<- "Unknown"
+progres.case$dem_marriagecat <- as.factor(progres.case$dem_marriagecat)
+progres.case$dem_marriagecat <- as.factor(progres.case$dem_marriagecat)
+progres.case$dem_marriagecat <- factor(progres.case$dem_marriagecat, levels = c("Engaged", "Single", "Married", "Widowed", "Separated", "Divorced","Unknown"))
+
+progres.case$mar_widow <- as.factor(ifelse(progres.case$dem_marriage == "WD", 1, 0)) 
+progres.case$mar_single <- as.factor(ifelse(progres.case$dem_marriage == "SN", 1, 0))
+progres.case$mar_divorced <- as.factor(ifelse(progres.case$dem_marriage == "DV", 1, 0)) 
+progres.case$mar_married <- as.factor(ifelse(progres.case$dem_marriage == "MA", 1, 0)) 
+progres.case$mar_engaged <- as.factor(ifelse(progres.case$dem_marriage == "EG", 1, 0)) 
+progres.case$mar_g_divorced <- as.factor(ifelse((progres.case$dem_marriage == "DV" | progres.case$dem_marriage == "SR"), 1, 0))
+progres.case$mar_g_married <- as.factor(ifelse((progres.case$dem_marriage == "MA" | progres.case$dem_marriage == "L" | progres.case$dem_marriage == "EG"), 1, 0)) 
 
 ##############################
 # Ethnicity, religion, birth

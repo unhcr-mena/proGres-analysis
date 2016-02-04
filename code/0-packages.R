@@ -44,7 +44,7 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
               "ROCR", 
               "rpart", "rpart.plot", # "sas7bdat", 
               "snow", "speedglm", "tree",
-              "prettyR",
+              "prettyR","xtable","knitr",
               "formatR" #, "gWidgetsRGtk2" # used to format the code
               #"XLConnect" ## Read and write excel files
               
@@ -97,6 +97,8 @@ library(formatR)
 #library(RGtk2)
 #library(gWidgetsRGtk2)
 ## tidy.gui('RGtk2')
+library(xtable)
+library(knitr)
 
 ############################################
 #### Regressions

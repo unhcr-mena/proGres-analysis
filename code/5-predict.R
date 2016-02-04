@@ -26,9 +26,8 @@ sapply(data, function(x) length(unique(x)))
 ###### Dataset for modelling - 
 ###########################################
 
-# 
 data.reg <- data[ , c( "Num_Inds2", "dem_marriage", "dem_sex",
-                           "dependency", "youthdependency", "elederndependency",
+                           "dependency", "youthdependency", "elederndependency","female.ratio",
                            "agecohort", "AVGAgecohort", "STDEVAgeclass",
                            "YearArrivalCategory", "season",
                            "CountryOriginCategory","CountryAsylum",
@@ -41,11 +40,6 @@ data.reg <- data[ , c( "Num_Inds2", "dem_marriage", "dem_sex",
 
 # Output the number of missing values for each column
 sapply(data.reg,function(x) sum(is.na(x)))
-
-
-str(data.reg)
-cor(data.reg) 
-
 
 # Train test splitting
 train <- data.reg[1:5000,]

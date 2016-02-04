@@ -1,32 +1,157 @@
 ---
-title: "Statistical Analysis of Refugees Profile"
-author: "UNHCR MENA"
+title: "Statistical Analysis of Refugee Profiles"
+author: "UNHCR MENA Regional Protection Services"
 date: "2 February 2016"
 output: html_document
+toc: true 
 ---
 
-The information recorded in the Refugee Registration Database covers not only basic demographic characteristics but also identification of Specific Needs and recording of Events such a Ressettlement Acception or Volonary Dpearture.
+The information recorded in the Refugee Registration Database covers not only basic demographic characteristics but also identification of Specific Needs and recording of Events such as Ressettlement Acceptation or Voluntary Departure. 
 
-## Descriptive Analysis
+Many reports are already produced from proGres but thye mostly look at univerate analysis i.e looking at easch variable within the dataset and displaying it one by one. The present document is an attempt to explore various dimensions interact between each others. 
 
-
-```{r , echo=FALSE}
-
-## Load the preprocessed dataset 
-data <- read.csv("data/progrescase2.csv")
+This analysis covers more than 880,000 refugee household from 93 countries who are currently in 13 countries in Middle-East, all recorded in proGres. The analysis does  not account for the Syrians who took asylum in Turkey as their individuals records are not maintained within UNHCR registration database.
 
 
+
+
+```{r , echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
+#getwd("D:/R-project/proGres-analysis")
+## Load the pre-processed dataset (cf "code/1-recode-data.R"")
+data <- read.csv("D:/R-project/proGres-analysis/data/progrescase2.csv")
+## load all packages
+source("D:/R-project/proGres-analysis/code/0-packages.R")
+
+```
+
+
+# Descriptive graphical Analysis
+
+
+
+
+```{r, echo=FALSE, cache=TRUE}
+bar.YearArrival.as <- ggplot(data=data, aes(x=YearArrivalCategory , y=Num_Inds)) + 
+  geom_bar( stat="identity",fill="#2a87c8",colour="#2a87c8") +
+  # geom_text(aes(label=variable), vjust=0) +
+  guides(fill=FALSE) + 
+  # coord_flip()+
+  facet_wrap( ~ CountryAsylum, ncol=4) +
+  xlab("year of Arrival") + 
+  ylab("# of Ind") +
+  scale_y_continuous(labels=format_si())+
+  coord_flip()+ 
+  ggtitle("Arrival per country of Asylum and per Year - after 2011")
+bar.YearArrival.as
+
+```
+
+
+
+```{r, echo=FALSE, cache=TRUE}
+bar.YearArrival.or <- ggplot(data=data, aes(x=YearArrivalCategory , y=Num_Inds)) + 
+  geom_bar( stat="identity",fill="#2a87c8",colour="#2a87c8") +
+  # geom_text(aes(label=variable), vjust=0) +
+  guides(fill=FALSE) + 
+  # coord_flip()+
+  facet_wrap( ~ CountryOriginCategory, ncol=4) +
+  xlab("year of Arrival") + 
+  ylab("# of Ind") +
+  scale_y_continuous(labels=format_si())+
+  coord_flip() + 
+  ggtitle("Arrival per country of origin and  per Year - after 2011")
+bar.YearArrival.or
+
+```
+
+
+# Exploratory Analysis
+
+## Household characteristics
+
+```{r, echo=FALSE}
+
+## Cross tabulation - % - between age cohort of head of Household and average age cohort of household
+kable(prop.table(table(data$agecohort, data$AVGAgecohort, useNA = "ifany),1)*100,
+      caption = "Cross tabulation - % - between age cohort of head of Household and average age cohort of household")
+
+## Cross tabulation - % - between average age and standard deviation of age cohort of household
+kable(prop.table(table(data$AVGAgecohort, data$STDEVAgeclass, useNA = "ifany),1)*100,
+      caption = "Cross Tabulation: Proportion of female Vs Occurence of Specific need related to Torture ")
+
+## Cross tabulation - % - between Year and Season of arrival
+kable(prop.table(table(data$season, data$YearArrivalCategory, useNA = "ifany),1)*100,
+      caption = "Cross tabulation - % - between Year and Season of arrival")
+
+## Cross tabulation - % - between gender and marital Status of head of Household
+kable(prop.table(table(data$dem_marriage, data$dem_sex, useNA = "ifany),1)*100,
+      caption = "Cross tabulation - % - between gender and marital Status of head of Household")
+
+## Cross tabulation - % - between Dependency and Female Ratio
+kable(prop.table(table(data$female.ratio, data$dependency, useNA = "ifany),1)*100,
+      caption = "Cross tabulation - % - between Dependency and Female Ratio")
+
+## Cross tabulation - % - between Dependency per type
+kable(prop.table(table(data$youthdependency, data$elederndependency, useNA = "ifany),1)*100,
+      caption = "Cross tabulation - % - between Dependency per type")
+
+## Cross tabulation - % - between Occupation & Education
+kable(prop.table(table(data$edu_highestcat, data$occupationcat, useNA = "ifany),1)*100,
+      caption = "Cross tabulation - % - between Occupation & Education")
+
+## Cross tabulation - % - between Occupation & Country of Origin
+kable(prop.table(table(data$CountryOriginCategory, data$occupationcat, useNA = "ifany),1)*100,
+      caption = "Cross tabulation - % - between Occupation & Country of Origin")
+
+## Cross tabulation - % - between Occupation & Country of Asylum
+kable(prop.table(table(data$CountryAsylum, data$occupationcat, useNA = "ifany),1)*100,
+      caption = "Cross tabulation - % - between Occupation & Country of Asylum")
+
+## Cross tabulation - % - between Education & Country of Asylum
+kable(prop.table(table(data$CountryAsylum, data$edu_highestcat, useNA = "ifany),1)*100,
+      caption = "Cross tabulation - % - between Education & Country of Asylum")
+
+## Cross tabulation - % - between Education & Country of Origin
+kable(prop.table(table(data$CountryOriginCategory, data$edu_highestcat, useNA = "ifany),1)*100,
+      caption = "Cross tabulation - % - between Education & Country of Origin")
+
+## Cross tabulation - % - between Arrival year & Country of Origin
+kable(prop.table(table(data$CountryOriginCategory, data$YearArrivalCategory, useNA="always"),1)*100,
+      caption = "Cross tabulation - % - between Arrival year & Country of Origin")
+
+``` 
+
+
+## Specific needs: 
+
+```{r, echo=FALSE}
+kable(prop.table(table(data$female.ratio, data$Torture),1)*100, caption = "Cross Tabulation: Proportion of female Vs Occurence of Specific need related to Torture ")
 ```
 
 
 ```{r, echo=FALSE}
-box.month <- ggplot(data[data$CountryOrigin == "SYR",], aes(x=Montharrival, y=Num_Inds, fill=Montharrival) ) + 
-  geom_boxplot() 
+kable(prop.table(table(data$female.ratio, data$Torture),1)*100, caption = "Cross Tabulation: Proportion of female Vs Occurence of Specific need related to Torture ")
 ```
 
 
-## Exploratory Analysis
+```{r, echo=FALSE}
+kable(prop.table(table(data$female.ratio, data$Torture),1)*100, caption = "Cross Tabulation: Proportion of female Vs Occurence of Specific need related to Torture ")
+```
 
 
-## Regression Analysis
+```{r, echo=FALSE}
+kable(prop.table(table(data$female.ratio, data$Torture),1)*100, caption = "Cross Tabulation: Proportion of female Vs Occurence of Specific need related to Torture ")
+```
+
+
+
+# Regression Analysis
+
+Logistic Regression can be used to predict certain characteristics or events linked to one household. 
+
+## Predicting Specific Needs
+
+## Predicting Resettlement Case acceptation
+
+## Predicting Voluntary Departure
 
