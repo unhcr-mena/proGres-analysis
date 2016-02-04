@@ -14,7 +14,7 @@ data <- data.sp.dep.rst
 
 data.JOR <-data[ data$CountryAsylum == "JOR", ]
 ## We need to generate sample in order to create the MCA object
-data.JOR.sample <- data.JOR[sample(1:nrow(data.JOR), 5000,replace=FALSE),
+data.JOR.sample <- data.JOR[sample(1:nrow(data.JOR), 1000,replace=FALSE),
                                     c("Num_Inds2", "dem_marriage", "dem_sex",
                                       "dependency", "youthdependency", "elederndependency",
                                       "agecohort", "AVGAgecohort", "STDEVAgeclass",
@@ -23,7 +23,7 @@ data.JOR.sample <- data.JOR[sample(1:nrow(data.JOR), 5000,replace=FALSE),
                                       "occupationcat", "edu_highestcat")]
 data.sample <- droplevels(data.JOR.sample)
 
-str(data.JOR.sample)
+#str(data.JOR.sample)
 
 #####################################
 #### Loading the required R module FactoMiner
@@ -46,6 +46,7 @@ dev.off()
 
 pdf("out/mca3.pdf")
 plot.MCA(data.JOR.mca, axes=c(1, 2), choix="quanti.sup", col.quanti.sup="blue", label=c("quanti.sup", new.plot=TRUE))
+dev.off()
 
 #plotellipses(data.mca)
 
@@ -64,11 +65,27 @@ res.catdes <- catdes(data.JOR.mca, num.var=2, proba = 0.05)
 plot(res.catdes)
 
 #####################################
-## Hierarchical clustering
-data.hcpc<- HCPC(data.JOR.mca ,nb.clust=-1,consol=TRUE,min=3,max=6,graph=TRUE)
-data.hcpc$desc.var
-data.hcpc$desc.axes
-data.hcpc$desc.ind
+### Hierarchical Clustering on Principal Components
+data.JOR.mca.hcpc <- HCPC(data.JOR.mca, nb.clust=-1, min=3, max=5, graph=FALSE, order=FALSE, consol=TRUE)
+#data.JOR.mca.hcpc$desc.var
+#data.JOR.mca.hcpc$desc.axes
+#data.JOR.mca.hcpc$desc.ind
+#data.JOR.mca.hcpc$data.clust
+
+print (data.JOR.mca.hcpc, "out/descriptioncluster.txt")
+
+pdf("out/cluster1.pdf")
+plot(data.JOR.mca.hcpc)
+dev.off()
+
+pdf("out/cluster1.pdf")
+plot(data.JOR.mca.hcpc, choice="map")
+dev.off()
+
+
+library(cluster)
+classif = agnes(datamca.mca$ind$coord,method="ward")
+plot(classif,main="Dendrogram",ask=F,which.plots=2,labels=FALSE)
 
 #ind1.enmca<-ENMCA(ind1, report=FALSE)
 #ind3.semantic <- ENmarking(ind3,1)

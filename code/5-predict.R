@@ -5,18 +5,19 @@ source("code/0-packages.R")
 #progres.case.sp.dep.rst <- read.csv("data/progrescase2.csv")
 
 
-data.original <- progres.case.sp.dep.rst
+data <- progres.case.sp.dep.rst
+
+str(data)
 
 ###########################################
 ## Preparing the data
 ###########################################
 
-
 # Output the number of missing values for each column
-sapply(data.original,function(x) sum(is.na(x)))
+sapply(data,function(x) sum(is.na(x)))
 
 # Quick check for how many different values for each feature
-sapply(data.original, function(x) length(unique(x)))
+sapply(data, function(x) length(unique(x)))
 
 # A visual way to check for missing data using Amelia Library
 #missmap(data.original, main = "Missing values vs observed")
@@ -26,23 +27,35 @@ sapply(data.original, function(x) length(unique(x)))
 ###########################################
 
 # 
-data <- data.orginal[ , c( "Num_Inds2", "dem_marriage", "dem_sex",
+data.reg <- data[ , c( "Num_Inds2", "dem_marriage", "dem_sex",
                            "dependency", "youthdependency", "elederndependency",
                            "agecohort", "AVGAgecohort", "STDEVAgeclass",
                            "YearArrivalCategory", "season",
                            "CountryOriginCategory","CountryAsylum",
-                           "occupationcat", "edu_highestcat")]
+                           "occupationcat", "edu_highestcat",
+                        #   "Child.at.risk", "Disability", "Family.unity", "Older.person.at.risk",
+                        #  "Pregnant.or.lactating", "Serious.medical.condition", "SGBV", "Single.parent",
+                        #  "Specific.legal.physical.protection.needs", "Torture", "Unaccompanied.or.separated.child",
+                           "Woman.at.risk"
+                           )]
+
+# Output the number of missing values for each column
+sapply(data.reg,function(x) sum(is.na(x)))
+
+
+str(data.reg)
+cor(data.reg) 
 
 
 # Train test splitting
-train <- data[1:500000,]
-test <- data[500001:887000,]
+train <- data.reg[1:5000,]
+test <- data.reg[5001:887000,]
 
 ###########################################
 # Model fitting
 ###########################################
 
-model <- glm(Survived ~.,family=binomial(link='logit'),data=train)
+model <- glm(Woman.at.risk ~.,family=binomial(link='logit'),data=train)
 summary(model)
 
 # Analysis of deviance
@@ -53,18 +66,18 @@ pR2(model)
 
 # measuring the productive ability of the model
 # If prob > 0.5 then 1, else 0. Threshold can be set for better results
-fitted.results <- predict(model,newdata=subset(test,select=c(2,3,4,5,6,7,8)),type='response')
+fitted.results <- predict(model,newdata=subset(test),type='response')
 fitted.results <- ifelse(fitted.results > 0.5,1,0)
 
-misClasificError <- mean(fitted.results != test$Survived)
+misClasificError <- mean(fitted.results != test$Woman.at.risk)
 print(paste('Accuracy',1-misClasificError))
 
 # Confusion matrix
-confusionMatrix(data=fitted.results, reference=test$Survived)
+confusionMatrix(data=fitted.results, reference=test$Woman.at.risk)
 
 # ROC and AUC
 p <- predict(model, newdata=subset(test,select=c(2,3,4,5,6,7,8)), type="response")
-pr <- prediction(p, test$Survived)
+pr <- prediction(p, test$Woman.at.risk)
 # TPR = sensitivity, FPR=specificity
 prf <- performance(pr, measure = "tpr", x.measure = "fpr")
 plot(prf)
@@ -74,26 +87,7 @@ auc <- auc@y.values[[1]]
 auc
 
 
-###########################################
-## predictig specific needs
-###########################################
-#progres.case.Family.unity <- data[ data$Family.unity >= 1, ]
-data$Family.unity.yes[data$Family.unity >= 1, ] <- 'yes'
-str(data)
-cor(data)    
-
-
-
-reg.Family.unity <- glm(Family.unity ~ edu_highest_t + 
-                          dem_marriage +
-                          YearArrival + 
-                          CountryOrigin  +
-                          CountryAsylum +
-                          occupationcat ,
-                        family=binomial(logit),
-                        # family=binomial,
-           data=data)
-summary(reg.Family.unity)
+   
 
 
 ##################

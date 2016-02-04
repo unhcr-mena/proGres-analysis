@@ -1,8 +1,35 @@
+source("code/0-packages.R")
+
+#rm(data.sp.dep.rst)
+#data.sp.dep.rst <- read.csv("data/progrescase2.csv")
+
+
+data <- data.sp.dep.rst
+
+
+####################################################################################
+#### Apply MCA (Multiple Correspondance Analysis) to Categorical data
+####################################################################################
+## http://rpubs.com/gaston/MCA
+
+data.JOR <-data[ data$CountryAsylum == "JOR", ]
+## We need to generate sample in order to create the MCA object
+data.JOR.sample <- data.JOR[sample(1:nrow(data.JOR), 1000,replace=FALSE),
+                            c("Num_Inds2", "dem_marriage", "dem_sex",
+                              "dependency", "youthdependency", "elederndependency",
+                              "agecohort", "AVGAgecohort", "STDEVAgeclass",
+                              "YearArrivalCategory", "season",
+                              "CountryOriginCategory","CountryAsylum",
+                              "occupationcat", "edu_highestcat")]
+data.sample <- droplevels(data.JOR.sample)
+
+
+
 ### MCA with ade4
 
 library(ade4)
 
-acm <- dudi.acm(progres.case.test, scan = FALSE)
+acm <- dudi.acm(data.JOR.sample, scan = FALSE)
 
 warning(scatter(acm, col = rep(c("black", "red3", "darkblue"), 2)))
 
@@ -13,7 +40,7 @@ summaryacm <- data.frame(
 )
 barplot(summaryacm$PCTVAR,
         xlab = "Componants",
-        ylab = "Pourcentage de la variance (inertie)",
+        ylab = "Percentage of variance (inertia)",
         names = paste("C", seq(1, nrow(summaryacm), 1)),
         col = "black",
         border = "white")

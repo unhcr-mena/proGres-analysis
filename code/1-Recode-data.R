@@ -38,28 +38,29 @@ progres.case$Num_Inds2 <- recode(progres.case$Num_Inds2,"'1'='Case.size.1';
 ##############################
 ## Calculating dependency ration
 progres.case$dependency <-  cut( (progres.case$Child_0_14+progres.case$Eldern_65) / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
+progres.case$dependency <- as.character(progres.case$dependency)
 progres.case$dependency[is.na(progres.case$dependency)]<- "0"
+progres.case$dependency <- as.factor(progres.case$dependency)
 
 progres.case$youthdependency <- cut(progres.case$Child_0_14 / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
+progres.case$youthdependency <- as.character(progres.case$youthdependency)
 progres.case$youthdependency[is.na(progres.case$youthdependency)]<- "0"
+progres.case$youthdependency <- as.factor(progres.case$youthdependency)
 
 progres.case$elederndependency <- cut(progres.case$Eldern_65 / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
+progres.case$elederndependency <- as.character(progres.case$elederndependency)
 progres.case$elederndependency[is.na(progres.case$elederndependency)]<- "0"
+progres.case$elederndependency <- as.factor(progres.case$elederndependency)
 
 progres.case$female.ratio <- cut(progres.case$Female / progres.case$Num_Inds, c(0.001,0.2,0.4,0.6,0.8,Inf))
+progres.case$female.ratio <- as.character(progres.case$female.ratio)
 progres.case$female.ratio[is.na(progres.case$female.ratio)]<- "0"
-
-##############################
-# Percentage of children
-progres.case$p.child.grp1 <- as.factor(ifelse(progres.case$Child_0_14/progres.case$Num_Inds == 0, 1, 0))
-progres.case$p.child.grp2 <- as.factor(ifelse((progres.case$Child_0_14/progres.case$Num_Inds > 0) & (progres.case$Child_0_14/progres.case$Num_Inds < 0.50), 1, 0))
-progres.case$p.child.grp3 <- as.factor(ifelse((progres.case$Child_0_14/progres.case$Num_Inds >= 0.50) & (progres.case$Child_0_14/progres.case$Num_Inds < 0.75), 1, 0))
-progres.case$p.child.grp4 <- as.factor(ifelse(progres.case$Child_0_14/progres.case$Num_Inds >= 0.75, 1, 0))
+progres.case$female.ratio <- as.factor(progres.case$female.ratio)
 
 
 ##############################
 ## Adding Age cohort of PA
-progres.case$agecohort <- cut(progres.case$dem_age,c(0,18,25,35,59,Inf))
+progres.case$agecohort <- cut(progres.case$dem_age,c(0,18,25,35,45,59,Inf))
 
 ##############################
 # Age group
@@ -78,12 +79,22 @@ progres.case$age.PA3 <- as.factor(ifelse(progres.case$dem_age > 54, 1, 0))
 
 ##############################
 ## Adding Age cohort for Average age
-progres.case$AVGAgecohort <- cut(progres.case$AVG_Age,c(0,18,25,35,59,Inf))
+progres.case$AVGAgecohort <- cut(progres.case$AVG_Age,c(0,18,25,35,45,59,Inf))
 
 ##############################
 ## Adding class for standard age deviation
 #summary(progres.case$STDEV_Age)
-progres.case$STDEVAgeclass <- cut(progres.case$STDEV_Age,c(0,5,10,15,20,Inf))
+progres.case$STDEVAgeclass <- cut(progres.case$STDEV_Age,c(0.001,5,10,15,20,Inf))
+progres.case$STDEVAgeclass <- as.character(progres.case$STDEVAgeclass)
+progres.case$STDEVAgeclass[is.na(progres.case$STDEVAgeclass)]<- "0"
+progres.case$STDEVAgeclass <- as.factor(progres.case$STDEVAgeclass)
+
+##############################
+# Percentage of children
+progres.case$p.child.grp1 <- as.factor(ifelse(progres.case$Child_0_14/progres.case$Num_Inds == 0, 1, 0))
+progres.case$p.child.grp2 <- as.factor(ifelse((progres.case$Child_0_14/progres.case$Num_Inds > 0) & (progres.case$Child_0_14/progres.case$Num_Inds < 0.50), 1, 0))
+progres.case$p.child.grp3 <- as.factor(ifelse((progres.case$Child_0_14/progres.case$Num_Inds >= 0.50) & (progres.case$Child_0_14/progres.case$Num_Inds < 0.75), 1, 0))
+progres.case$p.child.grp4 <- as.factor(ifelse(progres.case$Child_0_14/progres.case$Num_Inds >= 0.75, 1, 0))
 
 ##############################
 # Aggregating arrival year
@@ -332,16 +343,18 @@ progres.case$edu_highestcat <- recode(progres.case$edu_highest_t,"'Unknown'='Unk
                                       'Grade 6'='Grade 6-8';
                                       'Grade 7'='Grade 6-8';
                                       'Grade 8'='Grade 6-8';
-                                      'Grade 9'='Grade  9-11';
-                                      'Grade 10'='Grade  9-11';
-                                      'Grade 11 '='Grade  9-11';
-                                      'Grade 12'='Grade  12-14';
-                                      'Grade 13'='Grade  12-14';
-                                      'Grade 14'='Grade  12-14';
+                                      'Grade 9'='Grade 9-11';
+                                      'Grade 10'='Grade 9-11';
+                                      'Grade 11 '='Grade 9-11';
+                                      'Grade 12'='Grade 12-14';
+                                      'Grade 13'='Grade 12-14';
+                                      'Grade 14'='Grade 12-14';
                                       'University level'='Higher Education';
                                       'Post university level'='Higher Education'")
 
 progres.case$edu_highestcat[is.na(progres.case$edu_highestcat)]<- "Unknown"
+
+progres.case$edu_highestcat <- factor(progres.case$edu_highestcat, levels = c("Unknown", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14", "Higher Education"))
 
 ##############################
 # Educational attainment
@@ -471,18 +484,76 @@ progres.specificneed.case2 <- dcast(progres.specificneed.case, CaseNo ~ Vulnerab
 
 progres.case.sp <- merge(x=progres.case, y=progres.specificneed.case2, all.x=TRUE)
 
-progres.case.sp$Child.at.risk <- as.factor(ifelse(progres.case.sp$Child.at.risk>=1, "yes", "no"))                         
-progres.case.sp$Disability <- as.factor(ifelse(progres.case.sp$Disability>=1, "yes", "no"))                            
+progres.case.sp$Child.at.risk <- as.factor(ifelse(progres.case.sp$Child.at.risk>=1, "yes", "no"))  
+progres.case.sp$Child.at.risk <- as.character(progres.case.sp$Child.at.risk)
+progres.case.sp$Child.at.risk[is.na(progres.case.sp$Child.at.risk)]<- "no"
+progres.case.sp$Child.at.risk <- as.factor(progres.case.sp$Child.at.risk)
+
+progres.case.sp$Disability <- as.factor(ifelse(progres.case.sp$Disability>=1, "yes", "no")) 
+progres.case.sp$Disability <- as.character(progres.case.sp$Disability)
+progres.case.sp$Disability[is.na(progres.case.sp$Disability)]<- "no"
+progres.case.sp$Disability <- as.factor(progres.case.sp$Disability)
+
 progres.case.sp$Family.unity <- as.factor(ifelse(progres.case.sp$Family.unity>=1, "yes", "no"))
+progres.case.sp$Family.unity <- as.character(progres.case.sp$Family.unity)
+progres.case.sp$Family.unity[is.na(progres.case.sp$Family.unity)]<- "no"
+progres.case.sp$Family.unity <- as.factor(progres.case.sp$Family.unity)
+
+
 progres.case.sp$Older.person.at.risk <- as.factor(ifelse(progres.case.sp$Older.person.at.risk>=1, "yes", "no"))
-progres.case.sp$Pregnant.or.lactating <- as.factor(ifelse(progres.case.sp$Pregnant.or.lactating>=1, "yes", "no"))                
+progres.case.sp$Older.person.at.risk <- as.character(progres.case.sp$Older.person.at.risk)
+progres.case.sp$Older.person.at.risk[is.na(progres.case.sp$Older.person.at.risk)]<- "no"
+progres.case.sp$Older.person.at.risk <- as.factor(progres.case.sp$Older.person.at.risk)
+
+
+progres.case.sp$Pregnant.or.lactating <- as.factor(ifelse(progres.case.sp$Pregnant.or.lactating>=1, "yes", "no")) 
+progres.case.sp$Pregnant.or.lactating <- as.character(progres.case.sp$Pregnant.or.lactating)
+progres.case.sp$Pregnant.or.lactating[is.na(progres.case.sp$Pregnant.or.lactating)]<- "no"
+progres.case.sp$Pregnant.or.lactating <- as.factor(progres.case.sp$Pregnant.or.lactating)
+
+
 progres.case.sp$Serious.medical.condition <- as.factor(ifelse(progres.case.sp$Serious.medical.condition>=1, "yes", "no"))
+progres.case.sp$Serious.medical.condition <- as.character(progres.case.sp$Serious.medical.condition)
+progres.case.sp$Serious.medical.condition[is.na(progres.case.sp$Serious.medical.condition)]<- "no"
+progres.case.sp$Serious.medical.condition <- as.factor(progres.case.sp$Serious.medical.condition)
+
+
 progres.case.sp$SGBV <- as.factor(ifelse(progres.case.sp$SGBV>=1, "yes", "no"))
+progres.case.sp$SGBV <- as.character(progres.case.sp$SGBV)
+progres.case.sp$SGBV[is.na(progres.case.sp$SGBV)]<- "no"
+progres.case.sp$SGBV <- as.factor(progres.case.sp$SGBV)
+
+
 progres.case.sp$Single.parent <- as.factor(ifelse(progres.case.sp$Single.parent>=1, "yes", "no"))
+progres.case.sp$Single.parent <- as.character(progres.case.sp$Single.parent)
+progres.case.sp$Single.parent[is.na(progres.case.sp$Single.parent)]<- "no"
+progres.case.sp$Single.parent <- as.factor(progres.case.sp$Single.parent)
+
+
 progres.case.sp$Specific.legal.physical.protection.needs <- as.factor(ifelse(progres.case.sp$Specific.legal.physical.protection.needs>=1, "yes", "no"))
+progres.case.sp$Specific.legal.physical.protection.needs <- as.character(progres.case.sp$Specific.legal.physical.protection.needs)
+progres.case.sp$Specific.legal.physical.protection.needs[is.na(progres.case.sp$Specific.legal.physical.protection.needs)]<- "no"
+progres.case.sp$Specific.legal.physical.protection.needs <- as.factor(progres.case.sp$Specific.legal.physical.protection.needs)
+
+
 progres.case.sp$Torture <- as.factor(ifelse(progres.case.sp$Torture>=1, "yes", "no"))
+progres.case.sp$Torture <- as.character(progres.case.sp$Torture)
+progres.case.sp$Torture[is.na(progres.case.sp$Torture)]<- "no"
+progres.case.sp$Torture <- as.factor(progres.case.sp$Torture)
+
+
 progres.case.sp$Unaccompanied.or.separated.child <- as.factor(ifelse(progres.case.sp$Unaccompanied.or.separated.child>=1, "yes", "no"))
+progres.case.sp$Unaccompanied.or.separated.child <- as.character(progres.case.sp$Unaccompanied.or.separated.child)
+progres.case.sp$Unaccompanied.or.separated.child[is.na(progres.case.sp$Unaccompanied.or.separated.child)]<- "no"
+progres.case.sp$Unaccompanied.or.separated.child <- as.factor(progres.case.sp$Unaccompanied.or.separated.child)
+
+
 progres.case.sp$Woman.at.risk <- as.factor(ifelse(progres.case.sp$Woman.at.risk>=1, "yes", "no"))
+progres.case.sp$Woman.at.risk <- as.character(progres.case.sp$Woman.at.risk)
+progres.case.sp$Woman.at.risk[is.na(progres.case.sp$Woman.at.risk)]<- "no"
+progres.case.sp$Woman.at.risk <- as.factor(progres.case.sp$Woman.at.risk)
+
+
 
 
 ###########################################
@@ -562,6 +633,14 @@ rm(ReasonCode)
 
 
 data <- progres.case.sp.dep.rst
+
+### Cleaning data
+
+## Remove observation where we do not have PA Age or Arrival Date
+data <- data[!rowSums(is.na(data["dem_age"])), ]
+data <- data[!rowSums(is.na(data["AVG_Age"])), ]
+data <- data[!rowSums(is.na(data["YearArrival"])), ]
+
 
 ## Description of all variables 
 data.str <- strtable(data, factor.values=as.integer)
