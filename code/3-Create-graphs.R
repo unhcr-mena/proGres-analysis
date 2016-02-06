@@ -5,10 +5,8 @@ source("code/o-packages.R")
 
 ## Visual exploration of data will provide a quick overview 
 
-#rm(progres.case.sp.dep.rst)
-#progres.case.sp.dep.rst <- read.csv("data/progrescase2.csv")
+data <- read.csv("data/progrescase2.csv")
 
-data <- progres.case.sp.dep.rst
 
 #####################################################################################
 ### Let's try to generate chart for all variables

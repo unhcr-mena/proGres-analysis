@@ -11,10 +11,10 @@ progres.case <- read.csv("data/progrescase.csv")
 
 ##############################
 ## Case size  as factor
-progres.case$Num_Inds2 <- as.factor(progres.case$Num_Inds)
-#Num_Inds2 <- as.data.frame(table(progres.case$Num_Inds2))
-#rm(Num_Inds2)
-progres.case$Num_Inds2 <- recode(progres.case$Num_Inds2,"'1'='Case.size.1';
+progres.case$Case.size <- as.factor(progres.case$Num_Inds)
+#Case.size <- as.data.frame(table(progres.case$Case.size))
+#rm(Case.size)
+progres.case$Case.size <- recode(progres.case$Case.size,"'1'='Case.size.1';
                                                                       '2'='Case.size.2';
                                                                       '3'='Case.size.3';
                                                                       '4'='Case.size.4';
@@ -641,8 +641,9 @@ rm(progres.specificneed.case2)
 rm(progres.specificneed.unique)
 rm(ReasonCode)
 
-
 data <- progres.case.sp.dep.rst
+
+#rm(progres.case.sp.dep.rst)
 
 ### Cleaning data
 

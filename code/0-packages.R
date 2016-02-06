@@ -8,12 +8,13 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
               "Hmisc", # generate a detailled describtion of a given dataset 
              # "AER",  # interesting datasets
               "lattice",
+              "tufte",
               "VGAM",
               "aod",
               "fields", 
               "stringr", # manipulation of string data
               "ellipse",
-              "pastecs","car","XML",
+              "pastecs","XML",
               "devtools", # package used to load packages hosted in github -- install CURL before and separately
               "plyr","hexbin",
               "vcd", # Visualisation of categorical data
@@ -32,7 +33,7 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
               "ade4",  "psych", 
               "ada", "ade4", "arules", "arulesViz", "boot",
               "C50", "car", "caret", #"CHAID",
-               "combinat",
+              "combinat","cluster",
               "corrplot", "doSNOW", "e1071", "extraTrees",
               "FactoMineR", "foreach", "foreign", "gbm", 
               "glmnet", "gmodels", "grplasso", "ipred",
@@ -55,8 +56,12 @@ if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
 
 rm(packages)
 
+# install.packages("devtools")
+#library("devtools")
+#install_github("kassambara/factoextra")
+
 # loads packages into memory
-library(prettyR)
+#library(prettyR)
 library(plyr)
 library(reshape2) ## Restructure data between wide and long format before plotting them - melt and cast
 #gpclibPermit()
@@ -70,85 +75,85 @@ library(ggplot2) ## The grammar of graphics!
 library(directlabels)
 library(extrafont) ## Additional fonts
 library(ggthemes) ## Additional themes for gplot2
-library(gdata)
-library(gridExtra)
-library(scales)
+#library(gdata)
+#library(gridExtra)
+#library(scales)
 
-
-
-library(lattice)
+#library(lattice)
 
 ############################################
 #### Spatial Packages
 library(maptools) ## Create maps
 library(rgdal) ## Open geographic files
 library(rgeos)
-library(maptools)
 library(ggmap) ## get background map from google map
 library(sp) ## Spatial library
-library(raster) ## Managing raster dataset
+#library(raster) ## Managing raster dataset
 library(classInt) ## Classififcation
 library(hexbin) ## Hexa binning
 
 
 ############################################
 ## Code reformatting
-library(formatR)
+#library(formatR)
 #library(RGtk2)
 #library(gWidgetsRGtk2)
 ## tidy.gui('RGtk2')
 library(xtable)
 library(knitr)
+library(tufte)
 
 ############################################
 #### Regressions
 
-library(Amelia) ## For missing data
+#library(Amelia) ## For missing data
 
-library(rattle)
-library(ada)
-library(ade4)
-library(arules)
-library(arulesViz)
-library(boot)
-library(C50)
+#library(rattle)
+#library(ada)
+#library(ade4)
+#library(arules)
+#library(arulesViz)
+#library(boot)
+#library(C50)
 library(car)
 library(caret)
 #library(CHAID)
-library(combinat)
+#library(combinat)
+library(cluster)
 library(corrplot)
-library(doSNOW)
-library(e1071)
-library(extraTrees)
-library(FactoMineR)
-library(foreach)
-library(gbm)
+#library(doSNOW)
+#library(e1071)
+#library(extraTrees)
+library(FactoMineR) ## Multiple correspondance analysis and classification
+library(factoextra)
+#library(foreach)
+#library(gbm)
 library(glmnet)
 library(glmulti)
 library(gmodels)
-library(grplasso)
-library(ipred)
-library(kernlab)
-library(leaps)
-library(LiblineaR)
-library(MASS)
-library(missForest)
-library(nnet)
-library(plsRglm)
-library(prim)
+#library(grplasso)
+#library(ipred)
+#library(kernlab)
+#library(leaps)
+#library(LiblineaR)
+#library(MASS)
+#library(missForest)
+#library(nnet)
+#library(plsRglm)
+#library(prim)
 library(pscl) ## used to verify the prediction power of a logistic model
 library(pROC)
-library(questionr)
+#library(questionr)
 library(randomForest)
-library(randtoolbox)
-library(rgl)
+#library(randtoolbox)
+#library(rgl)
 #library(rgrs)
 library(ROCR)
 library(rpart)
 library(rpart.plot)
-library(snow)
-library(speedglm)
-library(tree)
+#library(snow)
+#library(speedglm)
+#library(tree)
 
 ########################################
 ### Read other format

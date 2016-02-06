@@ -4,9 +4,9 @@ source("code/0-packages.R")
 ## Exploration of data will provide a quick overview 
 
 #rm(progres.case.sp.dep.rst)
-#progres.case.sp.dep.rst <- read.csv("data/progrescase2.csv")
+data <- read.csv("data/progrescase2.csv")
 
-data <- progres.case.sp.dep.rst
+#data <- progres.case.sp.dep.rst
 
 
 data.str <- strtable(data, factor.values=as.integer)
@@ -65,18 +65,18 @@ prop.table(table( data$YearArrivalCategory, data$CountryOriginCategory, useNA="a
 ## Cross tabulation of Specific needs
 ################################################################
 
-prop.table(table(data$Num_Inds2, data$Child.at.risk, useNA="always"),1)*100
-prop.table(table(data$Num_Inds2, data$Disability, useNA="always"),1)*100
-prop.table(table(data$Num_Inds2, data$Family.unity, useNA="always"),1)*100
-prop.table(table(data$Num_Inds2, data$Older.person.at.risk, useNA="always"),1)*100
-prop.table(table(data$Num_Inds2, data$Pregnant.or.lactating, useNA="always"),1)*100
-prop.table(table(data$Num_Inds2, data$Serious.medical.condition, useNA="always"),1)*100
-prop.table(table(data$Num_Inds2, data$SGBV, useNA="always"),1)*100
-prop.table(table(data$Num_Inds2, data$Single.parent, useNA="always"),1)*100
-prop.table(table(data$Num_Inds2, data$Specific.legal.physical.protection.needs, useNA="always"),1)*100
-prop.table(table(data$Num_Inds2, data$Torture, useNA="always"),1)*100
-prop.table(table(data$Num_Inds2, data$Unaccompanied.or.separated.child, useNA="always"),1)*100
-prop.table(table(data$Num_Inds2, data$Woman.at.risk, useNA="always"),1)*100
+prop.table(table(data$Case.size, data$Child.at.risk, useNA="always"),1)*100
+prop.table(table(data$Case.size, data$Disability, useNA="always"),1)*100
+prop.table(table(data$Case.size, data$Family.unity, useNA="always"),1)*100
+prop.table(table(data$Case.size, data$Older.person.at.risk, useNA="always"),1)*100
+prop.table(table(data$Case.size, data$Pregnant.or.lactating, useNA="always"),1)*100
+prop.table(table(data$Case.size, data$Serious.medical.condition, useNA="always"),1)*100
+prop.table(table(data$Case.size, data$SGBV, useNA="always"),1)*100
+prop.table(table(data$Case.size, data$Single.parent, useNA="always"),1)*100
+prop.table(table(data$Case.size, data$Specific.legal.physical.protection.needs, useNA="always"),1)*100
+prop.table(table(data$Case.size, data$Torture, useNA="always"),1)*100
+prop.table(table(data$Case.size, data$Unaccompanied.or.separated.child, useNA="always"),1)*100
+prop.table(table(data$Case.size, data$Woman.at.risk, useNA="always"),1)*100
 
 
 
@@ -173,21 +173,21 @@ chisq.test(data$CountryOriginCategory, data$occupationcat, correct=FALSE)
 
 ## Testing independance of Case size to other variables
 
-chisq.test(data$Num_Inds2, data$dem_marriage, correct=FALSE)
-chisq.test(data$Num_Inds2, data$dem_sex, correct=FALSE)
-chisq.test(data$Num_Inds2, data$season, correct=FALSE)
-chisq.test(data$Num_Inds2, data$YearArrivalCategory, correct=FALSE)
-chisq.test(data$Num_Inds2, data$occupationcat, correct=FALSE)
-chisq.test(data$Num_Inds2, data$edu_highestcat, correct=FALSE)
-chisq.test(data$Num_Inds2, data$CountryAsylum, correct=FALSE)
-chisq.test(data$Num_Inds2, data$CountryOriginCategory, correct=FALSE)
-chisq.test(data$Num_Inds2, data$agecohort, correct=FALSE)
-chisq.test(data$Num_Inds2, data$AVGAgecohort, correct=FALSE)
-chisq.test(data$Num_Inds2, data$STDEVAgeclass, correct=FALSE)
-chisq.test(data$Num_Inds2, data$dependency, correct=FALSE)
-chisq.test(data$Num_Inds2, data$youthdependency, correct=FALSE)
-chisq.test(data$Num_Inds2, data$elederndependency, correct=FALSE)
-chisq.test(data$Num_Inds2, data$female.ratio, correct=FALSE)
+chisq.test(data$Case.size, data$dem_marriage, correct=FALSE)
+chisq.test(data$Case.size, data$dem_sex, correct=FALSE)
+chisq.test(data$Case.size, data$season, correct=FALSE)
+chisq.test(data$Case.size, data$YearArrivalCategory, correct=FALSE)
+chisq.test(data$Case.size, data$occupationcat, correct=FALSE)
+chisq.test(data$Case.size, data$edu_highestcat, correct=FALSE)
+chisq.test(data$Case.size, data$CountryAsylum, correct=FALSE)
+chisq.test(data$Case.size, data$CountryOriginCategory, correct=FALSE)
+chisq.test(data$Case.size, data$agecohort, correct=FALSE)
+chisq.test(data$Case.size, data$AVGAgecohort, correct=FALSE)
+chisq.test(data$Case.size, data$STDEVAgeclass, correct=FALSE)
+chisq.test(data$Case.size, data$dependency, correct=FALSE)
+chisq.test(data$Case.size, data$youthdependency, correct=FALSE)
+chisq.test(data$Case.size, data$elederndependency, correct=FALSE)
+chisq.test(data$Case.size, data$female.ratio, correct=FALSE)
 
 
 

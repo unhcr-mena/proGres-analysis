@@ -2,16 +2,15 @@
 title: "Statistical Analysis of Refugee Profiles: Jordan"
 author: "UNHCR MENA Regional Protection Services - Edouard legoupil, Snr Information Management Officer"
 date: "2 February 2016"
-output: 
-  pdf_document: 
+output:
+  pdf_document:
     fig_caption: yes
     number_sections: yes
     toc: yes
 ---
 
-The information recorded in the Refugee Registration Database covers not only basic demographic characteristics but also identification of Specific Needs and recording of Events such as Ressettlement Acceptation or Voluntary Departure. 
 
-Many reports are already produced from proGres but thye mostly look at univerate analysis i.e looking at easch variable within the dataset and displaying it one by one. The present document is an attempt to explore various dimensions interact between each others. 
+Many reports are already produced from proGres but they mostly look at univariate analysis, i.e esch variable within the dataset is displayed one by one. The present document is an attempt to explore various dimensions interact between each others.
 
 This analysis covers information aggregated at the refugee refugee household level and is based on the information that is consolidated in the regional datawarehouse.
 
@@ -23,7 +22,7 @@ This analysis covers information aggregated at the refugee refugee household lev
 #getwd("D:/R-project/proGres-analysis")
 ## Load the pre-processed dataset (cf "code/1-recode-data.R"")
 data <- read.csv("D:/R-project/proGres-analysis/data/progrescase2.csv")
-data <-data[ data$CountryAsylum == "JOR", ]
+data <-data[data$CountryAsylum == "JOR", ]
 ## load all packages
 source("D:/R-project/proGres-analysis/code/0-packages.R")
 
@@ -31,8 +30,102 @@ source("D:/R-project/proGres-analysis/code/0-packages.R")
 
 # Excecutive Summary
 
-* 
+*
 
+
+# Presentation of the dataset
+
+The information recorded in the Refugee Registration Database covers not only basic demographic characteristics but also identification of Specific Needs and recording of Events such as Ressettlement Acceptation or Voluntary Departure.
+
+## Household Information
+
+Variable          | Description
+------------------|---------------------------------------
+Num_Inds          | Number of Individual in the household
+Case.size         | Size of the household - Discretisation & recategorisation of the *Num_Inds* variable
+Child_0_14        | Number of Child under 14 in the household
+Youth_15_17       | t
+Work_15_64        | t
+Eldern_65         | t
+dependency        | t
+youthdependency   | t
+elederndependency | t
+Male              | t
+Female            | t
+female.ratio      | t
+dem_age           | t
+agecohort         | t
+AVG_Age           | t
+AVGAgecohort      | t
+STDEV_Age         | t
+STDEVAgeclass     | t
+
+
+## Information related to the head of household
+
+Variable          | Description
+------------------|---------------------------------------
+dem_sex           | t
+dem_marriage      | t
+dem_marriagecat   | t
+dem_birth_country | t
+occupation        | t
+occupationcat     | t
+edu_highest       | t
+edu_highestcat    | t
+
+## Geographic Information
+
+Variable                 | Description
+-------------------------|---------------------------------------
+CountryOrigin            | t
+CountryOriginCategory    | t
+cool1                    | t
+CountryAsylum            | t
+coal1                    | t
+
+## Chronologic Information
+
+Variable             | Description
+---------------------|---------------------------------------
+YearArrival          | t
+YearArrivalCategory  | t
+Montharrival         | t
+season               | t
+
+## Specific need within household
+
+Variable                                    | Description
+--------------------------------------------|---------------------------------------
+Child.at.risk                               | t
+Disability                                  | t
+Family.unity                                | t
+Older.person.at.risk                        | t
+Pregnant.or.lactating                       | t
+Serious.medical.condition                   | t
+SGBV                                        | t
+Single.parent                               | t
+Specific.legal.physical.protection.needs    | t
+Torture                                     | t
+Unaccompanied.or.separated.child            | t
+Woman.at.risk                               | t
+
+## Reason for voluntary return if any
+
+ 
+* Departed.to.3rd.country 
+* Returned.to.territory.of.origin 
+* Whereabouts.unknown 
+
+## Reason for resettlement if any
+
+* Child.or.adolescent 
+* Family.reunification 
+* Legal.physical.protection.needs 
+* Medical.needs 
+* Refugee.without.local.integration.prospects 
+* Survivor.of.violence.and.torture 
+* Woman.at.risk 
 
 # Exploratory Analysis
 
@@ -83,7 +176,7 @@ kable(prop.table(table(data$YearArrivalCategory, data$CountryOriginCategory,  us
       caption = "Cross tabulation - % - between Arrival year & Country of Origin")
 
 
-``` 
+```
 
 
 ## Specific needs Child at Risk
@@ -103,14 +196,14 @@ kable(prop.table(table(data$YearArrivalCategory, data$Child.at.risk, useNA = "if
       caption = "Cross tabulation - % - Arrival year")
 
 
-kable(prop.table(table(data$dem_marriage, data$Child.at.risk, useNA = "ifany"),1)*100,digits = 1,
+kable(prop.table(table(data$dem_marriagecat, data$Child.at.risk, useNA = "ifany"),1)*100,digits = 1,
       caption = "Cross tabulation - % - Marrital status of head of household")
 
 
 kable(prop.table(table(data$dem_sex, data$Child.at.risk,  useNA="ifany"),1)*100,digits = 1,
       caption = "Cross tabulation - % - gender of head of household")
 
-``` 
+```
 
 
 ## Specific needs: Woman at risk
@@ -142,14 +235,14 @@ kable(prop.table(table(data$YearArrivalCategory, data$Woman.at.risk, useNA = "if
       caption = "Cross tabulation - % - between Occupation & Education")
 
 
-kable(prop.table(table(data$dem_marriage, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+kable(prop.table(table(data$dem_marriagecat, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
       caption = "Cross tabulation - % - between Occupation & Education")
 
 
 kable(prop.table(table(data$dem_sex, data$Woman.at.risk,  useNA="ifany"),1)*100,digits = 1,
       caption = "Cross tabulation - % - between Arrival year & Country of Origin")
 
-``` 
+```
 
 
 ## Specific needs: Torture
@@ -181,14 +274,14 @@ kable(prop.table(table(data$YearArrivalCategory, data$Torture, useNA = "ifany"),
       caption = "Cross tabulation - % - between Occupation & Education")
 
 
-kable(prop.table(table(data$dem_marriage, data$Torture, useNA = "ifany"),1)*100,digits = 1,
+kable(prop.table(table(data$dem_marriagecat, data$Torture, useNA = "ifany"),1)*100,digits = 1,
       caption = "Cross tabulation - % - between Occupation & Education")
 
 
 kable(prop.table(table(data$dem_sex, data$Torture,  useNA="ifany"),1)*100,digits = 1,
       caption = "Cross tabulation - % - between Arrival year & Country of Origin")
 
-``` 
+```
 
 
 ## Specific needs: Specific.legal.physical.protection.needs
@@ -220,7 +313,7 @@ kable(prop.table(table(data$YearArrivalCategory, data$Specific.legal.physical.pr
       caption = "Cross tabulation - % - between Occupation & Education")
 
 
-kable(prop.table(table(data$dem_marriage, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+kable(prop.table(table(data$dem_marriagecat, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
       caption = "Cross tabulation - % - between Occupation & Education")
 
 
@@ -228,7 +321,7 @@ kable(prop.table(table(data$dem_sex, data$Specific.legal.physical.protection.nee
       caption = "Cross tabulation - % - between Arrival year & Country of Origin")
 
 
-``` 
+```
 
 ## Specific needs: SGBV
 
@@ -259,25 +352,78 @@ kable(prop.table(table(data$YearArrivalCategory, data$SGBV, useNA = "ifany"),1)*
       caption = "Cross tabulation - % - between Occupation & Education")
 
 
-kable(prop.table(table(data$dem_marriage, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+kable(prop.table(table(data$dem_marriagecat, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
       caption = "Cross tabulation - % - between Occupation & Education")
 
 
 kable(prop.table(table(data$dem_sex, data$SGBV,  useNA="ifany"),1)*100,digits = 1,
       caption = "Cross tabulation - % - between Arrival year & Country of Origin")
 
-``` 
-   
+```
 
-# Multiple Correspondance analysis
 
+# Multivariate Analysis
+
+
+## Multiple Correspondance analysis
+```{r, echo=FALSE}
+data.sample <- data[sample(1:nrow(data), 2000,replace=FALSE),
+                                    c("Case.size", "dem_marriagecat", "dem_sex",
+                                      "dependency", "youthdependency", "elederndependency",
+                                      "agecohort", "AVGAgecohort", "STDEVAgeclass",
+                                      "YearArrivalCategory", "season",
+                                      "CountryOriginCategory","CountryAsylum",
+                                      "occupationcat", "edu_highestcat")]
+# Multiple correpondance analysis
+data.mca <- MCA(data.sample, graph=FALSE)
+
+fviz_mca_ind(data.mca, col.ind = "blue") + theme_minimal()
+ 
+fviz_mca_var(data.mca)+ theme_minimal()
+
+## Contribution of top 10 variables
+fviz_contrib(data.mca, choice = "var", axes = 1, top = 20) + theme_minimal() +  coord_flip()
+fviz_contrib(data.mca, choice = "var", axes = 2, top = 20) + theme_minimal() +  coord_flip()
+
+
+```
+
+## Hierarchical Classification on Principle Components
+
+```{r, echo=FALSE}
+data.mca.hcpc <- HCPC(data.mca, nb.clust=-1, min=3, max=4, graph=FALSE, order=FALSE, consol=TRUE)
+
+
+plot(data.mca.hcpc, choice="map", title="Statistical clusters - Points cloud")
+
+plot(data.mca.hcpc, choice="tree", title="Statistical clusters - Dendrogramme")
+
+plot(data.mca.hcpc, title="Statistical clusters")
+
+```
+
+## Description of statistical clusters
+
+```{r, echo=FALSE}
+
+kable(data.mca.hcpc$desc.var$category$`1`, digits = 1, caption = "Description of Cluster 1")
+
+kable(data.mca.hcpc$desc.var$category$`2`, digits = 1, caption = "Description of Cluster 2")
+
+kable(data.mca.hcpc$desc.var$category$`3`, digits = 1, caption = "Description of Cluster 3")
+
+kable(data.mca.hcpc$desc.var$category$`4`, digits = 1, caption = "Description of Cluster 4")
+
+```
 
 
 # Regression Analysis
 
-Logistic Regression can be used to predict certain characteristics or events linked to one household. 
+Logistic Regression can be used to predict certain characteristics or events linked to one household.
 
 ## Predicting Specific Needs
+
+
 
 ## Predicting Resettlement Case acceptation
 

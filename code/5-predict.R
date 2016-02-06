@@ -26,7 +26,7 @@ sapply(data, function(x) length(unique(x)))
 ###### Dataset for modelling - 
 ###########################################
 
-data.reg <- data[ , c( "Num_Inds2", "dem_marriage", "dem_sex",
+data.reg <- data[ , c( "Case.size", "dem_marriage", "dem_sex",
                            "dependency", "youthdependency", "elederndependency","female.ratio",
                            "agecohort", "AVGAgecohort", "STDEVAgeclass",
                            "YearArrivalCategory", "season",

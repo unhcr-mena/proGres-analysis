@@ -1,7 +1,7 @@
 source("code/0-packages.R")
 
 #rm(data.sp.dep.rst)
-#data.sp.dep.rst <- read.csv("data/progrescase2.csv")
+#data <- read.csv("data/progrescase2.csv")
 
 
 data <- data.sp.dep.rst

@@ -1,10 +1,9 @@
 source("code/0-packages.R")
 
-#rm(data.sp.dep.rst)
-#data.sp.dep.rst <- read.csv("data/progrescase2.csv")
+data <- read.csv("data/progrescase2.csv")
 
 
-data <- data.sp.dep.rst
+# names(data)
 
 
 ####################################################################################
@@ -14,37 +13,70 @@ data <- data.sp.dep.rst
 
 data.JOR <-data[ data$CountryAsylum == "JOR", ]
 ## We need to generate sample in order to create the MCA object
-data.JOR.sample <- data.JOR[sample(1:nrow(data.JOR), 1000,replace=FALSE),
-                                    c("Num_Inds2", "dem_marriage", "dem_sex",
+data.JOR.sample <- data.JOR[sample(1:nrow(data.JOR), 3000,replace=FALSE),
+                                    c("Case.size", "dem_marriage", "dem_sex",
                                       "dependency", "youthdependency", "elederndependency",
                                       "agecohort", "AVGAgecohort", "STDEVAgeclass",
                                       "YearArrivalCategory", "season",
                                       "CountryOriginCategory","CountryAsylum",
                                       "occupationcat", "edu_highestcat")]
-data.sample <- droplevels(data.JOR.sample)
+data.JOR.sample <- droplevels(data.JOR.sample)
 
 #str(data.JOR.sample)
 
 #####################################
 #### Loading the required R module FactoMiner
 
-data.JOR.mca <- MCA(data.JOR.sample)
+data.JOR.mca <- MCA(data.JOR.sample, graph=FALSE)
 summary(data.JOR.mca)
 #print(data.mca, nb.dec = 3, nbelements=10, ncp = 3, align.names=TRUE, file = "out/summary-mca.txt")
+
+###################################
+## Plotting MC with factoextra
+
+# http://www.sthda.com/english/wiki/factoextra-r-package-quick-multivariate-data-analysis-pca-ca-mca-and-visualization-r-software-and-data-mining 
+png(file = "out/mcaviz1.png", bg = "transparent")
+fviz_mca_biplot(data.JOR.mca) + theme_minimal()
+dev.off()
+
+#  Graph of individuals
+png(file = "out/mcaviz-individual.png", bg = "transparent")
+fviz_mca_ind(data.JOR.mca, col.ind = "blue") + theme_minimal()
+dev.off()
+
+# Variable
+png(file = "out/mcaviz-variable.png", bg = "transparent")
+fviz_mca_var(data.JOR.mca)+ theme_minimal()
+dev.off()
+
+## Contribution of top 10 variables
+png(file = "out/mcaviz-contrib1.png", bg = "transparent")
+fviz_contrib(data.JOR.mca, choice = "var", axes = 1, top = 20)+  coord_flip()
+dev.off()
+
+png(file = "out/mcaviz-contrib2.png", bg = "transparent")
+fviz_contrib(data.JOR.mca, choice = "var", axes = 2, top = 20) +  coord_flip()
+dev.off()
+
 
 
 #####################################
 # Plotting the MCA with better readibility
 
-pdf("out/mca1.pdf")
+png(file = "out/mcaviz-base1.png", bg = "transparent")
+#pdf("out/mca1.pdf")
 plot.MCA(data.JOR.mca, axes=c(1, 2), col.ind="black", col.ind.sup="blue", col.var="darkred", col.quali.sup="darkgreen", label=c("ind", "ind.sup", "quali.sup", "var", "quanti.sup"), invisible=c("none", new.plot=TRUE))
 dev.off()
 
-pdf("out/mca2.pdf")
+
+png(file = "out/mcaviz-base2.png", bg = "transparent")
+#pdf("out/mca2.pdf")
 plot.MCA(data.JOR.mca, axes=c(1, 2), choix="var", col.var="darkred", col.quali.sup="darkgreen", label=c("var", "quali.sup"), invisible=c("none", new.plot=TRUE))
 dev.off()
 
-pdf("out/mca3.pdf")
+
+png(file = "out/mcaviz-base3.png", bg = "transparent")
+#pdf("out/mca3.pdf")
 plot.MCA(data.JOR.mca, axes=c(1, 2), choix="quanti.sup", col.quanti.sup="blue", label=c("quanti.sup", new.plot=TRUE))
 dev.off()
 
@@ -66,36 +98,50 @@ plot(res.catdes)
 
 #####################################
 ### Hierarchical Clustering on Principal Components
-data.JOR.mca.hcpc <- HCPC(data.JOR.mca, nb.clust=-1, min=3, max=5, graph=FALSE, order=FALSE, consol=TRUE)
-#data.JOR.mca.hcpc$desc.var
-#data.JOR.mca.hcpc$desc.axes
-#data.JOR.mca.hcpc$desc.ind
-#data.JOR.mca.hcpc$data.clust
+data.JOR.mca.hcpc <- HCPC(data.JOR.mca, nb.clust=-1, min=3, max=4, graph=FALSE, order=FALSE, consol=TRUE)
+data.JOR.mca.hcpc$desc.var
 
-print (data.JOR.mca.hcpc, "out/descriptioncluster.txt")
+data.JOR.mca.hcpc.desc.var <- as.data.frame(data.JOR.mca.hcpc$desc.var$category$`1`)
 
-pdf("out/cluster1.pdf")
+
+data.JOR.mca.hcpc$desc.var$category$`1` 
+
+data.JOR.mca.hcpc$desc.axes
+data.JOR.mca.hcpc$desc.ind
+data.JOR.mca.hcpc$data.clust
+
+#print (data.JOR.mca.hcpc, "out/descriptioncluster.txt")
+
+png(file = "out/mcaviz-cluster3d.png", bg = "transparent")
+#pdf("out/cluster1.pdf")
 plot(data.JOR.mca.hcpc)
 dev.off()
 
-pdf("out/cluster1.pdf")
+# Plot the dendrogram only
+png(file = "out/mcaviz-dendro.png", bg = "transparent")
+plot(data.JOR.mca.hcpc, choice ="tree", cex = 0.6)
+dev.off()
+
+png(file = "out/mcaviz-cluster.png", bg = "transparent")
+#pdf("out/cluster2.pdf")
 plot(data.JOR.mca.hcpc, choice="map")
 dev.off()
 
 
-library(cluster)
-classif = agnes(datamca.mca$ind$coord,method="ward")
-plot(classif,main="Dendrogram",ask=F,which.plots=2,labels=FALSE)
+## other classif 
+
+data.JOR.classif <- agnes(data.JOR.mca$ind$coord,method="ward")
+
+pdf("out/cluster3.pdf")
+plot(data.JOR.classif,main="Dendrogram",ask=F,which.plots=2,labels=FALSE)
+dev.off()
 
 #ind1.enmca<-ENMCA(ind1, report=FALSE)
 #ind3.semantic <- ENmarking(ind3,1)
 
 ###################
 #  clear graphics settings so that it works with multiple windows
-dev.off()
-Sys.setenv("DISPLAY"=":0.0")
 
 capabilities()
 sessionInfo()
-options(device="X11")
 
