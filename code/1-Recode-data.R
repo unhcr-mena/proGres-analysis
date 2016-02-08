@@ -86,7 +86,11 @@ progres.case$age.PA3 <- as.factor(ifelse(progres.case$dem_age > 54, 1, 0))
 
 ##############################
 ## Adding Age cohort for Average age
-progres.case$AVGAgecohort <- cut(progres.case$AVG_Age,c(0,18,25,35,45,59,Inf))
+progres.case$AVGAgecohort <- cut(progres.case$AVG_Age,c(0.1,18,25,35,45,59,Inf))
+progres.case$AVGAgecohort <- as.character(progres.case$AVGAgecohort)
+progres.case$AVGAgecohort[is.na(progres.case$AVGAgecohort)]<- "0"
+progres.case$AVGAgecohort <- as.factor(progres.case$AVGAgecohort)
+progres.case$AVGAgecohort <-  factor(progres.case$AVGAgecohort, levels = c( "0", "(0.1,18]", "(18,25]", "(25,35]", "(35,45]","(45,59]", "(59,Inf]"))
 
 ##############################
 ## Adding class for standard age deviation
@@ -95,7 +99,6 @@ progres.case$STDEVAgeclass <- cut(progres.case$STDEV_Age,c(0.001,5,10,15,20,Inf)
 progres.case$STDEVAgeclass <- as.character(progres.case$STDEVAgeclass)
 progres.case$STDEVAgeclass[is.na(progres.case$STDEVAgeclass)]<- "0"
 progres.case$STDEVAgeclass <- as.factor(progres.case$STDEVAgeclass)
-progres.case$female.ratio <- as.factor(progres.case$female.ratio)
 progres.case$STDEVAgeclass <-  factor(progres.case$STDEVAgeclass, levels = c( "0", "(0.001,5]", "(5,10]", "(10,15]", "(15,20]", "(20,Inf]"))
 
 ##############################
@@ -197,20 +200,20 @@ progres.case$YearArrivalCategory <- as.factor(recode(progres.case$YearArrival,"'
 
 ##############################
 # Aggregating country of Origin
-#ctrorigin <- as.data.frame(table(progres.case$CountryOrigin))
+#ctrorigin <- as.data.frame(table(progres.case$CountryOrigin), useNA = "ifany")
 #rm(ctrorigin)
 #summary(progres.case$CountryOrigin)
 #levels(progres.case$CountryOrigin)
 progres.case$CountryOriginCategory <- recode(progres.case$CountryOrigin,"'SYR'='SYR';
                                         'IRQ'='IRQ';
-                                        'SOM'='SOM';
+                                        'SOM'='HORN';
                                         'AFG'='AFG';
                                         'IRN'='IRN';
-                                        'SUD'='SUD';
-                                        'ETH'='ETH';
-                                        'ERT'='ERT';
-                                        'PAL'='PAL';
-                                        'TUR'='TUR';
+                                        'SUD'='HORN';
+                                        'ETH'='HORN';
+                                        'ERT'='HORN';
+                                        'PAL'='MENA';
+                                        'TUR'='OTH';
                                         'PAK'='ASIA';
                                         'YEM'='MENA';
                                         'SSD'='AFR';
@@ -299,6 +302,9 @@ progres.case$CountryOriginCategory <- recode(progres.case$CountryOrigin,"'SYR'='
                                         'SUR'='OTH';
                                         'YUG'='OTH'")
 
+progres.case$CountryOriginCategory <- factor(progres.case$CountryOriginCategory, levels = c("SYR","IRQ","AFG","IRN","HORN","AFR", "MENA", "ASIA", "OTH"))
+
+
 ##############################
 # Aggregating country of Asylum
 #ctrAsylum <- as.data.frame(table(progres.case$CountryAsylum))
@@ -355,18 +361,21 @@ progres.case$edu_highestcat <- recode(progres.case$edu_highest_t,"'Unknown'='Unk
                                       'Grade 8'='Grade 6-8';
                                       'Grade 9'='Grade 9-11';
                                       'Grade 10'='Grade 9-11';
-                                      'Grade 11 '='Grade 9-11';
+                                      'Grade 11'='Grade 9-11';
                                       'Grade 12'='Grade 12-14';
                                       'Grade 13'='Grade 12-14';
                                       'Grade 14'='Grade 12-14';
                                       'University level'='Higher Education';
                                       'Post university level'='Higher Education'")
 
+progres.case$edu_highestcat <- as.character(progres.case$edu_highestcat)
+#table(progres.case$edu_highestcat, useNA="always")
+
 progres.case$edu_highestcat[is.na(progres.case$edu_highestcat)]<- "Unknown"
+#table(progres.case$edu_highestcat, useNA="always")
 
-progres.case$edu_highestcat <- as.factor(progres.case$edu_highestcat)
 progres.case$edu_highestcat <- factor(progres.case$edu_highestcat, levels = c("Unknown", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14", "Higher Education"))
-
+#table(progres.case$edu_highestcat, useNA="always")
 ##############################
 # Educational attainment
 progres.case$edu.highest.grp1 <- as.factor(ifelse((  progres.case$edu_highest_t == "No education" | 
@@ -399,19 +408,36 @@ progres.case$occupationcat <- "UnknownOccup"
 progres.case$occupationcat[progres.case$occupationcode ==  "0001"] <- "Military"
 progres.case$occupationcat[progres.case$occupationcode ==  "None"] <- "NoOccup"
 progres.case$occupationcat[progres.case$occupationcode ==  "0110"] <- "Student"
-progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "1"] <- "Manager"
-progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "2"] <- "Professional"
-progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "3"] <- "Technician"
-progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "4"] <- "Clerk"
+#progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "1"] <- "Manager"
+progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "1"] <- "Manager-Professional-Technician-Clerk"
+#progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "2"] <- "Professional"
+progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "2"] <- "Manager-Professional-Technician-Clerk"
+#progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "3"] <- "Technician"
+progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "3"] <- "Manager-Professional-Technician-Clerk"
+#progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "4"] <- "Clerk"
+progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "4"] <- "Manager-Professional-Technician-Clerk"
 progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "5"] <- "ServiceMarket"
 progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "6"] <- "Agricultural"
-progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "7"] <- "Craft"
-progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "8"] <- "Machine"
+progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "7"] <- "Craft-Machine"
+progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "8"] <- "Craft-Machine"
+#progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "7"] <- "Craft"
+#progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "8"] <- "Machine"
 progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "9"] <- "Elementary"
 
 progres.case$occupationcat[is.na(progres.case$occupationcat)]<- "UnknownOccup"
 
-progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Manager", "Professional", "Technician", "Clerk", "ServiceMarket", "Agricultural", "Craft", "Machine", "Elementary", "Military", "UnknownOccup", "NoOccup", "Student"))
+
+#occupationcat <- as.data.frame(table(progres.case$occupationcat, useNA = "ifany"))
+
+
+progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Manager-Professional-Technician-Clerk", "ServiceMarket",
+                                                                            "Agricultural", "Craft-Machine", "Elementary", "Military",
+                                                                            "UnknownOccup", "NoOccup", "Student"))
+
+#progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Manager", "Professional", "Technician", "Clerk", "ServiceMarket",
+#                                                                            "Agricultural", "Craft", "Machine", "Elementary", "Military",
+#                                                                            "UnknownOccup", "NoOccup", "Student"))
+
 #summary(progres.case$occupationcat)
 #progres.case$occupationcat <- substr(progres.case$occupationcode, 1,1 )
 #str(progres.case$occupationcat)
@@ -454,6 +480,10 @@ progres.case$bir_syria <- as.factor(ifelse(progres.case$dem_birth_country == "SY
 
 ##############################
 # Gender PA
+
+#table(progres.case$dem_sex, useNA = "ifany")
+progres.case$dem_sex <- recode(progres.case$dem_sex,"'M'='Male'; 'F'='Female';'U'='Unknown'")
+
 progres.case$gender.male <- ifelse(progres.case$dem_sex == "Male", 1, 0)
 progres.case$gender.female <- ifelse(progres.case$dem_sex == "Female", 1, 0)
 
@@ -647,10 +677,11 @@ data <- progres.case.sp.dep.rst
 
 ### Cleaning data
 
-## Remove observation where we do not have PA Age or Arrival Date
+## Remove observation where we do not have PA Age or Arrival Date or Sex of PA
 data <- data[!rowSums(is.na(data["dem_age"])), ]
 data <- data[!rowSums(is.na(data["AVG_Age"])), ]
 data <- data[!rowSums(is.na(data["YearArrival"])), ]
+data <- data[data$dem_sex !="Unknown", ]
 
 
 ## Description of all variables 

@@ -1,11 +1,25 @@
 
 source("code/0-packages.R")
 
-#rm(progres.case.sp.dep.rst)
-#progres.case.sp.dep.rst <- read.csv("data/progrescase2.csv")
 
+data <- read.csv("data/progrescase2.csv")
 
-data <- progres.case.sp.dep.rst
+## Reorder factor levels
+data$dependency <-  factor(data$dependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+data$youthdependency <-  factor(data$youthdependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+data$elederndependency <-  factor(data$elederndependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+data$female.ratio <-  factor(data$female.ratio, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+data$STDEVAgeclass <-  factor(data$STDEVAgeclass, levels = c( "0", "(0.001,5]", "(5,10]", "(10,15]", "(15,20]", "(20,Inf]"))
+data$AVGAgecohort <-  factor(data$AVGAgecohort, levels = c( "0", "(0.1,18]", "(18,25]", "(25,35]", "(35,45]","(45,59]", "(59,Inf]"))
+data$season <- factor(data$season, levels = c("Spring", "Summer", "Autumn", "Winter"))
+data$CountryOriginCategory <- factor(data$CountryOriginCategory, levels = c("SYR","IRQ","AFG","IRN","HORN","AFR", "MENA", "ASIA", "OTH"))
+data$Montharrival <- factor(data$Montharrival, levels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"))
+data$edu_highestcat <- factor(data$edu_highestcat, levels = c("Unknown", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14", "Higher Education"))
+data$dem_marriagecat <- factor(data$dem_marriagecat, levels = c("Engaged", "Single", "Married", "Widowed", "Separated", "Divorced","Unknown"))
+data$occupationcat <- factor(data$occupationcat, levels = c("Manager-Professional-Technician-Technician", "ServiceMarket",
+                                                            "Agricultural", "Craft-Machine", "Elementary", "Military",
+                                                            "UnknownOccup", "NoOccup", "Student"))
+
 
 str(data)
 
@@ -26,42 +40,54 @@ sapply(data, function(x) length(unique(x)))
 ###### Dataset for modelling - 
 ###########################################
 
-data.reg <- data[ , c( "Case.size", "dem_marriage", "dem_sex",
+
+#   "Child.at.risk", "Disability", "Family.unity", "Older.person.at.risk",
+#  "Pregnant.or.lactating", "Serious.medical.condition", "SGBV", "Single.parent",
+#  "Specific.legal.physical.protection.needs", "Torture", "Unaccompanied.or.separated.child",
+
+data.JOR <-data[ data$CountryAsylum == "JOR", ]
+
+
+data.Woman.at.risk <- data.JOR[sample(1:nrow(data.JOR), 10000,replace=FALSE),  c( "Case.size", "dem_marriage", "dem_sex",
                            "dependency", "youthdependency", "elederndependency","female.ratio",
                            "agecohort", "AVGAgecohort", "STDEVAgeclass",
                            "YearArrivalCategory", "season",
-                           "CountryOriginCategory","CountryAsylum",
-                           "occupationcat", "edu_highestcat",
-                        #   "Child.at.risk", "Disability", "Family.unity", "Older.person.at.risk",
-                        #  "Pregnant.or.lactating", "Serious.medical.condition", "SGBV", "Single.parent",
-                        #  "Specific.legal.physical.protection.needs", "Torture", "Unaccompanied.or.separated.child",
-                           "Woman.at.risk"
+                           "CountryOriginCategory",
+                           "occupationcat", "edu_highestcat","Woman.at.risk"
                            )]
+#summary(data.Woman.at.risk)
 
 # Output the number of missing values for each column
-sapply(data.reg,function(x) sum(is.na(x)))
+sapply(data.Woman.at.risk,function(x) sum(is.na(x)))
+
+# Check categorical variables encoding for better understanding of the fitted model
+contrasts(data$Woman.at.risk)
+contrasts(data$Case.size)
 
 # Train test splitting
-train <- data.reg[1:5000,]
-test <- data.reg[5001:887000,]
+train <- data.Woman.at.risk[1:5000,]
+test <- data.Woman.at.risk[5001:10000,]
 
 ###########################################
 # Model fitting
 ###########################################
 
-model <- glm(Woman.at.risk ~.,family=binomial(link='logit'),data=train)
-summary(model)
+model.Woman.at.risk <- glm(Woman.at.risk ~.,family=binomial(link='logit'),data=train)
+summary(model.Woman.at.risk)
+
+#### Interpreting the results
+## https://www.youtube.com/watch?v=nubin7hq4-s
 
 # Analysis of deviance
-anova(model,test="Chisq")
+anova(model.Woman.at.risk,test="Chisq")
 
 # McFadden R^2
-pR2(model)
+pR2(model.Woman.at.risk)
 
 # measuring the productive ability of the model
 # If prob > 0.5 then 1, else 0. Threshold can be set for better results
-fitted.results <- predict(model,newdata=subset(test),type='response')
-fitted.results <- ifelse(fitted.results > 0.5,1,0)
+fitted.results.Woman.at.risk <- predict(model.Woman.at.risk,newdata=subset(test),type='response')
+fitted.results.Woman.at.risk <- ifelse(fitted.results.Woman.at.risk > 0.5,1,0)
 
 misClasificError <- mean(fitted.results != test$Woman.at.risk)
 print(paste('Accuracy',1-misClasificError))

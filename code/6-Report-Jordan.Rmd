@@ -1,6 +1,6 @@
 ---
 title: "Statistical Analysis of Refugee Profiles: Jordan"
-author: "UNHCR MENA Regional Protection Services - Edouard legoupil, Snr Information Management Officer"
+author: "UNHCR MENA Regional Protection Services"
 date: "2 February 2016"
 output:
   pdf_document:
@@ -10,11 +10,6 @@ output:
 ---
 
 
-Many reports are already produced from proGres but they mostly look at univariate analysis, i.e esch variable within the dataset is displayed one by one. The present document is an attempt to explore various dimensions interact between each others.
-
-This analysis covers information aggregated at the refugee refugee household level and is based on the information that is consolidated in the regional datawarehouse.
-
-
 
 ```{r , echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -22,7 +17,26 @@ This analysis covers information aggregated at the refugee refugee household lev
 #getwd("D:/R-project/proGres-analysis")
 ## Load the pre-processed dataset (cf "code/1-recode-data.R"")
 data <- read.csv("D:/R-project/proGres-analysis/data/progrescase2.csv")
+
+## Subset for the country
 data <-data[data$CountryAsylum == "JOR", ]
+
+## Reorder factor levels
+data$dependency <-  factor(data$dependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+data$youthdependency <-  factor(data$youthdependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+data$elederndependency <-  factor(data$elederndependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+data$female.ratio <-  factor(data$female.ratio, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+data$STDEVAgeclass <-  factor(data$STDEVAgeclass, levels = c( "0", "(0.001,5]", "(5,10]", "(10,15]", "(15,20]", "(20,Inf]"))
+data$AVGAgecohort <-  factor(data$AVGAgecohort, levels = c( "0", "(0.1,18]", "(18,25]", "(25,35]", "(35,45]","(45,59]", "(59,Inf]"))
+data$season <- factor(data$season, levels = c("Spring", "Summer", "Autumn", "Winter"))
+data$CountryOriginCategory <- factor(data$CountryOriginCategory, levels = c("SYR","IRQ","AFG","IRN","HORN","AFR", "MENA", "ASIA", "OTH"))
+data$Montharrival <- factor(data$Montharrival, levels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"))
+data$edu_highestcat <- factor(data$edu_highestcat, levels = c("Unknown", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14", "Higher Education"))
+data$dem_marriagecat <- factor(data$dem_marriagecat, levels = c("Engaged", "Single", "Married", "Widowed", "Separated", "Divorced","Unknown"))
+data$occupationcat <- factor(data$occupationcat, levels = c("Manager-Professional-Technician-Technician", "ServiceMarket",
+                                                                            "Agricultural", "Craft-Machine", "Elementary", "Military",
+                                                                            "UnknownOccup", "NoOccup", "Student"))
+
 ## load all packages
 source("D:/R-project/proGres-analysis/code/0-packages.R")
 
@@ -30,22 +44,40 @@ source("D:/R-project/proGres-analysis/code/0-packages.R")
 
 # Excecutive Summary
 
-*
+## What are the dependent variables within the household profiles?
+
+***  
+
+## Can the population be clusterised around common characteristics?
+
+***  
+
+## Can specific events or characteristics be predicted?
+
+***  
+# Introduction
+
+
+Many reports are already produced from proGres but they mostly look at univariate analysis, i.e esch variable within the dataset is displayed one by one. The present document is an attempt to explore various dimensions interact between each others.
+
+This analysis covers information aggregated at the refugee refugee household level and is based on the information that is consolidated in the regional datawarehouse.
 
 
 # Presentation of the dataset
 
-The information recorded in the Refugee Registration Database covers not only basic demographic characteristics but also identification of Specific Needs and recording of Events such as Ressettlement Acceptation or Voluntary Departure.
+The information recorded in the Refugee Registration Database covers not only basic demographic characteristics but also identification of Specific Needs and recording of Events such as Ressettlement Acceptation or Voluntary Departure. UNHCR Registration system is described in the [Handbook for Registration](http://www.unhcr.org/4a278ea1d.pdf) and particularly in the annex 7 that displays the Standard Categories and Codes.
 
-## Household Information
+## Case information
+
+### Household Level Information
 
 Variable          | Description
 ------------------|---------------------------------------
 Num_Inds          | Number of Individual in the household
 Case.size         | Size of the household - Discretisation & recategorisation of the *Num_Inds* variable
 Child_0_14        | Number of Child under 14 in the household
-Youth_15_17       | t
-Work_15_64        | t
+Youth_15_17       | Number of Youth between 15 & 17 years old in the household
+Work_15_64        | Number of Working age Individual (15-) in the household
 Eldern_65         | t
 dependency        | t
 youthdependency   | t
@@ -61,63 +93,80 @@ STDEV_Age         | t
 STDEVAgeclass     | t
 
 
-## Information related to the head of household
+### Information related to the head of household
 
 Variable          | Description
 ------------------|---------------------------------------
-dem_sex           | t
-dem_marriage      | t
-dem_marriagecat   | t
-dem_birth_country | t
-occupation        | t
-occupationcat     | t
-edu_highest       | t
-edu_highestcat    | t
+dem_sex           | Sex of the head of Household.
+dem_marriage      | Marrital status of the head of Household.
+dem_marriagecat   | Recategorisation of the *dem_marriage* variable
+dem_birth_country | Birth Country of the head of Household. 
+occupation        | Occupation type  of the head of Household according to
+-                 | [International Standard Classification of Occupations](http://www.ilo.org/public/english/bureau/stat/isco/isco08/) 
+occupationcat     | Recategorisation of the *occupation* variable
+edu_highest       | Highest edcuation level of the head of Household 
+edu_highestcat    | Recategorisation of the *edu_highest* variable
 
-## Geographic Information
+### Geographic Information
 
 Variable                 | Description
 -------------------------|---------------------------------------
-CountryOrigin            | t
-CountryOriginCategory    | t
-cool1                    | t
-CountryAsylum            | t
-coal1                    | t
+CountryOrigin            | Three letters code for Country of Origin.
+CountryOriginCategory    | Recategorised Country of origin - classes with 
+-                        |   low numbers are aggregated.
+cool1                    | Administrative level 1 in Country of Origin- classes with 
+-                        |  low numbers are aggregated. Unknown adresses are recorded as 'other'. 
+CountryAsylum            | Three letters code for Country of Asylum.
+coal1                    | Administrative level 1 in Country of Asylum- classes  
+                         |  with low numbers are aggregated. Unknown adresses are recorded as 'other'. 
 
-## Chronologic Information
+### Chronologic Information
 
 Variable             | Description
 ---------------------|---------------------------------------
-YearArrival          | t
-YearArrivalCategory  | t
-Montharrival         | t
-season               | t
+YearArrival          | Year of Arrival
+YearArrivalCategory  | Discretisation & recategorisation of the *Year of Arrival* variable
+Montharrival         | Month of Arrival
+season               | Discretisation & recategorisation of the *Month of Arrival* variable
 
-## Specific need within household
+## Specific Events or Characteristics
+
+### Specific need within household
+
+The Specific Needs Codes provide a standardized and exhaustive list of an individual’s particular characteristics, background, or risks that may provoke protection exigencies. UNHCR used the  [Heightened Risk Identification Tool](http://www.refworld.org/docid/4c46c6860.html) to identify specific needs.
+
 
 Variable                                    | Description
 --------------------------------------------|---------------------------------------
-Child.at.risk                               | t
-Disability                                  | t
-Family.unity                                | t
-Older.person.at.risk                        | t
-Pregnant.or.lactating                       | t
-Serious.medical.condition                   | t
-SGBV                                        | t
-Single.parent                               | t
-Specific.legal.physical.protection.needs    | t
-Torture                                     | t
-Unaccompanied.or.separated.child            | t
-Woman.at.risk                               | t
+Unaccompanied.or.separated.child            | Certain Unaccompanied & separated child applicants (under 18 years)
+Child.at.risk                               | Chidl at risk because of Child-headed household,special education needs
+-                                           | Not at School, in conflict with the law, etc.
+Woman.at.risk                               | Women with special needs or who are at risk in the host country.
+-                                           | May include single women or women who are members of family or household,
+-                                           | as well as women that are survivors of violence
+Older.person.at.risk                        | Elderly asylum-seekers without support in the host country
+Serious.medical.condition                   | Asylum-seekers who require urgent medical assistance
+Disability                                  | Disabled asylum-seekers without necessary support
+SGBV                                        | Victims of Sex & Gender Based Violence
+Single.parent                               | May be either a man or a woman. Also may be girl or a boy under
+the age of 18 years.
+Specific.legal.physical.protection.needs    | Persons manifestly in need of protection intervention 
+-                                           |-                                           |  (i.e. with urgent protection needs in the host country)
+Torture                                     | Victims of torture and persons suffering from trauma
+Family.unity                                | in need of Family Reunification
 
-## Reason for voluntary return if any
+
+
+
+
+### Reason for voluntary return if any
 
  
 * Departed.to.3rd.country 
 * Returned.to.territory.of.origin 
 * Whereabouts.unknown 
 
-## Reason for resettlement if any
+### Reason for resettlement if any
 
 * Child.or.adolescent 
 * Family.reunification 
@@ -129,153 +178,173 @@ Woman.at.risk                               | t
 
 # Exploratory Analysis
 
+The first phase of the analysis consist at discovering the variable links. Two random variables are called independent if the probability distribution of one variable is not affected by the presence of another. This is tested through the *Chi-squared Test of Independence* that allows to know if the independance hypothesis has a higher value than the .05 significance level. The Chi-squared Test provide a *p-value*: if the  p-value is greater than the .05, then the two tested variable are independent 
+
 ## Household characteristics
 
-```{r, echo=FALSE}
+```{r, echo=FALSE }
 
 ## Cross tabulation - % - between age cohort of head of Household and average age cohort of household
 
 kable(prop.table(table(data$agecohort, data$AVGAgecohort, useNA = "ifany"),1)*100, digits = 1,
 caption = "Cross tabulation - % - between age cohort of head of Household and average age cohort of household")
 
+chisq.test(data$agecohort, data$AVGAgecohort)$p.value
+
 ## Cross tabulation - % - between average age and standard deviation of age cohort of household
 kable(prop.table(table(data$AVGAgecohort, data$STDEVAgeclass, useNA = "ifany"),1)*100, digits = 1,
       caption = "Cross Tabulation: Proportion of female Vs Occurence of Specific need related to Torture ")
+
+chisq.test(data$AVGAgecohort, data$STDEVAgeclass)$p.value
 
 ## Cross tabulation - % - between Year and Season of arrival
 kable(prop.table(table( data$YearArrivalCategory, data$season, useNA = "ifany"),1)*100,digits = 1,
       caption = "Cross tabulation - % - between Year and Season of arrival")
 
+chisq.test(data$YearArrivalCategory, data$season)$p.value
+
 ## Cross tabulation - % - between gender and marital Status of head of Household
 kable(prop.table(table(data$dem_marriagecat, data$dem_sex, useNA = "ifany"),1)*100, digits = 1,
       caption = "Cross tabulation - % - between gender and marital Status of head of Household")
+chisq.test(data$dem_marriagecat, data$dem_sex)$p.value
 
 ## Cross tabulation - % - between Dependency and Female Ratio
 kable(prop.table(table(data$female.ratio, data$dependency, useNA = "ifany"),1)*100,digits = 1,
       caption = "Cross tabulation - % - between Dependency and Female Ratio")
+chisq.test(data$female.ratio, data$dependency)$p.value
 
 ## Cross tabulation - % - between Dependency per type
 kable(prop.table(table(data$youthdependency, data$elederndependency, useNA = "ifany"),1)*100, digits = 1,
       caption = "Cross tabulation - % - between Dependency per type")
+chisq.test(data$youthdependency, data$elederndependency)$p.value
 
 ## Cross tabulation - % - between Occupation & Education
-kable(prop.table(table(data$edu_highestcat, data$occupationcat, useNA = "ifany"),1)*100, digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+#kable(prop.table(table(data$occupationcat, data$edu_highestcat,  useNA = "ifany"),1)*100, digits = 1, longtable = TRUE,
+#      caption = "Cross tabulation - % - between Occupation & Education")
 
 ## Cross tabulation - % - between Occupation & Country of Origin
 kable(prop.table(table(data$occupationcat,data$CountryOriginCategory,  useNA = "ifany"),1)*100, digits = 1,
       caption = "Cross tabulation - % - between Occupation & Country of Origin")
+chisq.test(data$occupationcat,data$CountryOriginCategory)$p.value
 
 
 ## Cross tabulation - % - between Education & Country of Origin
 kable(prop.table(table(data$edu_highestcat, data$CountryOriginCategory, useNA = "ifany"),1)*100, digits = 1,
       caption = "Cross tabulation - % - between Education & Country of Origin")
+chisq.test(data$edu_highestcat, data$CountryOriginCategory)$p.value
 
 ## Cross tabulation - % - between Arrival year & Country of Origin
 kable(prop.table(table(data$YearArrivalCategory, data$CountryOriginCategory,  useNA="ifany"),1)*100, digits = 1,
       caption = "Cross tabulation - % - between Arrival year & Country of Origin")
+chisq.test(data$YearArrivalCategory, data$CountryOriginCategory)$p.value
 
 
 ```
 
 
-## Specific needs Child at Risk
+## Specific needs 
+
+### Child at Risk
 
 ```{r, echo=FALSE}
 
 kable(prop.table(table(data$female.ratio, data$Child.at.risk, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - female.ratio")
-
-
+      caption = "Cross tabulation - % - between female.ratio & Child at Risk")
+chisq.test(data$female.ratio, data$Child.at.risk)$p.value
 
 kable(prop.table(table(data$edu_highestcat, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+      caption = "Cross tabulation - %- between between Education  & Child at Risk")
+chisq.test(data$edu_highestcat, data$SGBV)$p.value
 
 
 kable(prop.table(table(data$YearArrivalCategory, data$Child.at.risk, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - Arrival year")
+      caption = "Cross tabulation - % - between Arrival year & Child at Risk")
+chisq.test(data$YearArrivalCategory, data$Child.at.risk)$p.value
 
 
 kable(prop.table(table(data$dem_marriagecat, data$Child.at.risk, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - Marrital status of head of household")
+      caption = "Cross tabulation - % - between Marrital status of head of household & Child at Risk")
+chisq.test(data$dem_marriagecat, data$Child.at.risk)$p.value
 
 
 kable(prop.table(table(data$dem_sex, data$Child.at.risk,  useNA="ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - gender of head of household")
+      caption = "Cross tabulation - % - between gender of head of household & Child at Risk")
+chisq.test(data$dem_sex, data$Child.at.risk)$p.value
 
 ```
 
+ 
 
-## Specific needs: Woman at risk
+### Woman at risk
 
 ```{r, echo=FALSE}
 
 # Cross tabulation - % - between age cohort of head of Household and average age cohort of household
 kable(prop.table(table(data$female.ratio, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+      caption = "Cross tabulation - % - between female.ratio & Woman at risk")
+chisq.test(data$female.ratio, data$Woman.at.risk)$p.value
 
 
 kable(prop.table(table(data$occupationcat, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+      caption = "Cross tabulation - % - between Occupation & Woman at risk")
+chisq.test(data$occupationcat, data$Woman.at.risk)$p.value
 
 
 kable(prop.table(table(data$edu_highestcat, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
-
-
-kable(prop.table(table(data$CountryAsylum, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+      caption = "Cross tabulation - % - between Education & Woman at risk")
+chisq.test(data$edu_highestcat, data$Woman.at.risk)$p.value
 
 
 kable(prop.table(table(data$CountryOriginCategory, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+      caption = "Cross tabulation - % - between Country of Orign & Woman at risk")
+chisq.test(data$CountryOriginCategory, data$Woman.at.risk)$p.value
 
 
 kable(prop.table(table(data$YearArrivalCategory, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+      caption = "Cross tabulation - % - between Arrival year & Woman at risk ")
+chisq.test(data$YearArrivalCategory, data$Woman.at.risk)$p.value
 
 
 kable(prop.table(table(data$dem_marriagecat, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+      caption = "Cross tabulation - % - between marrital Status  & Woman at risk")
+chisq.test(data$dem_marriagecat, data$Woman.at.risk)$p.value
 
 
 kable(prop.table(table(data$dem_sex, data$Woman.at.risk,  useNA="ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Arrival year & Country of Origin")
+      caption = "Cross tabulation - % - between Gender of head of household  & Woman at risk")
+chisq.test(data$dem_sex, data$Woman.at.risk)$p.value
 
 ```
 
 
-## Specific needs: Torture
+
+### Victim of Torture
 
 ```{r, echo=FALSE}
 
 # Cross tabulation - % - between age cohort of head of Household and average age cohort of household
 kable(prop.table(table(data$female.ratio, data$Torture, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+      caption = "Cross tabulation - % - between female ratio & Victim of Torture")
 
 
 kable(prop.table(table(data$occupationcat, data$Torture, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+      caption = "Cross tabulation - % - between Occupation & Victim of Torture")
 
 
 kable(prop.table(table(data$edu_highestcat, data$Torture, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
-
-
-kable(prop.table(table(data$CountryAsylum, data$Torture, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+      caption = "Cross tabulation - % - between Education & Victim of Torture")
 
 
 kable(prop.table(table(data$CountryOriginCategory, data$Torture, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+      caption = "Cross tabulation - % - between Country of Origin & Victim of Torture")
 
 
 kable(prop.table(table(data$YearArrivalCategory, data$Torture, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+      caption = "Cross tabulation - % - between Arrival year & Victim of Torture")
 
 
 kable(prop.table(table(data$dem_marriagecat, data$Torture, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - between Occupation & Education")
+      caption = "Cross tabulation - % - between marital status & Victim of Torture")
 
 
 kable(prop.table(table(data$dem_sex, data$Torture,  useNA="ifany"),1)*100,digits = 1,
@@ -284,7 +353,8 @@ kable(prop.table(table(data$dem_sex, data$Torture,  useNA="ifany"),1)*100,digits
 ```
 
 
-## Specific needs: Specific.legal.physical.protection.needs
+
+### Specific legal or physical protection needs
 
 ```{r, echo=FALSE}
 
@@ -323,7 +393,8 @@ kable(prop.table(table(data$dem_sex, data$Specific.legal.physical.protection.nee
 
 ```
 
-## Specific needs: SGBV
+
+### Sex & Gender Based Violence
 
 ```{r, echo=FALSE}
 
@@ -362,10 +433,147 @@ kable(prop.table(table(data$dem_sex, data$SGBV,  useNA="ifany"),1)*100,digits = 
 ```
 
 
+
+# Regression Analysis
+Regression analysis is a statistical process for estimating the relationships among variables. Regression (and more specifically in the case of categorical data: [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression)) can be used to predict certain characteristics or events linked to one household.
+
+## Predicting Specific Needs
+
+### Woman at Risk
+```{r, echo=FALSE}
+data.Woman.at.risk <- data[sample(1:nrow(data), 5000,replace=FALSE),  c( "Case.size", "dem_marriage", "dem_sex",
+                           "dependency", "youthdependency", "elederndependency","female.ratio",
+                           "agecohort", "AVGAgecohort", "STDEVAgeclass",
+                           "YearArrivalCategory", "season",
+                           "CountryOriginCategory",
+                           "occupationcat", "edu_highestcat","Woman.at.risk"
+                           )]
+model.Woman.at.risk <- glm(Woman.at.risk ~.,family=binomial(link='logit'),data=data.Woman.at.risk)
+
+# Showing model
+summary(model.Woman.at.risk)
+
+# Analysis of deviance
+anova(model.Woman.at.risk,test="Chisq")
+
+# McFadden R^2
+pR2(model.Woman.at.risk)
+
+```
+
+### Child at Risk
+```{r, echo=FALSE}
+data.Child.at.risk <- data[sample(1:nrow(data), 5000,replace=FALSE),  c( "Case.size", "dem_marriage", "dem_sex",
+                           "dependency", "youthdependency", "elederndependency","female.ratio",
+                           "agecohort", "AVGAgecohort", "STDEVAgeclass",
+                           "YearArrivalCategory", "season",
+                           "CountryOriginCategory",
+                           "occupationcat", "edu_highestcat","Child.at.risk"
+                           )]
+model.Child.at.risk <- glm(Child.at.risk ~.,family=binomial(link='logit'),data=data.Child.at.risk)
+
+# Showing model
+summary(model.Child.at.risk)
+
+# Analysis of deviance
+anova(model.Child.at.risk,test="Chisq")
+
+# McFadden R^2
+pR2(model.Child.at.risk)
+
+```
+
+### Sex and Gender Based Violence
+```{r, echo=FALSE}
+data.SGBV <- data[sample(1:nrow(data), 5000,replace=FALSE),  c( "Case.size", "dem_marriage", "dem_sex",
+                           "dependency", "youthdependency", "elederndependency","female.ratio",
+                           "agecohort", "AVGAgecohort", "STDEVAgeclass",
+                           "YearArrivalCategory", "season",
+                           "CountryOriginCategory",
+                           "occupationcat", "edu_highestcat","SGBV"
+                           )]
+model.SGBV <- glm(SGBV ~.,family=binomial(link='logit'),data=data.SGBV)
+
+# Showing model
+summary(model.SGBV)
+
+# Analysis of deviance
+anova(model.SGBV,test="Chisq")
+
+# McFadden R^2
+pR2(model.SGBV)
+
+```
+
+### Older person at Risk
+```{r, echo=FALSE}
+data.Older.person.at.risk <- data[sample(1:nrow(data), 5000,replace=FALSE),  c( "Case.size", "dem_marriage", "dem_sex",
+                           "dependency", "youthdependency", "elederndependency","female.ratio",
+                           "agecohort", "AVGAgecohort", "STDEVAgeclass",
+                           "YearArrivalCategory", "season",
+                           "CountryOriginCategory",
+                           "occupationcat", "edu_highestcat","Older.person.at.risk"
+                           )]
+model.Older.person.at.risk <- glm(Older.person.at.risk ~.,family=binomial(link='logit'),data=data.Older.person.at.risk)
+
+# Showing model
+summary(model.Older.person.at.risk)
+
+# Analysis of deviance
+anova(model.Older.person.at.risk,test="Chisq")
+
+# McFadden R^2
+pR2(model.Older.person.at.risk)
+
+```
+
+
+### Woman at Risk
+```{r, echo=FALSE}
+data.Specific.legal.physical.protection.needs <- data[sample(1:nrow(data), 5000,replace=FALSE),  c( "Case.size", "dem_marriage", "dem_sex",
+                           "dependency", "youthdependency", "elederndependency","female.ratio",
+                           "agecohort", "AVGAgecohort", "STDEVAgeclass",
+                           "YearArrivalCategory", "season",
+                           "CountryOriginCategory",
+                           "occupationcat", "edu_highestcat","Specific.legal.physical.protection.needs"
+                           )]
+model.Specific.legal.physical.protection.needs <- glm(Specific.legal.physical.protection.needs ~.,family=binomial(link='logit'),data=data.Specific.legal.physical.protection.needs)
+
+# Showing model
+summary(model.Specific.legal.physical.protection.needs)
+
+# Analysis of deviance
+anova(model.Specific.legal.physical.protection.needs,test="Chisq")
+
+# McFadden R^2
+pR2(model.Specific.legal.physical.protection.needs)
+
+```
+
+
+## Predicting Resettlement Case acceptation
+
+## Predicting Voluntary Departure
+
+
+
+
+
+
 # Multivariate Analysis
 
+Refugees profile are defined by multiple categories. However it is very difficult for the human brain to process more than 7 categories toggether. An important challenge to understand the profile of the population is to discover how categories interact together. Fortunately, since the 70's, Social scientist have developed technique that allow to discover statistical clusters among a specific population. 
 
 ## Multiple Correspondance analysis
+
+Multiple Correspondence Analysis ([MCA](https://en.wikipedia.org/wiki/Multiple_correspondence_analysis)) is a data analysis technique for nominal categorical data, used to detect and represent underlying structures in a data set.
+
+
+
+### Dimension reduction
+
+The first step of the 
+
 ```{r, echo=FALSE}
 data.sample <- data[sample(1:nrow(data), 2000,replace=FALSE),
                                     c("Case.size", "dem_marriagecat", "dem_sex",
@@ -377,18 +585,39 @@ data.sample <- data[sample(1:nrow(data), 2000,replace=FALSE),
 # Multiple correpondance analysis
 data.mca <- MCA(data.sample, graph=FALSE)
 
-fviz_mca_ind(data.mca, col.ind = "blue") + theme_minimal()
- 
-fviz_mca_var(data.mca)+ theme_minimal()
+fviz_mca_ind(data.mca, col.ind = "blue", label="none", addEllipses = TRUE, ellipse.level = 0.95, jitter = list(what= "point")) + theme_minimal() +
+ labs(title = "Representation of Individuals in a points cloud" )
+```
+
+
+### Composition of the 2 axis
+```{r, echo=FALSE}
 
 ## Contribution of top 10 variables
-fviz_contrib(data.mca, choice = "var", axes = 1, top = 20) + theme_minimal() +  coord_flip()
-fviz_contrib(data.mca, choice = "var", axes = 2, top = 20) + theme_minimal() +  coord_flip()
-
+fviz_contrib(data.mca, choice = "var", axes = 1, top = 20) + theme_minimal() +
+ labs(title = "Contribution of variables to the first axis" )  +
+  coord_flip()
+fviz_contrib(data.mca, choice = "var", axes = 2, top = 20) + theme_minimal() +
+ labs(title = "Contribution of variables to the second axis" )  +
+  coord_flip()
 
 ```
 
-## Hierarchical Classification on Principle Components
+
+### Categories Representation
+```{r, echo=FALSE}
+
+fviz_mca_var(data.mca, labelsize = 3, pointsize = 0, select.var = list(contrib = 20)) +
+ labs(title = "Variable categories representation for the top 20 contribution" )  +
+  theme_minimal()
+
+```
+
+## Clustering
+
+Clustering is the task of grouping a set of objects in such a way that objects in the same group (called a cluster) are more similar (in some sense or another) to each other than to those in other groups (clusters). Refugee data are mostly categorical so clustering is done on the result of the Multiple Correspondence Analysis.
+
+### Hierarchical Classification on Principle Components
 
 ```{r, echo=FALSE}
 data.mca.hcpc <- HCPC(data.mca, nb.clust=-1, min=3, max=4, graph=FALSE, order=FALSE, consol=TRUE)
@@ -402,7 +631,7 @@ plot(data.mca.hcpc, title="Statistical clusters")
 
 ```
 
-## Description of statistical clusters
+### Description of statistical clusters
 
 ```{r, echo=FALSE}
 
@@ -415,18 +644,5 @@ kable(data.mca.hcpc$desc.var$category$`3`, digits = 1, caption = "Description of
 kable(data.mca.hcpc$desc.var$category$`4`, digits = 1, caption = "Description of Cluster 4")
 
 ```
-
-
-# Regression Analysis
-
-Logistic Regression can be used to predict certain characteristics or events linked to one household.
-
-## Predicting Specific Needs
-
-
-
-## Predicting Resettlement Case acceptation
-
-## Predicting Voluntary Departure
 
 

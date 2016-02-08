@@ -41,12 +41,18 @@ dev.off()
 
 #  Graph of individuals
 png(file = "out/mcaviz-individual.png", bg = "transparent")
-fviz_mca_ind(data.JOR.mca, col.ind = "blue") + theme_minimal()
+fviz_mca_ind(data.JOR.mca, col.ind = "blue", label="none", addEllipses = TRUE, ellipse.level = 0.95,
+            # alpha.ind="contrib",
+             jitter = list(what= "point")) + 
+            #scale_color_gradient2(low="white", mid="blue", high="red", midpoint=0.4, space = "Lab") +
+        theme_minimal()
 dev.off()
 
 # Variable
 png(file = "out/mcaviz-variable.png", bg = "transparent")
-fviz_mca_var(data.JOR.mca)+ theme_minimal()
+fviz_mca_var(data.JOR.mca, labelsize = 4, pointsize = 2, 
+                select.var = list(contrib = 20)) +
+               theme_minimal()
 dev.off()
 
 ## Contribution of top 10 variables
@@ -65,13 +71,17 @@ dev.off()
 
 png(file = "out/mcaviz-base1.png", bg = "transparent")
 #pdf("out/mca1.pdf")
-plot.MCA(data.JOR.mca, axes=c(1, 2), col.ind="black", col.ind.sup="blue", col.var="darkred", col.quali.sup="darkgreen", label=c("ind", "ind.sup", "quali.sup", "var", "quanti.sup"), invisible=c("none", new.plot=TRUE))
+plot.MCA(data.JOR.mca, axes=c(1, 2), col.ind="black", col.ind.sup="blue", col.var="darkred", 
+         col.quali.sup="darkgreen", label=c("ind", "ind.sup", "quali.sup", "var", "quanti.sup"), #autoLab = "yes",
+         invisible=c("none", new.plot=TRUE))
 dev.off()
 
 
 png(file = "out/mcaviz-base2.png", bg = "transparent")
 #pdf("out/mca2.pdf")
-plot.MCA(data.JOR.mca, axes=c(1, 2), choix="var", col.var="darkred", col.quali.sup="darkgreen", label=c("var", "quali.sup"), invisible=c("none", new.plot=TRUE))
+plot.MCA(data.JOR.mca, axes=c(1, 2), choix="var", col.var="darkred", select = "contrib 10",  cex=0.7,
+         col.quali.sup="darkgreen", label=c("var", "quali.sup"), autoLab = "yes",
+         invisible=c("none", new.plot=TRUE))
 dev.off()
 
 
@@ -127,6 +137,12 @@ png(file = "out/mcaviz-cluster.png", bg = "transparent")
 plot(data.JOR.mca.hcpc, choice="map")
 dev.off()
 
+
+
+
+#png(file = "out/mcaviz-cluster2.png", bg = "transparent")
+#fviz_cluster(data.JOR.mca.hcpc)
+#dev.off()
 
 ## other classif 
 

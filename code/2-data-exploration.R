@@ -6,7 +6,22 @@ source("code/0-packages.R")
 #rm(progres.case.sp.dep.rst)
 data <- read.csv("data/progrescase2.csv")
 
-#data <- progres.case.sp.dep.rst
+## Reorder factor levels
+data$dependency <-  factor(data$dependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+data$youthdependency <-  factor(data$youthdependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+data$elederndependency <-  factor(data$elederndependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+data$female.ratio <-  factor(data$female.ratio, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+data$STDEVAgeclass <-  factor(data$STDEVAgeclass, levels = c( "0", "(0.001,5]", "(5,10]", "(10,15]", "(15,20]", "(20,Inf]"))
+data$AVGAgecohort <-  factor(data$AVGAgecohort, levels = c( "0", "(0.1,18]", "(18,25]", "(25,35]", "(35,45]","(45,59]", "(59,Inf]"))
+data$season <- factor(data$season, levels = c("Spring", "Summer", "Autumn", "Winter"))
+data$CountryOriginCategory <- factor(data$CountryOriginCategory, levels = c("SYR","IRQ","AFG","IRN","HORN","AFR", "MENA", "ASIA", "OTH"))
+data$Montharrival <- factor(data$Montharrival, levels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"))
+data$edu_highestcat <- factor(data$edu_highestcat, levels = c("Unknown", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14", "Higher Education"))
+data$dem_marriagecat <- factor(data$dem_marriagecat, levels = c("Engaged", "Single", "Married", "Widowed", "Separated", "Divorced","Unknown"))
+data$occupationcat <- factor(data$occupationcat, levels = c("Manager-Professional-Technician-Technician", "ServiceMarket",
+                                                            "Agricultural", "Craft-Machine", "Elementary", "Military",
+                                                            "UnknownOccup", "NoOccup", "Student"))
+
 
 
 data.str <- strtable(data, factor.values=as.integer)
@@ -18,6 +33,8 @@ data.str <- strtable(data, factor.values=as.integer)
 
 ## Cross tabulation between age cohort of head of Household and average age cohort of household
 prop.table(table(data$agecohort, data$AVGAgecohort, useNA="always"),1)*100
+CrossTable(data$agecohort, data$AVGAgecohort, prop.r=FALSE, prop.c=FALSE, prop.t=FALSE, prop.chisq=FALSE,
+           missing.include=TRUE, digits=1, chisq=TRUE)
 
 ## Cross tabulation between average age and standard deviation of age cohort of household
 prop.table(table(data$AVGAgecohort, data$STDEVAgeclass, useNA="always"),1)*100
