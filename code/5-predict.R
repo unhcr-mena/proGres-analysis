@@ -21,7 +21,7 @@ data$occupationcat <- factor(data$occupationcat, levels = c("Manager-Professiona
                                                             "UnknownOccup", "NoOccup", "Student"))
 
 
-str(data)
+#str(data)
 
 ###########################################
 ## Preparing the data
@@ -65,7 +65,7 @@ contrasts(data$Woman.at.risk)
 contrasts(data$Case.size)
 
 # Train test splitting
-train <- data.Woman.at.risk[1:5000,]
+train <- data.Woman.at.risk[1:10000,]
 test <- data.Woman.at.risk[5001:10000,]
 
 ###########################################

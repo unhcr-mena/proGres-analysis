@@ -524,70 +524,73 @@ progres.specificneed.case2 <- dcast(progres.specificneed.case, CaseNo ~ Vulnerab
 
 progres.case.sp <- merge(x=progres.case, y=progres.specificneed.case2, all.x=TRUE)
 
+progres.case.sp$Child.at.risk.count <- progres.case.sp$Child.at.risk
 progres.case.sp$Child.at.risk <- as.factor(ifelse(progres.case.sp$Child.at.risk>=1, "yes", "no"))  
 progres.case.sp$Child.at.risk <- as.character(progres.case.sp$Child.at.risk)
 progres.case.sp$Child.at.risk[is.na(progres.case.sp$Child.at.risk)]<- "no"
 progres.case.sp$Child.at.risk <- as.factor(progres.case.sp$Child.at.risk)
 
+progres.case.sp$Disability.count <- progres.case.sp$Disability
 progres.case.sp$Disability <- as.factor(ifelse(progres.case.sp$Disability>=1, "yes", "no")) 
 progres.case.sp$Disability <- as.character(progres.case.sp$Disability)
 progres.case.sp$Disability[is.na(progres.case.sp$Disability)]<- "no"
 progres.case.sp$Disability <- as.factor(progres.case.sp$Disability)
 
+progres.case.sp$Family.unity.count <- progres.case.sp$Family.unity
 progres.case.sp$Family.unity <- as.factor(ifelse(progres.case.sp$Family.unity>=1, "yes", "no"))
 progres.case.sp$Family.unity <- as.character(progres.case.sp$Family.unity)
 progres.case.sp$Family.unity[is.na(progres.case.sp$Family.unity)]<- "no"
 progres.case.sp$Family.unity <- as.factor(progres.case.sp$Family.unity)
 
-
+progres.case.sp$Older.person.at.risk.count <- progres.case.sp$Older.person.at.risk
 progres.case.sp$Older.person.at.risk <- as.factor(ifelse(progres.case.sp$Older.person.at.risk>=1, "yes", "no"))
 progres.case.sp$Older.person.at.risk <- as.character(progres.case.sp$Older.person.at.risk)
 progres.case.sp$Older.person.at.risk[is.na(progres.case.sp$Older.person.at.risk)]<- "no"
 progres.case.sp$Older.person.at.risk <- as.factor(progres.case.sp$Older.person.at.risk)
 
-
+progres.case.sp$Pregnant.or.lactating.count <- progres.case.sp$Pregnant.or.lactating
 progres.case.sp$Pregnant.or.lactating <- as.factor(ifelse(progres.case.sp$Pregnant.or.lactating>=1, "yes", "no")) 
 progres.case.sp$Pregnant.or.lactating <- as.character(progres.case.sp$Pregnant.or.lactating)
 progres.case.sp$Pregnant.or.lactating[is.na(progres.case.sp$Pregnant.or.lactating)]<- "no"
 progres.case.sp$Pregnant.or.lactating <- as.factor(progres.case.sp$Pregnant.or.lactating)
 
-
+progres.case.sp$Serious.medical.condition.count <- progres.case.sp$Serious.medical.condition
 progres.case.sp$Serious.medical.condition <- as.factor(ifelse(progres.case.sp$Serious.medical.condition>=1, "yes", "no"))
 progres.case.sp$Serious.medical.condition <- as.character(progres.case.sp$Serious.medical.condition)
 progres.case.sp$Serious.medical.condition[is.na(progres.case.sp$Serious.medical.condition)]<- "no"
 progres.case.sp$Serious.medical.condition <- as.factor(progres.case.sp$Serious.medical.condition)
 
-
+progres.case.sp$SGBV.count <- progres.case.sp$SGBV
 progres.case.sp$SGBV <- as.factor(ifelse(progres.case.sp$SGBV>=1, "yes", "no"))
 progres.case.sp$SGBV <- as.character(progres.case.sp$SGBV)
 progres.case.sp$SGBV[is.na(progres.case.sp$SGBV)]<- "no"
 progres.case.sp$SGBV <- as.factor(progres.case.sp$SGBV)
 
-
+progres.case.sp$Single.parent.count <- progres.case.sp$Single.parent
 progres.case.sp$Single.parent <- as.factor(ifelse(progres.case.sp$Single.parent>=1, "yes", "no"))
 progres.case.sp$Single.parent <- as.character(progres.case.sp$Single.parent)
 progres.case.sp$Single.parent[is.na(progres.case.sp$Single.parent)]<- "no"
 progres.case.sp$Single.parent <- as.factor(progres.case.sp$Single.parent)
 
-
+progres.case.sp$Specific.legal.physical.protection.needs.count <- progres.case.sp$Specific.legal.physical.protection.needs
 progres.case.sp$Specific.legal.physical.protection.needs <- as.factor(ifelse(progres.case.sp$Specific.legal.physical.protection.needs>=1, "yes", "no"))
 progres.case.sp$Specific.legal.physical.protection.needs <- as.character(progres.case.sp$Specific.legal.physical.protection.needs)
 progres.case.sp$Specific.legal.physical.protection.needs[is.na(progres.case.sp$Specific.legal.physical.protection.needs)]<- "no"
 progres.case.sp$Specific.legal.physical.protection.needs <- as.factor(progres.case.sp$Specific.legal.physical.protection.needs)
 
-
+progres.case.sp$Torture.count <- progres.case.sp$Torture
 progres.case.sp$Torture <- as.factor(ifelse(progres.case.sp$Torture>=1, "yes", "no"))
 progres.case.sp$Torture <- as.character(progres.case.sp$Torture)
 progres.case.sp$Torture[is.na(progres.case.sp$Torture)]<- "no"
 progres.case.sp$Torture <- as.factor(progres.case.sp$Torture)
 
-
+progres.case.sp$Unaccompanied.or.separated.child.count <- progres.case.sp$Unaccompanied.or.separated.child
 progres.case.sp$Unaccompanied.or.separated.child <- as.factor(ifelse(progres.case.sp$Unaccompanied.or.separated.child>=1, "yes", "no"))
 progres.case.sp$Unaccompanied.or.separated.child <- as.character(progres.case.sp$Unaccompanied.or.separated.child)
 progres.case.sp$Unaccompanied.or.separated.child[is.na(progres.case.sp$Unaccompanied.or.separated.child)]<- "no"
 progres.case.sp$Unaccompanied.or.separated.child <- as.factor(progres.case.sp$Unaccompanied.or.separated.child)
 
-
+progres.case.sp$Woman.at.risk.count <- progres.case.sp$Woman.at.risk
 progres.case.sp$Woman.at.risk <- as.factor(ifelse(progres.case.sp$Woman.at.risk>=1, "yes", "no"))
 progres.case.sp$Woman.at.risk <- as.character(progres.case.sp$Woman.at.risk)
 progres.case.sp$Woman.at.risk[is.na(progres.case.sp$Woman.at.risk)]<- "no"
@@ -597,11 +600,11 @@ progres.case.sp$Woman.at.risk <- as.factor(progres.case.sp$Woman.at.risk)
 
 
 ###########################################
-### Recoding Voluntary return Events
+### Recoding Spontaneous Departure Events
 ###########################################
 progres.event <- read.csv("data/progresevent.csv")
 #ReasonCode <- as.data.frame(levels(as.factor(progres.event$ReasonCode)))
-progres.event$EventReasonText <- ""
+progres.event$EventReasonText[progres.event$ReasonCode=='-'] <- 'ret.NoReason'
 progres.event$EventReasonText[progres.event$ReasonCode=='SP1'] <- 'ret.Returned.to.territory.of.origin'
 progres.event$EventReasonText[progres.event$ReasonCode=='SP2'] <- 'ret.Departed.to.3rd.country'
 progres.event$EventReasonText[progres.event$ReasonCode=='3rdCO'] <- 'ret.Departed.to.3rd.country'
@@ -610,8 +613,12 @@ progres.event$EventReasonText <- as.factor(progres.event$EventReasonText)
 
 # plot(progres.event$EventReasonText)
 
-progres.event.case <-  melt(progres.event, id.vars = c("CaseNo","EventLogEffectiveDate","EventReasonText"), na.rm = TRUE)
-progres.event.case2 <- dcast(progres.event.case, CaseNo + EventLogEffectiveDate ~ EventReasonText)
+progres.event.case <-  melt(progres.event, id.vars = c("CaseNo","EventLogEffectiveDate","EventReasonText","CountryCode"), na.rm = TRUE)
+progres.event.case2 <- dcast(progres.event.case, CaseNo + EventLogEffectiveDate+ CountryCode ~ EventReasonText )
+
+## Case where EventLogEffectiveDate & CountryCode are different within the same case 
+unique(progres.event$CaseNo)
+unique(progres.event.case2$CaseNo)
 
 progres.case.sp.dep <- merge(x=progres.case.sp, y=progres.event.case2, all.x=TRUE)
 

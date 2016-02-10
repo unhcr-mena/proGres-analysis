@@ -18,6 +18,9 @@ progres.case <-  sqlFetch(dbhandleprogres, "caseprofile")
 write.csv(progres.case, file = "data/progrescase.csv",na="")
 
 ## Specific need per individual
+
+progres.specificneed.case <- sqlFetch(dbhandleprogres, "T_SPneedsCaseLevel")
+write.csv(progres.specificneed.case, file = "data/progresspecificneedcase.csv",na="")
 progres.specificneed <- sqlFetch(dbhandleprogres, "casespecificneed")
 write.csv(progres.specificneed, file = "data/progresspecificneed.csv",na="")
 
@@ -27,6 +30,10 @@ write.csv(progres.event, file = "data/progresevent.csv",na="")
 
 progres.eventrst        <- sqlFetch(dbhandleprogres, "caseeventrst19")
 write.csv(progres.eventrst, file = "data/progreseventrst.csv",na="")
+
+
+progres.eventrstall        <- sqlFetch(dbhandleprogres, "resttlementtempEvents2")
+write.csv(progres.eventrstall, file = "data/progreseventrstall.csv",na="")
 
 
 #################################
