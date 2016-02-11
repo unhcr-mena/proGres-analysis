@@ -57,8 +57,9 @@ if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
 rm(packages)
 
 # install.packages("devtools")
-#library("devtools")
-#install_github("kassambara/factoextra")
+# library("devtools")
+# install_github("kassambara/factoextra")
+# install_github('Rapporter/pander')
 
 # loads packages into memory
 #library(prettyR)
