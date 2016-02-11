@@ -45,7 +45,7 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
               "ROCR", 
               "rpart", "rpart.plot", # "sas7bdat", 
               "snow", "speedglm", "tree",
-              "prettyR","xtable","knitr",
+              "prettyR","xtable","knitr","pander",
               "formatR" #, "gWidgetsRGtk2" # used to format the code
               #"XLConnect" ## Read and write excel files
               
@@ -101,6 +101,7 @@ library(hexbin) ## Hexa binning
 ## tidy.gui('RGtk2')
 library(xtable)
 library(knitr)
+library(pander)  ## library to format regression output in Rmd
 library(tufte)
 
 ############################################

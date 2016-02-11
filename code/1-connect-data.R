@@ -36,6 +36,15 @@ progres.eventrstall        <- sqlFetch(dbhandleprogres, "resttlementtempEvents2"
 write.csv(progres.eventrstall, file = "data/progreseventrstall.csv",na="")
 
 
+## Event with Specific need at Individual level
+progres.spneedevent        <- sqlFetch(dbhandleprogres, "T_SPneedsEvents")
+write.csv(progres.spneedevent, file = "data/spneedevent.csv",na="")
+
+## Event with Specific need at Individual level
+progres.spneedeventCase        <- sqlFetch(dbhandleprogres, "T_SPneedsEventsCase")
+write.csv(progres.spneedeventCase, file = "data/spneedeventCase.csv",na="")
+
+
 #################################
 ## Db handle for RAIS
 #################################
