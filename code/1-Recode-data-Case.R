@@ -599,88 +599,23 @@ progres.case.sp$Woman.at.risk <- as.factor(progres.case.sp$Woman.at.risk)
 
 
 
-###########################################
-### Recoding Spontaneous Departure Events
-###########################################
-progres.event <- read.csv("data/progresevent.csv")
-#ReasonCode <- as.data.frame(levels(as.factor(progres.event$ReasonCode)))
-progres.event$EventReasonText[progres.event$ReasonCode=='-'] <- 'ret.NoReason'
-progres.event$EventReasonText[progres.event$ReasonCode=='SP1'] <- 'ret.Returned.to.territory.of.origin'
-progres.event$EventReasonText[progres.event$ReasonCode=='SP2'] <- 'ret.Departed.to.3rd.country'
-progres.event$EventReasonText[progres.event$ReasonCode=='3rdCO'] <- 'ret.Departed.to.3rd.country'
-progres.event$EventReasonText[progres.event$ReasonCode=='SP4'] <- 'ret.Whereabouts.unknown'
-progres.event$EventReasonText <- as.factor(progres.event$EventReasonText)
-
-# plot(progres.event$EventReasonText)
-
-progres.event.case <-  melt(progres.event, id.vars = c("CaseNo","EventLogEffectiveDate","EventReasonText","CountryCode"), na.rm = TRUE)
-progres.event.case2 <- dcast(progres.event.case, CaseNo + EventLogEffectiveDate+ CountryCode ~ EventReasonText )
-
-## Case where EventLogEffectiveDate & CountryCode are different within the same case 
-unique(progres.event$CaseNo)
-unique(progres.event.case2$CaseNo)
-
-progres.case.sp.dep <- merge(x=progres.case.sp, y=progres.event.case2, all.x=TRUE)
-
-###########################################
-### Recoding RST accepted
-###########################################
-progres.eventrst <- read.csv("data/progreseventrst.csv")
-#summary(progres.eventrst)
-#str(progres.eventrst)
-#EventReasonText <- as.data.frame(levels(as.factor(progres.eventrst$EventReasonText)))
-ReasonCode <- as.data.frame(levels(as.factor(progres.eventrst$ReasonCode)))
-progres.eventrst$EventReasonText <- ""
-progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='FAM01'] <- 'rst.Family.reunification'
-progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='LPN01'] <- 'rst.Legal.physical.protection.needs'
-progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='MED01'] <- 'rst.Medical needs'
-progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='OLD01'] <- 'rst.elderly.refugees'
-progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='AWR01'] <- 'rst.Woman.at.risk'
-progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='RLI01'] <- 'rst.Refugee.without.local.integration.prospects'
-progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='SVT01'] <- 'rst.Survivor.of.violence.and.torture'
-progres.eventrst$EventReasonText[progres.eventrst$ReasonCode=='CHL01'] <- 'rst.Child.or.adolescent'
-progres.eventrst$EventReasonText <- as.factor(progres.eventrst$EventReasonText)
-
-## let's build the summary per case
-progres.eventrst.case <-  melt(progres.eventrst, id.vars = c("CaseNo","EventLogEffectiveDate","EventReasonText"), na.rm = TRUE)
-progres.eventrst.case2 <- dcast(progres.eventrst.case, CaseNo + EventLogEffectiveDate ~ EventReasonText)
-
-progres.case.sp.dep.rst <- merge(x=progres.case.sp.dep, y=progres.eventrst.case2, all.x=TRUE)
-
-## sound slike there are duplicate for individuals
-#progres.eventrst.unique <- unique(progres.eventrst[,c("CaseNo","CountryCode","ReasonCode","EventReasonText")])
-
-###########################################
-### Recoding Assistance at the case level
-###########################################
-assistancecase <- read.csv("data/assistancecase.csv")
-#summary(assistancecase)
-
 ###################################################
 ######## Saving reworked case information
 ###################################################
 
-write.csv(progres.case.sp.dep.rst, file = "data/progrescase2.csv",na="")
+write.csv(progres.case.sp, file = "data/progrescase2.csv",na="")
 
 rm(assistancecase)
 rm(progres.case)
-rm(progres.case.sp)
-rm(progres.case.sp.dep)
-rm(progres.event)
-rm(progres.event.case)
-rm(progres.event.case2)
-rm(progres.eventrst)
-rm(progres.eventrst.case)
-rm(progres.eventrst.case2)
 rm(progres.specificneed)
 rm(progres.specificneed.case)
 rm(progres.specificneed.case2)
 rm(progres.specificneed.unique)
-rm(ReasonCode)
 
-data <- progres.case.sp.dep.rst
+data <- progres.case.sp
 
-#rm(progres.case.sp.dep.rst)
+
+# rm(progres.case.sp)
 
 ### Cleaning data
 

@@ -1,6 +1,6 @@
 ---
 title: "Statistical Analysis of Refugee Profiles: Jordan"
-author: "UNHCR MENA Regional Protection Services"
+author: "UNHCR MENA Regional Protection Service - Information Management"
 date: "`r Sys.Date()`"
 output:
   pdf_document:
@@ -55,20 +55,23 @@ source("D:/R-project/proGres-analysis/code/0-packages.R")
 
 ## Can specific events or characteristics be predicted?
 
-***  
+*** 
+
+***
 # Introduction
 
 
-Many reports are already produced from proGres but they mostly look at univariate analysis, i.e esch variable within the dataset is displayed one by one. The present document is an attempt to explore various dimensions interact between each others.
+Many reports are already produced from proGres but they mostly look at univariate analysis, i.e esch variable within the dataset is displayed one by one. The present document is an attempt to explore various dimensions interact between each others. Data are extracted from the regional datawarehouse maintained by the Regional Operation Data Managers..
 
-This analysis covers information aggregated at the refugee refugee household level and is based on the information that is consolidated in the regional datawarehouse.
+This analysis covers two set of information:
+ * data aggregated at the refugee refugee household level and is based on the information that is consolidated 
 
-
+***
 # Presentation of the dataset
 
 The information recorded in the Refugee Registration Database covers not only basic demographic characteristics but also identification of Specific Needs and recording of Events such as Ressettlement Acceptation or Voluntary Departure. UNHCR Registration system is described in the [Handbook for Registration](http://www.unhcr.org/4a278ea1d.pdf) and particularly in the [annex 7](https://drive.google.com/file/d/0BzY6xxaS0lO3TXYwaUpzWi1zTW8/view) that displays the Standard Categories and Codes.
 
-## Case information
+## Case Level Information
 
 The first dataset correspond to the analysis of all cases (i.e. group of individuals registered together that often corresponds to a family unit or household) whose status is **active** within the database. Some of the indivdual information is kept for the head of household.
 
@@ -116,12 +119,12 @@ Variable                 | Description
 -------------------------|---------------------------------------
 CountryOrigin            | Three letters code for Country of Origin.
 CountryOriginCategory    | Recategorised Country of origin - classes with 
--                        |   low numbers are aggregated.
+-                        | low numbers are aggregated.
 cool1                    | Administrative level 1 in Country of Origin- classes with 
--                        |  low numbers are aggregated. Unknown adresses are recorded as 'other'. 
+-                        | low numbers are aggregated. Unknown adresses are recorded as 'other'. 
 CountryAsylum            | Three letters code for Country of Asylum.
 coal1                    | Administrative level 1 in Country of Asylum- classes  
-                         |  with low numbers are aggregated. Unknown adresses are recorded as 'other'. 
+-                        | with low numbers are aggregated. Unknown adresses are recorded as 'other'. 
 
 ### Chronologic Information
 
@@ -159,7 +162,7 @@ Torture                                     | Victims of torture and persons suf
 Family.unity                                | in need of Family Reunification
 
 
-## Specific Events 
+## Events Information at the Individual Level 
 
 
 The second dataset correspond to the analysis of events recorded at the individual level and that are linked to a departure from the current country of asylum. It includes individual that might not be active anymore in the database. The information related to specific needs is also attached to this second dataset.
@@ -188,11 +191,15 @@ Each events can be linked to a series of reasons.
 * Survivor.of.violence.and.torture 
 * Woman.at.risk 
 
+
+***
 # Exploratory Analysis
 
 The first phase of the analysis consist at discovering the variable links. Two random variables are called independent if the probability distribution of one variable is not affected by the presence of another. This is tested through the *Chi-squared Test of Independence* that allows to know if the independance hypothesis has a higher value than the .05 significance level. The Chi-squared Test provide a *p-value*: if the  p-value is greater than the .05, then the two tested variable are independent 
 
-## Household characteristics
+## Case Level Information
+
+### Demographic characteristics
 
 ```{r, echo=FALSE, warning=FALSE }
 
@@ -202,7 +209,6 @@ The first phase of the analysis consist at discovering the variable links. Two r
 #           missing.include=TRUE, digits=1, chisq=TRUE))
 kable(table(data$agecohort, data$AVGAgecohort, useNA = "ifany"), digits = 1,
 caption = "Cross tabulation - -# -  Row: Age cohort of head of Household & Column: average age cohort of household")
-
 kable(prop.table(table(data$agecohort, data$AVGAgecohort, useNA = "ifany"),2)*100, digits = 1,
 caption = "Cross tabulation - % - Row: age cohort of head of Household & Column: average age cohort of household")
 
@@ -215,35 +221,33 @@ kable(table(data$AVGAgecohort, data$STDEVAgeclass, useNA = "ifany"),  digits = 1
       caption = "Cross Tabulation- # - Row: Average Age Cohort  & Column: Standard deviation of age within household ")
 kable(prop.table(table(data$AVGAgecohort, data$STDEVAgeclass, useNA = "ifany"),2)*100,  digits = 1,
       caption = "Cross Tabulation- % - Row: Average Age Cohort & Column: Standard deviation of age within household ")
-
 pander(chisq.test(data$AVGAgecohort, data$STDEVAgeclass), style = "rmarkdown")
 
 ## Cross tabulation - % - Row: Year and Season of arrival
 kable(table( data$YearArrivalCategory, data$season, useNA = "ifany"),digits = 1,
       caption = "Cross tabulation - # - Row: Year of arrival & Column: Season of arrival")
-kable(prop.table(table( data$YearArrivalCategory, data$season, useNA = "ifany"),1)*100,digits = 1,
+kable(prop.table(table( data$YearArrivalCategory, data$season, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: Year of arrival & Column: Season of arrival")
-
 pander(chisq.test(data$YearArrivalCategory, data$season), style = "rmarkdown")
 
 ## Cross tabulation - % - Row: gender and marital Status of head of Household
 kable(table(data$dem_marriagecat, data$dem_sex, useNA = "ifany"), digits = 1,
       caption = "Cross tabulation - # - Row: gender of head of Household & Column: marital Status of head of Household")
-kable(prop.table(table(data$dem_marriagecat, data$dem_sex, useNA = "ifany"),1)*100, digits = 1,
+kable(prop.table(table(data$dem_marriagecat, data$dem_sex, useNA = "ifany"),2)*100, digits = 1,
       caption = "Cross tabulation - % - Row: gender of head of Household & Column: marital Status of head of Household")
 pander(chisq.test(data$dem_marriagecat, data$dem_sex), style = "rmarkdown")
 
 ## Cross tabulation - % - Row: Dependency and Female Ratio
 kable(table(data$female.ratio, data$dependency, useNA = "ifany"),digits = 1,
       caption = "Cross tabulation - # - Row: Dependency & Column: Female Ratio")
-kable(prop.table(table(data$female.ratio, data$dependency, useNA = "ifany"),1)*100,digits = 1,
+kable(prop.table(table(data$female.ratio, data$dependency, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: Dependency & Column: Female Ratio")
 pander(chisq.test(data$female.ratio, data$dependency), style = "rmarkdown")
 
 ## Cross tabulation - % - Row: Dependency per type
 kable(table(data$youthdependency, data$elederndependency, useNA = "ifany"), digits = 1,
       caption = "Cross tabulation - # - Row: Youth Dependency & Column: Eldern Dependency")
-kable(prop.table(table(data$youthdependency, data$elederndependency, useNA = "ifany"),1)*100, digits = 1,
+kable(prop.table(table(data$youthdependency, data$elederndependency, useNA = "ifany"),2)*100, digits = 1,
       caption = "Cross tabulation - % - Row: Youth Dependency & Column: Eldern Dependency")
 pander(chisq.test(data$youthdependency, data$elederndependency), style = "rmarkdown")
 
@@ -254,18 +258,22 @@ pander(chisq.test(data$youthdependency, data$elederndependency), style = "rmarkd
 ## Cross tabulation - % - Row: Occupation & Country of Origin
 kable(table(data$occupationcat,data$CountryOriginCategory,  useNA = "ifany"), digits = 1,
       caption = "Cross tabulation - # - Row: Occupation & Column: Country of Origin")
-kable(prop.table(table(data$occupationcat,data$CountryOriginCategory,  useNA = "ifany"),1)*100, digits = 1,
+kable(prop.table(table(data$occupationcat,data$CountryOriginCategory,  useNA = "ifany"),2)*100, digits = 1,
       caption = "Cross tabulation - % - Row: Occupation & Column: Country of Origin")
 pander(chisq.test(data$occupationcat,data$CountryOriginCategory), style = "rmarkdown")
 
 
 ## Cross tabulation - % - Row: Education & Column: Country of Origin
-kable(prop.table(table(data$edu_highestcat, data$CountryOriginCategory, useNA = "ifany"),1)*100, digits = 1,
+kable(table(data$edu_highestcat, data$CountryOriginCategory, useNA = "ifany"), digits = 1,
+      caption = "Cross tabulation - # - Row: Education & Column: Country of Origin")
+kable(prop.table(table(data$edu_highestcat, data$CountryOriginCategory, useNA = "ifany"),2)*100, digits = 1,
       caption = "Cross tabulation - % - Row: Education & Column: Country of Origin")
 pander(chisq.test(data$edu_highestcat, data$CountryOriginCategory), style = "rmarkdown")
 
 ## Cross tabulation - % - Row: Arrival year & Column: Country of Origin
-kable(prop.table(table(data$YearArrivalCategory, data$CountryOriginCategory,  useNA="ifany"),1)*100, digits = 1,
+kable(table(data$YearArrivalCategory, data$CountryOriginCategory,  useNA="ifany"), digits = 1,
+      caption = "Cross tabulation - # - Row: Arrival year & Column: Country of Origin")
+kable(prop.table(table(data$YearArrivalCategory, data$CountryOriginCategory,  useNA="ifany"),2)*100, digits = 1,
       caption = "Cross tabulation - % - Row: Arrival year & Column: Country of Origin")
 pander(chisq.test(data$YearArrivalCategory, data$CountryOriginCategory), style = "rmarkdown")
 
@@ -273,75 +281,122 @@ pander(chisq.test(data$YearArrivalCategory, data$CountryOriginCategory), style =
 ```
 
 
-## Specific needs 
 
-### Child at Risk
+### Specific needs: Child at Risk
 
 ```{r, echo=FALSE, warning=FALSE}
 
-kable(prop.table(table(data$female.ratio, data$Child.at.risk, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$female.ratio, data$Child.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: female.ratio & Column: Child at Risk")
+kable(prop.table(table(data$female.ratio, data$Child.at.risk, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: female.ratio & Column: Child at Risk")
 pander(chisq.test(data$female.ratio, data$Child.at.risk), style = "rmarkdown")
 
-kable(prop.table(table(data$edu_highestcat, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$edu_highestcat, data$SGBV, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - #- Row: Row: Education  & Column: Child at Risk")
+kable(prop.table(table(data$edu_highestcat, data$SGBV, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - %- Row: Row: Education  & Column: Child at Risk")
 pander(chisq.test(data$edu_highestcat, data$SGBV), style = "rmarkdown")
 
-
-kable(prop.table(table(data$YearArrivalCategory, data$Child.at.risk, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$YearArrivalCategory, data$Child.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Arrival year & Column: Child at Risk")
+kable(prop.table(table(data$YearArrivalCategory, data$Child.at.risk, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: Arrival year & Column: Child at Risk")
 pander(chisq.test(data$YearArrivalCategory, data$Child.at.risk), style = "rmarkdown")
 
-
-kable(prop.table(table(data$dem_marriagecat, data$Child.at.risk, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$dem_marriagecat, data$Child.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Marrital status of head of household & Column: Child at Risk")
+kable(prop.table(table(data$dem_marriagecat, data$Child.at.risk, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: Marrital status of head of household & Column: Child at Risk")
 pander(chisq.test(data$dem_marriagecat, data$Child.at.risk), style = "rmarkdown")
 
-
-kable(prop.table(table(data$dem_sex, data$Child.at.risk,  useNA="ifany"),1)*100,digits = 1,
+kable(table(data$dem_sex, data$Child.at.risk,  useNA="ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: gender of head of household & Column: Child at Risk")
+kable(prop.table(table(data$dem_sex, data$Child.at.risk,  useNA="ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: gender of head of household & Column: Child at Risk")
 pander(chisq.test(data$dem_sex, data$Child.at.risk), style = "rmarkdown")
 
 ```
 
- 
+### Specific needs: Unaccompanied or separated child 
 
-### Woman at risk
+```{r, echo=FALSE, warning=FALSE}
+kable(table(data$female.ratio, data$Unaccompanied.or.separated.child, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: female.ratio & Column: Unaccompanied or separated child")
+kable(prop.table(table(data$female.ratio, data$Unaccompanied.or.separated.child, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: female.ratio & Column: Unaccompanied or separated child")
+pander(chisq.test(data$female.ratio, data$Unaccompanied.or.separated.child), style = "rmarkdown")
+
+kable(table(data$edu_highestcat, data$SGBV, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - #- Row: Row: Education  & Column: Unaccompanied or separated child")
+kable(prop.table(table(data$edu_highestcat, data$SGBV, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - %- Row: Row: Education  & Column: Unaccompanied or separated child")
+pander(chisq.test(data$edu_highestcat, data$SGBV), style = "rmarkdown")
+
+kable(table(data$YearArrivalCategory, data$Unaccompanied.or.separated.child, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Arrival year & Column: Unaccompanied or separated child")
+kable(prop.table(table(data$YearArrivalCategory, data$Unaccompanied.or.separated.child, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: Arrival year & Column: Unaccompanied or separated child")
+pander(chisq.test(data$YearArrivalCategory, data$Unaccompanied.or.separated.child), style = "rmarkdown")
+
+kable(table(data$dem_marriagecat, data$Unaccompanied.or.separated.child, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Marrital status of head of household & Column: Unaccompanied or separated child")
+kable(prop.table(table(data$dem_marriagecat, data$Unaccompanied.or.separated.child, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: Marrital status of head of household & Column: Unaccompanied or separated child")
+pander(chisq.test(data$dem_marriagecat, data$Unaccompanied.or.separated.child), style = "rmarkdown")
+
+kable(table(data$dem_sex, data$Unaccompanied.or.separated.child,  useNA="ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: gender of head of household & Column: Unaccompanied or separated child")
+kable(prop.table(table(data$dem_sex, data$Unaccompanied.or.separated.child,  useNA="ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: gender of head of household & Column: Unaccompanied or separated child")
+pander(chisq.test(data$dem_sex, data$Unaccompanied.or.separated.child), style = "rmarkdown")
+
+```
+
+
+### Specific needs: Woman at risk
 
 ```{r, echo=FALSE, warning=FALSE}
 
-
-kable(prop.table(table(data$female.ratio, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$female.ratio, data$Woman.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: female.ratio & Column: Woman at risk")
+kable(prop.table(table(data$female.ratio, data$Woman.at.risk, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: female.ratio & Column: Woman at risk")
 pander(chisq.test(data$female.ratio, data$Woman.at.risk), style = "rmarkdown")
 
-
-kable(prop.table(table(data$occupationcat, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$occupationcat, data$Woman.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Occupation & Column: Woman at risk")
+kable(prop.table(table(data$occupationcat, data$Woman.at.risk, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: Occupation & Column: Woman at risk")
 pander(chisq.test(data$occupationcat, data$Woman.at.risk), style = "rmarkdown")
 
-
-kable(prop.table(table(data$edu_highestcat, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$edu_highestcat, data$Woman.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Education & Column: Woman at risk")
+kable(prop.table(table(data$edu_highestcat, data$Woman.at.risk, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: Education & Column: Woman at risk")
 pander(chisq.test(data$edu_highestcat, data$Woman.at.risk), style = "rmarkdown")
 
-
-kable(prop.table(table(data$CountryOriginCategory, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$CountryOriginCategory, data$Woman.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Country of Orign & Column: Woman at risk")
+kable(prop.table(table(data$CountryOriginCategory, data$Woman.at.risk, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: Country of Orign & Column: Woman at risk")
 pander(chisq.test(data$CountryOriginCategory, data$Woman.at.risk), style = "rmarkdown")
 
-
-kable(prop.table(table(data$YearArrivalCategory, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$YearArrivalCategory, data$Woman.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Arrival year & Column: Woman at risk ")
+kable(prop.table(table(data$YearArrivalCategory, data$Woman.at.risk, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: Arrival year & Column: Woman at risk ")
 pander(chisq.test(data$YearArrivalCategory, data$Woman.at.risk), style = "rmarkdown")
 
-
-kable(prop.table(table(data$dem_marriagecat, data$Woman.at.risk, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$dem_marriagecat, data$Woman.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: marrital Status  & Column: Woman at risk")
+kable(prop.table(table(data$dem_marriagecat, data$Woman.at.risk, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: marrital Status  & Column: Woman at risk")
 pander(chisq.test(data$dem_marriagecat, data$Woman.at.risk), style = "rmarkdown")
 
-
-kable(prop.table(table(data$dem_sex, data$Woman.at.risk,  useNA="ifany"),1)*100,digits = 1,
+kable(table(data$dem_sex, data$Woman.at.risk,  useNA="ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Gender of head of household  & Column: Woman at risk")
+kable(prop.table(table(data$dem_sex, data$Woman.at.risk,  useNA="ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: Gender of head of household  & Column: Woman at risk")
 pander(chisq.test(data$dem_sex, data$Woman.at.risk), style = "rmarkdown")
 
@@ -349,85 +404,96 @@ pander(chisq.test(data$dem_sex, data$Woman.at.risk), style = "rmarkdown")
 
 
 
-### Victim of Torture
-
+### Specific needs: Older person at Risk
 ```{r, echo=FALSE, warning=FALSE}
 
-# Cross tabulation - % - Row: age cohort of head of Household & Column: Column: average age cohort of household
-kable(prop.table(table(data$female.ratio, data$Torture, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - Row: female ratio & Column: Victim of Torture")
-pander(chisq.test(data$female.ratio, data$Torture), style = "rmarkdown")
+kable(table(data$female.ratio, data$Older.person.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: female.ratio & Column: Older person at Risk")
+kable(prop.table(table(data$female.ratio, data$Older.person.at.risk, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: female.ratio & Column: Older person at Risk")
+pander(chisq.test(data$female.ratio, data$Older.person.at.risk), style = "rmarkdown")
 
+kable(table(data$occupationcat, data$Older.person.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Occupation & Column: Older person at Risk")
+kable(prop.table(table(data$occupationcat, data$Older.person.at.risk, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: Occupation & Column: Older person at Risk")
+pander(chisq.test(data$occupationcat, data$Older.person.at.risk), style = "rmarkdown")
 
-kable(prop.table(table(data$occupationcat, data$Torture, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - Row: Occupation & Column: Victim of Torture")
-pander(chisq.test(data$occupationcat, data$Torture), style = "rmarkdown")
+kable(table(data$edu_highestcat, data$Older.person.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Education & Column: Older person at Risk")
+kable(prop.table(table(data$edu_highestcat, data$Older.person.at.risk, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: Education & Column: Older person at Risk")
+pander(chisq.test(data$edu_highestcat, data$Older.person.at.risk), style = "rmarkdown")
 
+kable(table(data$CountryOriginCategory, data$Older.person.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Country of Orign & Column: Older person at Risk")
+kable(prop.table(table(data$CountryOriginCategory, data$Older.person.at.risk, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: Country of Orign & Column: Older person at Risk")
+pander(chisq.test(data$CountryOriginCategory, data$Older.person.at.risk), style = "rmarkdown")
 
-kable(prop.table(table(data$edu_highestcat, data$Torture, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - Row: Education & Column: Victim of Torture")
-pander(chisq.test(data$edu_highestcat, data$Torture), style = "rmarkdown")
+kable(table(data$YearArrivalCategory, data$Older.person.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Arrival year & Column: Older person at Risk ")
+kable(prop.table(table(data$YearArrivalCategory, data$Older.person.at.risk, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: Arrival year & Column: Older person at Risk ")
+pander(chisq.test(data$YearArrivalCategory, data$Older.person.at.risk), style = "rmarkdown")
 
+kable(table(data$dem_marriagecat, data$Older.person.at.risk, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: marrital Status  & Column: Older person at Risk")
+kable(prop.table(table(data$dem_marriagecat, data$Older.person.at.risk, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: marrital Status  & Column: Older person at Risk")
+pander(chisq.test(data$dem_marriagecat, data$Older.person.at.risk), style = "rmarkdown")
 
-kable(prop.table(table(data$CountryOriginCategory, data$Torture, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - Row: Country of Origin & Column: Victim of Torture")
-pander(chisq.test(data$CountryOriginCategory, data$Torture), style = "rmarkdown")
-
-
-kable(prop.table(table(data$YearArrivalCategory, data$Torture, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - Row: Arrival year & Column: Victim of Torture")
-pander(chisq.test(data$YearArrivalCategory, data$Torture), style = "rmarkdown")
-
-
-kable(prop.table(table(data$dem_marriagecat, data$Torture, useNA = "ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - Row: marital status & Column: Victim of Torture")
-pander(chisq.test(data$dem_marriagecat, data$Torture), style = "rmarkdown")
-
-
-kable(prop.table(table(data$dem_sex, data$Torture,  useNA="ifany"),1)*100,digits = 1,
-      caption = "Cross tabulation - % - Row: Gender of Head of household & Column: Victim of Torture")
-pander(chisq.test(data$dem_sex, data$Torture), style = "rmarkdown")
+kable(table(data$dem_sex, data$Older.person.at.risk,  useNA="ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Gender of head of household  & Column: Older person at Risk")
+kable(prop.table(table(data$dem_sex, data$Older.person.at.risk,  useNA="ifany"),1)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: Gender of head of household  & Column: Older person at Risk")
+pander(chisq.test(data$dem_sex, data$Older.person.at.risk), style = "rmarkdown")
 
 ```
 
-
-
-### Specific legal or physical protection needs
+### Specific needs: Specific legal or physical protection needs
 
 ```{r, echo=FALSE, warning=FALSE}
 
-
-kable(prop.table(table(data$female.ratio, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$female.ratio, data$Specific.legal.physical.protection.needs, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: female.ratio & Column: Specific.legal.physical.protection.needs")
+kable(prop.table(table(data$female.ratio, data$Specific.legal.physical.protection.needs, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: female.ratio & Column: Specific.legal.physical.protection.needs")
 pander(chisq.test(data$female.ratio, data$Specific.legal.physical.protection.needs), style = "rmarkdown")
 
-
-kable(prop.table(table(data$occupationcat, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$occupationcat, data$Specific.legal.physical.protection.needs, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: occupationcat & Column: Specific.legal.physical.protection.needs")
+kable(prop.table(table(data$occupationcat, data$Specific.legal.physical.protection.needs, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: occupationcat & Column: Specific.legal.physical.protection.needs")
 pander(chisq.test(data$occupationcat, data$Specific.legal.physical.protection.needs), style = "rmarkdown")
 
-
-kable(prop.table(table(data$edu_highestcat, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$edu_highestcat, data$Specific.legal.physical.protection.needs, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: edu_highestcat & Column: Specific.legal.physical.protection.needs")
+kable(prop.table(table(data$edu_highestcat, data$Specific.legal.physical.protection.needs, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: edu_highestcat & Column: Specific.legal.physical.protection.needs")
 pander(chisq.test(data$edu_highestcat, data$Specific.legal.physical.protection.needs), style = "rmarkdown")
 
-
-kable(prop.table(table(data$CountryOriginCategory, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$CountryOriginCategory, data$Specific.legal.physical.protection.needs, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: CountryOriginCategory & Column: Specific.legal.physical.protection.needs")
+kable(prop.table(table(data$CountryOriginCategory, data$Specific.legal.physical.protection.needs, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: CountryOriginCategory & Column: Specific.legal.physical.protection.needs")
 pander(chisq.test(data$CountryOriginCategory, data$Specific.legal.physical.protection.needs), style = "rmarkdown")
 
-
-kable(prop.table(table(data$YearArrivalCategory, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$YearArrivalCategory, data$Specific.legal.physical.protection.needs, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: YearArrivalCategory & Column: Specific.legal.physical.protection.needs")
+kable(prop.table(table(data$YearArrivalCategory, data$Specific.legal.physical.protection.needs, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: YearArrivalCategory & Column: Specific.legal.physical.protection.needs")
 pander(chisq.test(data$YearArrivalCategory, data$Specific.legal.physical.protection.needs), style = "rmarkdown")
 
-
-kable(prop.table(table(data$dem_marriagecat, data$Specific.legal.physical.protection.needs, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$dem_marriagecat, data$Specific.legal.physical.protection.needs, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: dem_marriagecat & Column: Specific.legal.physical.protection.needs")
+kable(prop.table(table(data$dem_marriagecat, data$Specific.legal.physical.protection.needs, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: dem_marriagecat & Column: Specific.legal.physical.protection.needs")
 pander(chisq.test(data$dem_marriagecat, data$Specific.legal.physical.protection.needs), style = "rmarkdown")
 
-
-kable(prop.table(table(data$dem_sex, data$Specific.legal.physical.protection.needs,  useNA="ifany"),1)*100,digits = 1,
+kable(table(data$dem_sex, data$Specific.legal.physical.protection.needs,  useNA="ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: dem_sex & Column: Specific.legal.physical.protection.needs")
+kable(prop.table(table(data$dem_sex, data$Specific.legal.physical.protection.needs,  useNA="ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: dem_sex & Column: Specific.legal.physical.protection.needs")
 pander(chisq.test(data$dem_sex, data$Specific.legal.physical.protection.needs), style = "rmarkdown")
 
@@ -435,76 +501,115 @@ pander(chisq.test(data$dem_sex, data$Specific.legal.physical.protection.needs), 
 ```
 
 
-### Sex & Gender Based Violence
+### Specific needs: Sex & Gender Based Violence
 
 ```{r, echo=FALSE, warning=FALSE}
 
-# Cross tabulation - % - Row: age cohort of head of Household and average age cohort of household
-kable(prop.table(table(data$female.ratio, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$female.ratio, data$SGBV, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: female.ratio & Column: SGBV")
+kable(prop.table(table(data$female.ratio, data$SGBV, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: female.ratio & Column: SGBV")
 pander(chisq.test(data$female.ratio, data$SGBV), style = "rmarkdown")
 
-
-kable(prop.table(table(data$occupationcat, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$occupationcat, data$SGBV, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: occupationcat & Column: SGBV")
+kable(prop.table(table(data$occupationcat, data$SGBV, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: occupationcat & Column: SGBV")
 pander(chisq.test(data$occupationcat, data$SGBV), style = "rmarkdown")
 
-
-kable(prop.table(table(data$edu_highestcat, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$edu_highestcat, data$SGBV, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: edu_highestcat & Column: SGBV")
+kable(prop.table(table(data$edu_highestcat, data$SGBV, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: edu_highestcat & Column: SGBV")
 pander(chisq.test(data$edu_highestcat, data$SGBV), style = "rmarkdown")
 
-
-kable(prop.table(table(data$CountryOriginCategory, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$CountryOriginCategory, data$SGBV, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: CountryOriginCategory & Column: $SGBV")
+kable(prop.table(table(data$CountryOriginCategory, data$SGBV, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: CountryOriginCategory & Column: $SGBV")
 pander(chisq.test(data$CountryOriginCategory, data$SGBV), style = "rmarkdown")
 
-
-kable(prop.table(table(data$YearArrivalCategory, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$YearArrivalCategory, data$SGBV, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: YearArrivalCategory & Column: SGBV")
+kable(prop.table(table(data$YearArrivalCategory, data$SGBV, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: YearArrivalCategory & Column: SGBV")
 pander(chisq.test(data$YearArrivalCategory, data$SGBV), style = "rmarkdown")
 
-
-kable(prop.table(table(data$dem_marriagecat, data$SGBV, useNA = "ifany"),1)*100,digits = 1,
+kable(table(data$dem_marriagecat, data$SGBV, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: dem_marriagecat & Column: SGBV")
+kable(prop.table(table(data$dem_marriagecat, data$SGBV, useNA = "ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: dem_marriagecat & Column: SGBV")
 pander(chisq.test(data$dem_marriagecat, data$SGBV), style = "rmarkdown")
 
-
-kable(prop.table(table(data$dem_sex, data$SGBV,  useNA="ifany"),1)*100,digits = 1,
+kable(table(data$dem_sex, data$SGBV,  useNA="ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: dem_sex & Column: $SGBV")
+kable(prop.table(table(data$dem_sex, data$SGBV,  useNA="ifany"),2)*100,digits = 1,
       caption = "Cross tabulation - % - Row: dem_sex & Column: $SGBV")
 pander(chisq.test(data$dem_sex, data$SGBV), style = "rmarkdown")
 
 ```
 
 
+### Specific needs: Victim of Torture
 
+```{r, echo=FALSE, warning=FALSE}
+
+kable(table(data$female.ratio, data$Torture, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: female ratio & Column: Victim of Torture")
+kable(prop.table(table(data$female.ratio, data$Torture, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: female ratio & Column: Victim of Torture")
+pander(chisq.test(data$female.ratio, data$Torture), style = "rmarkdown")
+
+kable(table(data$occupationcat, data$Torture, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Occupation & Column: Victim of Torture")
+kable(prop.table(table(data$occupationcat, data$Torture, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: Occupation & Column: Victim of Torture")
+pander(chisq.test(data$occupationcat, data$Torture), style = "rmarkdown")
+
+kable(table(data$edu_highestcat, data$Torture, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Education & Column: Victim of Torture")
+kable(prop.table(table(data$edu_highestcat, data$Torture, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: Education & Column: Victim of Torture")
+pander(chisq.test(data$edu_highestcat, data$Torture), style = "rmarkdown")
+
+kable(table(data$CountryOriginCategory, data$Torture, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Country of Origin & Column: Victim of Torture")
+kable(prop.table(table(data$CountryOriginCategory, data$Torture, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: Country of Origin & Column: Victim of Torture")
+pander(chisq.test(data$CountryOriginCategory, data$Torture), style = "rmarkdown")
+
+kable(table(data$YearArrivalCategory, data$Torture, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Arrival year & Column: Victim of Torture")
+kable(prop.table(table(data$YearArrivalCategory, data$Torture, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: Arrival year & Column: Victim of Torture")
+pander(chisq.test(data$YearArrivalCategory, data$Torture), style = "rmarkdown")
+
+kable(table(data$dem_marriagecat, data$Torture, useNA = "ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: marital status & Column: Victim of Torture")
+kable(prop.table(table(data$dem_marriagecat, data$Torture, useNA = "ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: marital status & Column: Victim of Torture")
+pander(chisq.test(data$dem_marriagecat, data$Torture), style = "rmarkdown")
+
+kable(table(data$dem_sex, data$Torture,  useNA="ifany"),digits = 1,
+      caption = "Cross tabulation - # - Row: Gender of Head of household & Column: Victim of Torture")
+kable(prop.table(table(data$dem_sex, data$Torture,  useNA="ifany"),2)*100,digits = 1,
+      caption = "Cross tabulation - % - Row: Gender of Head of household & Column: Victim of Torture")
+pander(chisq.test(data$dem_sex, data$Torture), style = "rmarkdown")
+
+```
+
+
+## Events Information at the Individual Level
+
+### Resettlement
+
+### Spontenous Departure
+
+***
 # Regression Analysis
 Regression analysis is a statistical process for estimating the relationships among variables. Regression (and more specifically in the case of categorical data: [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression)) can be used to predict certain characteristics or events linked to one household.
 
-## Predicting Specific Needs
-
-### Woman at Risk
-```{r, echo=FALSE, warning=FALSE}
-data.Woman.at.risk <- data[sample(1:nrow(data), 5000,replace=FALSE),  c( "Case.size", "dem_marriage", "dem_sex",
-                           "dependency", "youthdependency", "elederndependency","female.ratio",
-                           "agecohort", "AVGAgecohort", "STDEVAgeclass",
-                           "YearArrivalCategory", "season",
-                           "CountryOriginCategory",
-                           "occupationcat", "edu_highestcat","Woman.at.risk"
-                           )]
-model.Woman.at.risk <- glm(Woman.at.risk ~.,family=binomial(link='logit'),data=data.Woman.at.risk)
-
-# Showing model
-#summary(model.Woman.at.risk)
-# not working...  , add.significance.stars = TRUE
-pander(model.Woman.at.risk, missing="")
-# Analysis of deviance
-pander(anova(model.Woman.at.risk,test="Chisq"),  missing="")
-
-# McFadden R^2
-pander(pR2(model.Woman.at.risk),caption="McFadden R^2")
-
-```
+## Predicting Specific Needs at Case Level
 
 ### Child at Risk
 ```{r, echo=FALSE, warning=FALSE}
@@ -529,25 +634,50 @@ pander(pR2(model.Child.at.risk),caption="McFadden R^2")
 
 ```
 
-### Sex and Gender Based Violence
+### Unaccompanied or separated child
 ```{r, echo=FALSE, warning=FALSE}
-data.SGBV <- data[sample(1:nrow(data), 5000,replace=FALSE),  c( "Case.size", "dem_marriage", "dem_sex",
+data.Unaccompanied.or.separated.child <- data[sample(1:nrow(data), 5000,replace=FALSE),  c( "Case.size", "dem_marriage", "dem_sex",
                            "dependency", "youthdependency", "elederndependency","female.ratio",
                            "agecohort", "AVGAgecohort", "STDEVAgeclass",
                            "YearArrivalCategory", "season",
                            "CountryOriginCategory",
-                           "occupationcat", "edu_highestcat","SGBV"
+                           "occupationcat", "edu_highestcat","Unaccompanied.or.separated.child"
                            )]
-model.SGBV <- glm(SGBV ~.,family=binomial(link='logit'),data=data.SGBV)
+model.Unaccompanied.or.separated.child <- glm(Unaccompanied.or.separated.child ~.,family=binomial(link='logit'),data=data.Unaccompanied.or.separated.child)
 
 # Showing model
-pander(model.SGBV, missing="")
+# 
+pander(summary(model.Unaccompanied.or.separated.child), missing="")
 
 # Analysis of deviance
-pander(anova(model.SGBV,test="Chisq"))
+pander(anova(model.Unaccompanied.or.separated.child,test="Chisq"))
 
 # McFadden R^2
-pander(pR2(model.SGBV),caption="McFadden R^2")
+pander(pR2(model.Unaccompanied.or.separated.child),caption="McFadden R^2")
+
+```
+
+
+### Woman at Risk
+```{r, echo=FALSE, warning=FALSE}
+data.Woman.at.risk <- data[sample(1:nrow(data), 5000,replace=FALSE),  c( "Case.size", "dem_marriage", "dem_sex",
+                           "dependency", "youthdependency", "elederndependency","female.ratio",
+                           "agecohort", "AVGAgecohort", "STDEVAgeclass",
+                           "YearArrivalCategory", "season",
+                           "CountryOriginCategory",
+                           "occupationcat", "edu_highestcat","Woman.at.risk"
+                           )]
+model.Woman.at.risk <- glm(Woman.at.risk ~.,family=binomial(link='logit'),data=data.Woman.at.risk)
+
+# Showing model
+#summary(model.Woman.at.risk)
+# not working...  , add.significance.stars = TRUE
+pander(model.Woman.at.risk, missing="")
+# Analysis of deviance
+pander(anova(model.Woman.at.risk,test="Chisq"),  missing="")
+
+# McFadden R^2
+pander(pR2(model.Woman.at.risk),caption="McFadden R^2")
 
 ```
 
@@ -574,7 +704,7 @@ pander(pR2(model.Older.person.at.risk),caption="McFadden R^2")
 ```
 
 
-### Woman at Risk
+### Specific Legal and/or Physical Protection Needs
 ```{r, echo=FALSE, warning=FALSE}
 data.Specific.legal.physical.protection.needs <- data[sample(1:nrow(data), 5000,replace=FALSE),  c( "Case.size", "dem_marriage", "dem_sex",
                            "dependency", "youthdependency", "elederndependency","female.ratio",
@@ -596,16 +726,59 @@ pander(pR2(model.Specific.legal.physical.protection.needs),caption="McFadden R^2
 
 ```
 
+### Sex & Gender Based Violence
+```{r, echo=FALSE, warning=FALSE}
+data.SGBV <- data[sample(1:nrow(data), 5000,replace=FALSE),  c( "Case.size", "dem_marriage", "dem_sex",
+                           "dependency", "youthdependency", "elederndependency","female.ratio",
+                           "agecohort", "AVGAgecohort", "STDEVAgeclass",
+                           "YearArrivalCategory", "season",
+                           "CountryOriginCategory",
+                           "occupationcat", "edu_highestcat","SGBV"
+                           )]
+model.SGBV <- glm(SGBV ~.,family=binomial(link='logit'),data=data.SGBV)
 
-## Predicting Resettlement Case acceptation
+# Showing model
+pander(model.SGBV, missing="")
 
-## Predicting Voluntary Departure
+# Analysis of deviance
+pander(anova(model.SGBV,test="Chisq"))
+
+# McFadden R^2
+pander(pR2(model.SGBV),caption="McFadden R^2")
+
+```
+
+### Victim of Torture
+```{r, echo=FALSE, warning=FALSE}
+data.Torture <- data[sample(1:nrow(data), 5000,replace=FALSE),  c( "Case.size", "dem_marriage", "dem_sex",
+                           "dependency", "youthdependency", "elederndependency","female.ratio",
+                           "agecohort", "AVGAgecohort", "STDEVAgeclass",
+                           "YearArrivalCategory", "season",
+                           "CountryOriginCategory",
+                           "occupationcat", "edu_highestcat","Torture"
+                           )]
+model.Torture <- glm(Torture ~.,family=binomial(link='logit'),data=data.Torture)
+
+# Showing model
+pander(model.Torture, missing="")
+
+# Analysis of deviance
+pander(anova(model.Torture,test="Chisq"))
+
+# McFadden R^2
+pander(pR2(model.Torture),caption="McFadden R^2")
+
+```
 
 
 
+## Predicting Events at Individual Level
 
+### Resettlement
 
+### Spontenous Departure
 
+***
 # Multivariate Analysis
 
 Refugees profile are defined by multiple categories. However it is very difficult for the human brain to process more than 7 categories toggether. An important challenge to understand the profile of the population is to discover how categories interact together. Fortunately, since the 70's, Social scientist have developed technique that allow to discover statistical clusters among a specific population. 

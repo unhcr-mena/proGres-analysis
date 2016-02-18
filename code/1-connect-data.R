@@ -17,30 +17,25 @@ progres.case <-  sqlFetch(dbhandleprogres, "caseprofile")
 ## backup in CSV 
 write.csv(progres.case, file = "data/progrescase.csv",na="")
 
-## Specific need per individual
+# Specific need per individual
 
-progres.specificneed.case <- sqlFetch(dbhandleprogres, "T_SPneedsCaseLevel")
-write.csv(progres.specificneed.case, file = "data/progresspecificneedcase.csv",na="")
+
+## With general needs
 progres.specificneed <- sqlFetch(dbhandleprogres, "casespecificneed")
 write.csv(progres.specificneed, file = "data/progresspecificneed.csv",na="")
 
-## Focusing on REG38	Spontaneous Departure event
-progres.event        <- sqlFetch(dbhandleprogres, "caseevent")
-write.csv(progres.event, file = "data/progresevent.csv",na="")
 
-progres.eventrst        <- sqlFetch(dbhandleprogres, "caseeventrst19")
-write.csv(progres.eventrst, file = "data/progreseventrst.csv",na="")
+## With Detailled Specific needs
+progres.specificneed.case <- sqlFetch(dbhandleprogres, "T_SPneedsCaseLevel")
+write.csv(progres.specificneed.case, file = "data/progresspecificneedcase.csv",na="")
 
-
-progres.eventrstall        <- sqlFetch(dbhandleprogres, "resttlementtempEvents2")
-write.csv(progres.eventrstall, file = "data/progreseventrstall.csv",na="")
-
+## Event @ individual level
 
 ## Event with Specific need at Individual level
 progres.spneedevent        <- sqlFetch(dbhandleprogres, "T_SPneedsEvents")
 write.csv(progres.spneedevent, file = "data/spneedevent.csv",na="")
 
-## Event with Specific need at Individual level
+## Event with Specific need at Case level
 progres.spneedeventCase        <- sqlFetch(dbhandleprogres, "T_SPneedsEventsCase")
 write.csv(progres.spneedeventCase, file = "data/spneedeventCase.csv",na="")
 
