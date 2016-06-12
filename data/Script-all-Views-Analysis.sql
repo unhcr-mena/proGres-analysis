@@ -28,17 +28,25 @@ Version:  1.0 - View Creation
 *****************************************************************************************************/
 
 
--- DROP TABLE [caseprofile];
+DROP TABLE [caseprofile];
 
 SELECT I.CaseNo,
     I.CoO CountryOrigin,
     I.[CoO_L1] cool1,
+    I.[LocationLevel1ID] cool1id,
     I.[CoO_L2] cool2,
+    I.[LocationLevel2ID] cool2id,
     I.[CoO_L3] cool3,
+    I.[LocationLevel3ID] cool3id,
+    I.[LocationLevel4ID] cool4id,   
     I.CoA CountryAsylum,
     I.[CoA_L1] coal1,
+    I.[CoA_LocationLevel1ID] coal1id,
     I.[CoA_L2] coal2,
-    I.[CoA_L3] coal3,
+    I.[CoA_LocationLevel2ID] coal2id,
+    I.[CoA_L3] coal3, 
+    I.[CoALocationLevel3ID] coal3id,
+    I.[CoA_LocationLevel4ID] coal4id,
     Cal_1.Num_Inds,
     Cal_1.Child_0_14,
     Cal_1.Youth_15_17,
@@ -62,7 +70,7 @@ SELECT I.CaseNo,
     I.Occupation occupation,
     I.EducationLevelCode edu_highest,
     I.RefStatus,
-    I.RefugeeStatusDate,
+    DATENAME(yyyy, RefugeeStatusDate) RefugeeStatusDate,
     I.RefStatCategory
 
     INTO [caseprofile]
@@ -87,7 +95,7 @@ WHERE I.Current_process_Status = 'A' AND I.Relationship = 'PA'
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 -- --Using pivot functions
---DROP TABLE T_SPneedsBreak;
+DROP TABLE T_SPneedsBreak;
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 SELECT *
 
@@ -124,7 +132,7 @@ as CountSpecificNeeds--Pivot table alias
 --- List events of specific interest for analysis and rank them by date in case there woudl be duplicate
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
---DROP TABLE[T_EventsSpecific];
+DROP TABLE[T_EventsSpecific];
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
 select * ,
@@ -137,7 +145,9 @@ into T_EventsSpecific
 from
 
     (SELECT
-    A.[IndividualID], A.[CaseNo], A.[EventID], A.[ResultID],
+    A.[IndividualID], 
+    --A.[CaseNo],
+    A.[EventID], A.[ResultID],
     CONVERT(VARCHAR(10), A.[EventLogEffectiveDate], 103) as EventLogEffectiveDate, 
     A.[EventLogstatus],
     isnull(CONVERT(VARCHAR(10), A.[EventLogResultEffectiveDate], 103), CONVERT(VARCHAR(10), A.[EventLogEffectiveDate], 103)) as EventLogResultEffectiveDate, 
@@ -170,7 +180,7 @@ ORDER BY[IndividualID], [EventID]
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
---DROP TABLE T_EventsSpecificInd;
+DROP TABLE T_EventsSpecificInd;
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
 SELECT
@@ -201,15 +211,15 @@ J.IndividualID,
     DATEDIFF(day, G.EventLogEffectiveDate, F.EventLogResultEffectiveDate) as rst19_18,
     E.EventLogEffectiveDate AS rst43_Referred_to_Hub,
     E.ReasonCode AS rst43_ReasonReferred_to_Hub,
-    K.EventLogEffectiveDate AS rst33_DepartureConfirmed,
+    K.EventLogResultEffectiveDate AS rst33_DepartureConfirmed,
     K.ReasonCode AS rst33_ReasonDepartureConfirmed,
-    DATEDIFF(day, F.EventLogResultEffectiveDate, K.EventLogEffectiveDate) as rst33_19,
+    DATEDIFF(day, F.EventLogResultEffectiveDate, K.EventLogResultEffectiveDate) as rst33_19,
     N.EventLogEffectiveDate AS reg38_SpontaneousDeparture,
     N.ReasonCode AS reg38_ReasonSpontaneousDeparture,
     DATEDIFF(day, J.RegisteredOn, N.EventLogEffectiveDate) as registered_Spontaneousdepart,
     O.EventLogResultEffectiveDate AS vol26_VolrepDepartureConfirmed,
     O.ReasonCode AS vol26_ReasonVolrepDepartureConfirmed,
-    DATEDIFF(day, J.RegisteredOn, O.EventLogEffectiveDate) as registered_VolDepart,
+    DATEDIFF(day, J.RegisteredOn, O.EventLogResultEffectiveDate) as registered_VolDepart,
     CONVERT(VARCHAR(10), J.CaseCreatedOn, 103) AS CaseCreatedOn,
     CONVERT(VARCHAR(10), J.ArrivalDate, 103) AS ArrivalDate,
     CONVERT(VARCHAR(10), J.RegisteredOn, 103) AS RegisteredOn,
@@ -267,13 +277,23 @@ LEFT OUTER JOIN
 LEFT OUTER JOIN
     (SELECT IndividualID, EventLogResultEffectiveDate, ReasonCode, RECORDRANK FROM dbo.T_EventsSpecific AS OE WHERE(EventID = 'VOL26') AND(RECORDRANK = 1)) AS O ON J.IndividualID = O.IndividualID
 
-WHERE(C.EventLogResultEffectiveDate IS NOT NULL) OR(D.EventLogEffectiveDate IS NOT NULL) OR(E.EventLogEffectiveDate IS NOT NULL) OR(F.EventLogResultEffectiveDate IS NOT NULL) OR(G.EventLogEffectiveDate IS NOT NULL) OR(H.EventLogEffectiveDate IS NOT NULL) OR(K.EventLogEffectiveDate IS NOT NULL) OR(L.EventLogEffectiveDate IS NOT NULL) OR(M.EventLogResultEffectiveDate IS NOT NULL) OR(N.EventLogEffectiveDate IS NOT NULL) OR(O.EventLogEffectiveDate IS NOT NULL)
+WHERE (C.EventLogResultEffectiveDate IS NOT NULL) OR
+(D.EventLogEffectiveDate IS NOT NULL) OR
+(E.EventLogEffectiveDate IS NOT NULL) OR
+(F.EventLogResultEffectiveDate IS NOT NULL) OR
+(G.EventLogEffectiveDate IS NOT NULL) OR
+(H.EventLogEffectiveDate IS NOT NULL) OR
+(K.EventLogResultEffectiveDate IS NOT NULL) OR
+(L.EventLogEffectiveDate IS NOT NULL) OR
+(M.EventLogResultEffectiveDate IS NOT NULL) OR
+(N.EventLogEffectiveDate IS NOT NULL) OR
+(O.EventLogResultEffectiveDate IS NOT NULL);
 
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
--- DROP TABLE   T_EventsSpecificIndSPneeds ;
+DROP TABLE   T_EventsSpecificIndSPneeds ;
 
 SELECT A.[IndividualID],
               A.[CaseNo],
@@ -463,7 +483,7 @@ SELECT A.[IndividualID],
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 --Aggregation at the case level
 
---DROP TABLE T_SPneedsCaseLevel;
+DROP TABLE T_SPneedsCaseLevel;
 
 select C.[CaseNo],
 SUM(C.[CR]) as Child_at_risk,
@@ -582,8 +602,7 @@ SUM(C.[WR - WR]) as Woman_at_risk_Woman_at_risk_unspecified
 
 INTO T_SPneedsCaseLevel
 
-
-FROM T_SPneedsBreak
+FROM [DWH].[dbo].[T_SPneedsBreak] C
 
 --ORDER BY IndividualID--order
 GROUP BY[CaseNo]
@@ -592,6 +611,8 @@ GROUP BY[CaseNo]
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 --DROP TABLE T_EventsSpecificPA;
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+
+DROP TABLE T_EventsSpecificPA;
 
 SELECT[CaseNo], [CurrentSize], [TotalSize], [Current_process_Status], [rst01_considered], [rst01_Reasonconsidered], [registered_rst_01], [rst04_notqualified], [rst04_Reasonnotqualified], [rst04_01], [rst06_Interview], [rst06_ReasonInterview], [rst09_Assessment_Complete], [rst09_ReasonAssessment_Complete], [rst09_01], [rst18_CaseSubmitted], [rst18_ReasonCaseSubmitted], [rst18_09], [rst21_CaseResbmitted], [rst21_ReasonCaseResbmitted], [rst19_CaseAccepted], [rst19_ReasonCaseAccepted], [rst43_Referred_to_Hub], [rst43_ReasonReferred_to_Hub], [rst33_DepartureConfirmed], [rst33_ReasonDepartureConfirmed], [reg38_SpontaneousDeparture], [reg38_ReasonSpontaneousDeparture], [registered_Spontaneousdepart], [vol26_VolrepDepartureConfirmed], [vol26_ReasonVolrepDepartureConfirmed], [registered_VolDepart], [CaseCreatedOn], [CoO], [CoA], [NationalityCode], [ArrivalDate], [RegisteredOn], [RefStatus], [RefStatCategory], [RefugeeStatusDate]
 
@@ -605,7 +626,8 @@ ORDER BY[CaseNo]
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 -- -T_EventsSpecificIndSPneedsCase
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-
+DROP TABLE  T_EventsSpecificIndSPneedsCase;
+ 
 SELECT
 A.[CaseNo],
 A.[CurrentSize],

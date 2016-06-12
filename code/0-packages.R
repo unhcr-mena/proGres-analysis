@@ -45,6 +45,8 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
               "ROCR", 
               "rpart", "rpart.plot", # "sas7bdat", 
               "snow", "speedglm", "tree",
+             "animation","spacetime",
+             "gridExtra",
               "prettyR","xtable","knitr","pander",
               "formatR" #, "gWidgetsRGtk2" # used to format the code
               #"XLConnect" ## Read and write excel files
@@ -161,6 +163,7 @@ library(rpart.plot)
 ### Read other format
 #library(foreign)
 #library(sas7bdat)
+library(gridExtra)
 
 
 ############################################

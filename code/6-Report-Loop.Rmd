@@ -10,13 +10,21 @@ output:
     toc_depth: 3
 ---
 
-
-
-```{r , echo=FALSE, warning=FALSE, message=FALSE}
+```{r , echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
 
 # , cache=TRUE
 #getwd("D:/R-project/proGres-analysis")
 ## Load the pre-processed dataset (cf "code/1-recode-data.R"")
+data1 <- read.csv("D:/R-project/proGres-analysis/data/progrescase2.csv")
+##Load packages
+## load all packages
+source("D:/R-project/proGres-analysis/code/0-packages.R")
+
+```
+
+
+```{r , echo=FALSE, warning=FALSE, message=FALSE}
+
 data <- data1
 
 ## Subset for the country
@@ -38,9 +46,6 @@ data$occupationcat <- factor(data$occupationcat, levels = c("Manager-Professiona
                                                                             "Agricultural", "Craft-Machine", "Elementary", "Military",
                                                                             "UnknownOccup", "NoOccup", "Student"))
 
-##Load packages
-## load all packages
-source("D:/R-project/proGres-analysis/code/0-packages.R")
 
 ```
 

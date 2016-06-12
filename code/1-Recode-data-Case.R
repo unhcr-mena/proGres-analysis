@@ -596,14 +596,34 @@ progres.case.sp$Woman.at.risk <- as.character(progres.case.sp$Woman.at.risk)
 progres.case.sp$Woman.at.risk[is.na(progres.case.sp$Woman.at.risk)]<- "no"
 progres.case.sp$Woman.at.risk <- as.factor(progres.case.sp$Woman.at.risk)
 
+###################################################
+######## Recode the address information 
+###################################################
 
+names(data)
 
+## if the admin unit is not in the correct country -- then fill with "Data Entry Mistake"
+## if the admin unit is not available, then "Not reported"
+
+table(progres.case.sp$cool1id)
+
+#CountryOrigin"               
+#"cool1id"  
+#"cool2id"   
+#"cool3id"   
+#"cool4id"  
+
+#"CountryAsylum" 
+#"coal1id"  
+#"coal2id" 
+#"coal3id"   
+#"coal4id" 
 
 ###################################################
 ######## Saving reworked case information
 ###################################################
 
-write.csv(progres.case.sp, file = "data/progrescase2.csv",na="")
+write.csv(progres.case.sp, file = "data/progrescase-1.csv",na="")
 
 rm(assistancecase)
 rm(progres.case)
@@ -625,6 +645,7 @@ data <- data[!rowSums(is.na(data["AVG_Age"])), ]
 data <- data[!rowSums(is.na(data["YearArrival"])), ]
 data <- data[data$dem_sex !="Unknown", ]
 
+write.csv(data, file = "data/progrescase2.csv",na="")
 
 ## Description of all variables 
 data.str <- strtable(data, factor.values=as.integer)
