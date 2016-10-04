@@ -331,12 +331,29 @@ progres.case$Montharrival <- factor(progres.case$Montharrival, levels = c("Jan",
 ##############################
 # Recoding Education
 progres.case$edu_highest_t <- progres.case$edu_highest
-progres.case$edu_highest_t <- recode(progres.case$edu_highest_t,"'01' = 'Grade 1'; '02' = 'Grade 2';  
-                                     '03' = 'Grade 3';  '04' = '4 years (or Grade 4)';   '05' = 'Grade 5';  
-                                     '06' = 'Grade 6';   '07' = 'Grade 7';  '08' = 'Grade 8';  
-                                     '09' = 'Grade 9';    '10' = 'Grade 10';  '11' = 'Grade 11'; 
-                                     '12' = 'Grade 12';    '13' = 'Grade 13';   '14' = 'Grade 14';  
-                                     'IN' = 'Informal Education';    'NE' = 'No education'; 'U' = 'Unknown'; 
+#progres.case$edu_highest_t <- recode(progres.case$edu_highest_t,"'01' = 'Grade 1'; '02' = 'Grade 2';  
+#                                     '03' = 'Grade 3';  '04' = '4 years (or Grade 4)';   '05' = 'Grade 5';  
+#                                     '06' = 'Grade 6';   '07' = 'Grade 7';  '08' = 'Grade 8';  
+#                                     '09' = 'Grade 9';    '10' = 'Grade 10';  '11' = 'Grade 11'; 
+#                                     '12' = 'Grade 12';    '13' = 'Grade 13';   '14' = 'Grade 14';  
+#                                     'IN' = 'Informal Education';    'NE' = 'No education'; 'U' = 'Unknown'; 
+#                                     'TC' = 'Techn Vocational';     'UG' = 'University level'; 'PG' = 'Post university level';
+#                                     'KG' = 'Kindergarten'")
+
+progres.case$edu_highest_t <- recode(progres.case$edu_highest_t,"'1 year (or Grade 1)' = 'Grade 1'; '2 year (or Grade 2)' = 'Grade 2';  
+                                     '3 year (or Grade 3)' = 'Grade 3';  '04' = '4 year (or Grade 4)';
+                                     '5 year (or Grade 5)' = 'Grade 5';  
+                                     '6 year (or Grade 6)' = 'Grade 6';
+                                     '7 year (or Grade 7)' = 'Grade 7';  
+                                     '8 year (or Grade 8)' = 'Grade 8';  
+                                     '9 year (or Grade 9)' = 'Grade 9';
+                                     '10 year (or Grade 10)' = 'Grade 10';  '11 year (or Grade 11)' = 'Grade 11'; 
+                                     '12 year (or Grade 12)' = 'Grade 12';    '13 year (or Grade 13)' = 'Grade 13';
+                                     '14 year (or Grade 14)' = 'Grade 14';  
+                                     'IN' = 'Informal Education'; 'Informal Educaiton' = 'Informal Education';
+                                      'NE' = 'No education';
+                                      'U' = 'Unknown'; 
+                                      '-' = 'Unknown'; 
                                      'TC' = 'Techn Vocational';     'UG' = 'University level'; 'PG' = 'Post university level';
                                      'KG' = 'Kindergarten'")
 
@@ -347,9 +364,9 @@ progres.case$edu_highest_t <- factor(progres.case$edu_highest_t, levels = c("Unk
                                                                             "Techn Vocational", "University level", "Post university level"))
 
 progres.case$edu_highestcat <- recode(progres.case$edu_highest_t,"'Unknown'='Unknown';
-                                      'Informal Education'='Other';
+                                      'Informal Educaiton'='Other';
                                       'Techn Vocational'='Other';
-                                      'No education'='Up to Grade 5';
+                                      'No education'='No education';
                                       'Kindergarten'='Up to Grade 5';
                                       'Grade 1'='Up to Grade 5';
                                       'Grade 2'='Up to Grade 5';

@@ -14,6 +14,7 @@ dbhandleprogres <- odbcConnect(progres, uid=user, pwd=passw)
 
 ## fetching the view containing information aggregated at the case level and the event
 progres.case <-  sqlFetch(dbhandleprogres, "caseprofile")
+
 ## backup in CSV 
 write.csv(progres.case, file = "data/progrescase.csv",na="")
 
