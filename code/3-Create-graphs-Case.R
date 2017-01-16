@@ -1,5 +1,5 @@
 
-source("code/o-packages.R")
+source("code/0-packages.R")
 
 ## Generation of a exploratory graphs
 
@@ -117,7 +117,7 @@ ggsave("out/barseason.png", bar.season, width=8, height=6,units="in", dpi=300)
 #### Bar graph to show repartition for categories
 
 data$occupationcat <- reorder(data$occupationcat, sum(data$Num_Inds))
-data$occupationcat <- factor(data$occupationcat, levels = data$occupationcat[order(sum(data$Num_Inds)])
+data$occupationcat <- factor(data$occupationcat, levels = data$occupationcat[order(sum(data$Num_Inds))])
 
 bar.occupationcat <- ggplot( #order_by(occupationcat, ~ Num_Inds, data, sum),
                              data=data[data$CountryOrigin == "SYR",], 
