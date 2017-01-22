@@ -23,7 +23,8 @@ library(sp)
 library(dplyr)
 
 ## Load from file
-data1 <- read.csv("D:/R-project/proGres-analysis/data/progrescase2.csv")
+#data1 <- read.csv("D:/R-project/proGres-analysis/data/progrescase2.csv")
+data1 <- read.csv("data/progrescase2.csv")
 
 data <- data1
 
@@ -80,23 +81,15 @@ data.asylum <- aggregate(cbind(Num_Inds  ) ~ coal1 + CountryAsylum , data = data
 #
 library("reshape2") ## load the package in your session
 
-
-
-
-
-
-
-data.asylum.Case.size <- dcast((melt(data, id=c(22), measure=c(34))), coal1 ~ value )
-data.asylum.CountryOriginCategory <- dcast((melt(data, id=c(22), measure=c(57))), coal1 ~ value )
-data.asylum.YearArrivalCategory <- dcast((melt(data, id=c(22), measure=c(56))), coal1 ~ value )
-data.asylum.edu_highestcat <- dcast((melt(data, id=c(22), measure=c(60))), coal1 ~ value )
-data.asylum.occupationcat <- dcast((melt(data, id=c(22), measure=c(66))), coal1 ~ value )
-data.asylum.dem_marriage <- dcast((melt(data, id=c(22), measure=c(25))), coal1 ~ value )
-data.asylum.dem_sex <- dcast((melt(data, id=c(22), measure=c(27))), coal1 ~ value )
-data.asylum.dem_ethn <- dcast((melt(data, id=c(22), measure=c(28))), coal1 ~ value )
-data.asylum.dem_religion <- dcast((melt(data, id=c(22), measure=c(29))), coal1 ~ value )
-
-
+data.asylum.Case.size <- dcast((melt(data, id=c(13), measure=c(45))), coal1 ~ value )
+data.asylum.CountryOriginCategory <- dcast((melt(data, id=c(13), measure=c(68))), coal1 ~ value )
+data.asylum.YearArrivalCategory <- dcast((melt(data, id=c(13), measure=c(67))), coal1 ~ value )
+data.asylum.edu_highestcat <- dcast((melt(data, id=c(13), measure=c(71))), coal1 ~ value )
+data.asylum.occupationcat <- dcast((melt(data, id=c(13), measure=c(77))), coal1 ~ value )
+data.asylum.dem_marriage <- dcast((melt(data, id=c(13), measure=c(31))), coal1 ~ value )
+data.asylum.dem_sex <- dcast((melt(data, id=c(13), measure=c(35))), coal1 ~ value )
+data.asylum.dem_ethn <- dcast((melt(data, id=c(13), measure=c(36))), coal1 ~ value )
+data.asylum.dem_religion <- dcast((melt(data, id=c(13), measure=c(37))), coal1 ~ value )
 
 
 #colnames(data.asylum$coal1) <- "name"
@@ -104,8 +97,15 @@ colnames(data.asylum)[1] <- "name"
 data.origin <- aggregate(cbind(Num_Inds, CountryOrigin) ~ cool1 , data = data, FUN = sum, na.rm = TRUE)
 
 
+#read geojson from github repository 'p-codes'
+library(geojsonio)
 
-adm1geo <- readOGR("geo/geojson/JOR/ADM1.geojson", "OGRGeoJSON")
+url <- "https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/JOR/ADM1.geojson"
+download.file( url, destfile="geo/geojson/JOR/ADM1.geojson" )
+adm1geo <- geojson_read( "geo/geojson/JOR/ADM1.geojson", method="local", what="sp" )
+
+#plot(adm1geo_jor)
+#adm1geo <- readOGR("geo/geojson/JOR/ADM1.geojson", "OGRGeoJSON")
 
 # Fortify them
 adm1geo@data$id = rownames(adm1geo@data)
@@ -119,10 +119,19 @@ adm1geo_f <-join(x=adm1geo_f, y=data.asylum, by="name")
 
 ### basic map
 rm(maplevel1)
+
+#centroids of adm1geo_f polygons for position of labels
+distcenters <- aggregate(cbind(long, lat) ~ name, data=adm1geo_f, 
+                    FUN=function(x)mean(range(x))) 
+
+#distcenters <- ddply(adm1geo_f, .(name), summarize, clat = mean(lat), clong = mean(long))
+
 maplevel1 <-  ggplot(adm1geo_f, aes(long, lat)) + coord_equal()+
-  geom_polygon(data = adm1geo_f, aes(x = long, y = lat, group = group), alpha = 0.5) +
- # geom_text(aes(label = short, x = Longitude_c, y = Latitude_c, group = group)) + #add labels at centroids
-  geom_path(data = adm1geo_f, aes(x = long, y = lat, group = group), color="white")+
+  geom_polygon(data = adm1geo_f, aes(x = long, y = lat, group = group), alpha = 0.3) +
+  geom_path(data = adm1geo_f, aes(x = long, y = lat, group = group), color="gray90", size=0.25)+
+  # geom_text(aes(label = short, x = Longitude_c, y = Latitude_c, group = group)) + #add labels at centroids
+  # geom_text(data=distcenters, aes(clong, clat, label = name), size=1) +
+  geom_text(data=distcenters, aes(long, lat, label = name), size=1) +
   ggtitle("Governorates")+
   theme_tufte(base_family="Helvetica")+
   theme(plot.title=element_text(face="bold", size=14),
@@ -133,26 +142,35 @@ maplevel1 <-  ggplot(adm1geo_f, aes(long, lat)) + coord_equal()+
 
 ggsave("out/map/maplevel1.png", maplevel1, width=4, height=3,units="in", dpi=300)
 
+
+#class intervalls for #Individuals --> #refugees
 intervalleref <- classIntervals(data.asylum$Num_Inds, n = 5, style = "jenks")
 #use the breaks from above to decide the break points
 adm1geo_f$ref.breaks <- cut(adm1geo_f$Num_Inds, breaks = c(intervalleref$brks), dig.lab = 2)
 levels(adm1geo_f$ref.breaks) <- rev(levels(adm1geo_f$ref.breaks))
 
 
+#choropleth map: governorates shaded by no. of refugees (classes from above)
 rm(maplevel1_reff)
 maplevel1_reff <-  ggplot(adm1geo_f, aes(x = long, y = lat, group = group, fill=ref.breaks)) + 
   coord_equal() +
-  geom_polygon(data = adm1geo_f, aes(fill=ref.breaks), alpha = 0.5) +
-  scale_fill_brewer(palette="Greys", name="Refugees") + 
-  geom_path(data = adm1geo_f, aes(x = long, y = lat, group = group), color="white") +
+  geom_polygon(data = adm1geo_f, aes(fill=ref.breaks), alpha = 0.3) +
+  geom_path(data = adm1geo_f, aes(x = long, y = lat, group = group), color="gray90", size=0.25) +
+  scale_fill_brewer(palette="YlOrBr", name="Refugees") + 
+
+
+  theme_nothing(legend=TRUE)+
+  
   ggtitle("Refugees #") +
   theme_tufte(base_family="Helvetica") +
   theme(plot.title=element_text(face="bold", size=14),
         axis.title.x=element_blank(),
         axis.title.y=element_blank(),
         axis.text.x = element_blank(),axis.ticks = element_blank(),
-        axis.text.y = element_blank(),legend.position = "none")
+        axis.text.y = element_blank(),legend.position = "right")
+
 ggsave("out/map/maplevel1_reff.png", maplevel1_reff, width=4, height=3,units="in", dpi=300)
+
 
 maplevel1_reff <- maplevel1_reff +
   geom_point(aes(size = total, x = Longitude_c, y = Latitude_c, group = group), alpha = 0.3, color="coral1")+  #add proportional symbol at centroids
