@@ -212,7 +212,7 @@ progres.spneedevent$season <- as.factor(progres.spneedevent$season)
 
 progres.spneedevent$season <- factor(progres.spneedevent$season, levels = c("Spring", "Summer", "Autumn", "Winter"))
 
-progres.spneedevent$season <- recode(progres.spneedevent$season,"'January'='Jan';  'February'='Febr';'March'='Mar';
+progres.spneedevent$Montharrival <- recode(progres.spneedevent$Montharrival,"'January'='Jan';  'February'='Febr';'March'='Mar';
                                      'April'='Apr';  'May'='May'; 'June'='Jun'; 'July'='Jul';  'August'='Aug'; 
                                      'September'='Sept'; 'October'='Oct'; 'November'='Nov'; 'December'='Dec' ")
 

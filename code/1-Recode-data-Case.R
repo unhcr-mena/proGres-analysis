@@ -323,7 +323,7 @@ progres.case$season <- as.factor(progres.case$season)
 
 progres.case$season <- factor(progres.case$season, levels = c("Spring", "Summer", "Autumn", "Winter"))
 
-progres.case$season <- recode(progres.case$season,"'January'='Jan';  'February'='Febr';'March'='Mar';
+progres.case$Montharrival <- recode(progres.case$Montharrival,"'January'='Jan';  'February'='Febr';'March'='Mar';
                                'April'='Apr';  'May'='May'; 'June'='Jun'; 'July'='Jul';  'August'='Aug'; 
                               'September'='Sept'; 'October'='Oct'; 'November'='Nov'; 'December'='Dec' ")
 progres.case$Montharrival <- factor(progres.case$Montharrival, levels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"))
