@@ -27,53 +27,94 @@ library(sp)
 library(dplyr)
 library(geojsonio)
 
-##possible Countries: "DZA", "EGY", "ESH", "GCC", "IRN", "IRQ", "JOR", "LBN", "LBY", "MAR", "MRT", "PSE", "SYR", "TUN", "TUR", "YEM"
-mena_countries <- c("DZA", "EGY", "ESH", "GCC", "IRN", "IRQ", "JOR", "LBN", "LBY", "MAR", "MRT", "PSE", "SYR", "TUN", "TUR", "YEM")
-#possible admin-levels: Admin-level 1 = "1" and admin-level2 = "2"
+###Potential variables to be mapped by country
+
+# number individials
+# average age
+
+# specific.legal.physical.protection.needs
+
+# dependency 
+# youthdependency
+# elederndependency
+# female.ratio
+# STDEVAgeclass 
+# AVGAgecohort 
+# season 
+# CountryOriginCategory 
+# Montharrival 
+# edu_highestcat 
+# dem_marriagecat 
+# occupationcat
 
 
-##country=JORDAN
-#admin-level1
-rm(ctrcode)
-rm(admlevel)
-ctrcode <- mena_countries[7]
-admlevel <- "1"
-#read geojson from github repository 'p-codes'
-geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",ctrcode,"/ADM",admlevel,".geojson")
-destfilepath <- paste0("geo/geojson/",ctrcode,"/ADM",admlevel,".geojson" )
-download.file( geojsonurl, destfile=destfilepath )
-adm1geo <- geojson_read( destfilepath, method="local", what="sp" )
-plot(adm1geo)
-
-##country=JORDAN
-#admin-level2
-rm(admlevel, geojsonurl, destfilepath)
-admlevel <- "2"
-geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",ctrcode,"/ADM",admlevel,".geojson")
-destfilepath <- paste0("geo/geojson/",ctrcode,"/ADM",admlevel,".geojson" )
-download.file( geojsonurl, destfile=destfilepath )
-adm2geo <- geojson_read( destfilepath, method="local", what="sp" )
-plot(adm2geo)
-
-
-###data preparation for mapping
+###### DECLARATION OF STATIC VARIABLES & DATAFRAMES ####################################################
 #load data from file (please consider to run previous code-files (""1-Recode-data..."))
 df <- read.csv("data/progrescase2.csv")
 data <- df
 
-## Subset for the country
+##possible countries: "DZA", "EGY", "ESH", "GCC", "IRN", "IRQ", "JOR", "LBN", "LBY", "MAR", "MRT", "PSE", "SYR", "TUN", "TUR", "YEM"
+mena_countries <- c("DZA", "EGY", "ESH", "GCC", "IRN", "IRQ", "JOR", "LBN", "LBY", "MAR", "MRT", "PSE", "SYR", "TUN", "TUR", "YEM")
+countrynames <- c("","","","","","","Jordan","","","","","","","","","")
+adm_levels <- c("1","2","3","4")
+#possible admin-levels: Admin-level 1 = "1" and admin-level2 = "2"
+
+
+
+###### DECLARATION OF DYNAMIC VARIABLES ##################################################################
+rm(ctrcode)
+rm(admlevel)
+rm(dyn_title)
+
+### dynamic variables for country and administrative level (will change in loop)
+ctrcode <- mena_countries[7]  #country code
+ctrname <- countrynames[7]     #country name
+admlevel <- adm_levels[1]      #administrative level
+
+
+#dynamic path for map outputs
+outputpath.base <- paste0("out/mapbase/",ctrcode,"/map_",ctrcode,"_adm",admlevel,".png" )
+outputpath.choropleth <- paste0("out/choropleth/",ctrcode,"/map_",ctrcode,"_adm",admlevel,".png" )
+outputpath.symbol <- paste0("out/symbol/",ctrcode,"/map_",ctrcode,"_adm",admlevel,".png" )
+
+#dynamic map title
+dyn_title.base<-ifelse(adm_level=="1", (paste0(ctrname," Governorates")), ifelse (adm_level=="2", (paste0(ctrname," Districts")), ifelse(adm_level=="3", (paste0(ctrname," Cities")), ifelse (adm_level=="4", (paste0(ctrname," Places")), (paste0(ctrname," other"))))))
+dyn_title.choropleth<- paste0(ctrname," ","to be done")
+
+
+## data-subset for the country
 data <-data[data$CountryAsylum == ctrcode, ]
 
-##mapping integer
-#aggregate individual numbers by adminlevel for maps
-names(data)
-str(data)
-data.asylum <- aggregate(cbind(Num_Inds  ) ~ coal1 + CountryAsylum , data = data, FUN = sum, na.rm = TRUE)
-data.asylum.AVG_Age <- aggregate(cbind(AVG_Age, STDEV_Age  ) ~ coal1 + CountryAsylum , data = data, FUN = mean, na.rm = TRUE)
+
+###read geojson from github repository 'p-codes'
+rm(geojson)
+geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",ctrcode,"/ADM",admlevel,".geojson")
+destfilepath <- paste0("geo/geojson/",ctrcode,"/ADM",admlevel,".geojson" )
+download.file( geojsonurl, destfile=destfilepath )
+raw_json <- geojson_read( destfilepath, method="local", what="sp" )
+plot(raw_json)
 
 
+# Fortify geojson
+raw_json@data$id = rownames(raw_json@data)
+rm(joined_json)
+joined_json <- fortify(raw_json, region="id") #turns geojson in a dataframe
+#joined_json <- merge(joined_json, raw_json@data, by.x="id",by.y="row.names")
+joined_json <-join (joined_json, raw_json@data, by="id") #joining dataframe with geojson-data
 
 
+####data preparation
+##aggregate individual numbers by adminlevel for maps
+
+data.asylum <- aggregate(cbind(Num_Inds  ) ~ coal1 + CountryAsylum, data = data, FUN = sum, na.rm = TRUE)
+data.asylum.AVG_Age <- aggregate(cbind(AVG_Age) ~ coal1 + CountryAsylum + AVGAgecohort, data = data, FUN = mean, na.rm = TRUE)
+
+
+#data of origin
+data.origin <- aggregate(cbind(Num_Inds) ~ coal1 + CountryOrigin, data = data, FUN = sum, na.rm = TRUE)
+
+
+### Prepare data where type=factor
 ## Reorder factor levels
 data$dependency <-  factor(data$dependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
 data$youthdependency <-  factor(data$youthdependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
@@ -91,108 +132,100 @@ data$occupationcat <- factor(data$occupationcat, levels = c("Manager-Professiona
                                                             "Agricultural", "Craft-Machine", "Elementary", "Military",
                                                             "UnknownOccup", "NoOccup", "Student"))
 
+##install.packages("reshape2") ## install the package in you station - do it only once
+##structure: reformated data <- long to wide(wide to long)     --> result=wide format by location1 of asylum
+#load the package in your session
+library("reshape2")
+names(data)  #see column names of data
+str(data)  #see structure of data
 
-
-
-
-#data.month.year.arrival <- aggregate(cbind(Num_Inds  ) ~ coal1 + CountryAsylum + YearArrivalCategory + Montharrival, data = data, FUN = sum, na.rm = TRUE)
-###Potential variables to be mapped.
-
-# dependency 
-# youthdependency
-# elederndependency
-# female.ratio
-# STDEVAgeclass 
-# AVGAgecohort 
-# season 
-# CountryOriginCategory 
-# Montharrival 
-# edu_highestcat 
-# dem_marriagecat 
-# occupationcat
-
-#install.packages("reshape2") ## install the package in you station - do it only once
-#
-library("reshape2") ## load the package in your session
-
-data.asylum.Case.size <- dcast((melt(data, id=c(13), measure=c(45))), coal1 ~ value )
-data.asylum.CountryOriginCategory <- dcast((melt(data, id=c(13), measure=c(68))), coal1 ~ value )
+data.asylum.Case.size <- dcast((melt(data, id=c(13), measure=c(45))), data[,13] ~ value )
+data.asylum.dependency <- dcast((melt(data, id=c(13), measure=c(46))), coal1 ~ value )
+data.asylum.youthdependency <- dcast((melt(data, id=c(13), measure=c(47))), coal1 ~ value )
+data.elederndependency <- dcast((melt(data, id=c(13), measure=c(48))), coal1 ~ value )
+data.female.ratio <- dcast((melt(data, id=c(13), measure=c(49))), coal1 ~ value )
+data.AVGAgecohort <- dcast((melt(data, id=c(13), measure=c(61))), coal1 ~ value )
+data.STDEVAgeclass <- dcast((melt(data, id=c(13), measure=c(62))), coal1 ~ value )
 data.asylum.YearArrivalCategory <- dcast((melt(data, id=c(13), measure=c(67))), coal1 ~ value )
+data.asylum.CountryOriginCategory <- dcast((melt(data, id=c(13), measure=c(68))), coal1 ~ value )
+data.asylum.season <- dcast((melt(data, id=c(13), measure=c(69))), coal1 ~ value )
 data.asylum.edu_highestcat <- dcast((melt(data, id=c(13), measure=c(71))), coal1 ~ value )
 data.asylum.occupationcat <- dcast((melt(data, id=c(13), measure=c(77))), coal1 ~ value )
-data.asylum.dem_marriage <- dcast((melt(data, id=c(13), measure=c(31))), coal1 ~ value )
+data.asylum.dem_marriagecat <- dcast((melt(data, id=c(13), measure=c(78))), coal1 ~ value )
 data.asylum.dem_sex <- dcast((melt(data, id=c(13), measure=c(35))), coal1 ~ value )
 data.asylum.dem_ethn <- dcast((melt(data, id=c(13), measure=c(36))), coal1 ~ value )
 data.asylum.dem_religion <- dcast((melt(data, id=c(13), measure=c(37))), coal1 ~ value )
 
-data.asylum.season <- dcast((melt(data, id=c(13), measure=c(69))), coal1 ~ value )
-data.asylum.dependency <- dcast((melt(data, id=c(13), measure=c(46))), coal1 ~ value )
 
-
-#colnames(data.asylum$coal1) <- "name"
+###data join: geojson with data
+##rename key column in dat for join with geojson to "name"=same columnname as in geojson
 colnames(data.asylum)[1] <- "name"
-data.origin <- aggregate(cbind(Num_Inds, CountryOrigin) ~ cool1 , data = data, FUN = sum, na.rm = TRUE)
+colnames(data.asylum.AVG_Age)[1] <- "name"
+#join geojson dataframe with prepared data
+joined_json <-join(x=joined_json, y=data.asylum, by="name") 
+joined_json <-join(x=joined_json, y=data.asylum.AVG_Age, by="name") 
 
 
 
 
 
 
-# Fortify them
-adm1geo@data$id = rownames(adm1geo@data)
-
-rm(adm1geo_f)
-adm1geo_f <- fortify(adm1geo, region="id")
-#adm1geo_f <- merge(adm1geo_f, adm1geo@data, by.x="id",by.y="row.names")
-adm1geo_f <-join (adm1geo_f, adm1geo@data, by="id")
-adm1geo_f <-join(x=adm1geo_f, y=data.asylum, by="name")
+###### MAPPING PART ####################################################################################
 
 
-### basic map
-rm(maplevel1)
-
-#centroids of adm1geo_f polygons for position of labels
-distcenters <- aggregate(cbind(long, lat) ~ name, data=adm1geo_f, 
-                    FUN=function(x)mean(range(x))) 
-
+#centroids of polygons of joined_json for position of labels
+distcenters <- aggregate(cbind(long, lat) ~ name, data=joined_json, 
+                         FUN=function(x)mean(range(x)))
 #distcenters <- ddply(adm1geo_f, .(name), summarize, clat = mean(lat), clong = mean(long))
 
-maplevel1 <-  ggplot(adm1geo_f, aes(long, lat)) + coord_equal()+
-  geom_polygon(data = adm1geo_f, aes(x = long, y = lat, group = group), alpha = 0.3) +
-  geom_path(data = adm1geo_f, aes(x = long, y = lat, group = group), color="gray90", size=0.25)+
+
+### styling of raw_json = basic geojson without data visualization
+rm(map.base)
+map.base <-  ggplot(joined_json, aes(long, lat)) + coord_equal()+
+  geom_polygon(data = joined_json, aes(x = long, y = lat, group = group), alpha = 0.3) +
+  geom_path(data = joined_json, aes(x = long, y = lat, group = group), color="gray90", size=0.25)+
   # geom_text(aes(label = short, x = Longitude_c, y = Latitude_c, group = group)) + #add labels at centroids
   # geom_text(data=distcenters, aes(clong, clat, label = name), size=1) +
   geom_text(data=distcenters, aes(long, lat, label = name), size=1) +
-  ggtitle("Governorates")+
+  ggtitle(dyn_title.base)+
   theme_tufte(base_family="Helvetica")+
   theme(plot.title=element_text(face="bold", size=14),
         axis.title.x=element_blank(),
         axis.title.y=element_blank(),
         axis.text.x = element_blank(),axis.ticks = element_blank(),
         axis.text.y = element_blank(),legend.position = "none")
+ggsave(outputpath.base, map.base, width=4, height=3,units="in", dpi=300)
 
-ggsave("out/map/maplevel1.png", maplevel1, width=4, height=3,units="in", dpi=300)
 
 
-#class intervalls for #Individuals --> #refugees
-intervalleref <- classIntervals(data.asylum$Num_Inds, n = 5, style = "jenks")
+###not working so far
+### choroplethmap: Remember just to map relative values in choroplethmap not absolute numbers
+#class intervalls for avg_age
+intervalleref <- classIntervals(data.asylum.AVG_Age$AVGAge, n = 5, style = "jenks")
+
 #use the breaks from above to decide the break points
-adm1geo_f$ref.breaks <- cut(adm1geo_f$Num_Inds, breaks = c(intervalleref$brks), dig.lab = 2)
-levels(adm1geo_f$ref.breaks) <- rev(levels(adm1geo_f$ref.breaks))
+joined_json$AVGAgecohort <- cut(joined_json$AVG_Age, breaks = c(intervalleref$brks), dig.lab = 2)
+levels(joined_json$AVGAgecohort) <- rev(levels(joined_json$AVGAgecohort))
 
+
+# #class intervalls for #Individuals --> #refugees
+# intervalleref <- classIntervals(data.asylum$Num_Inds, n = 5, style = "jenks")
+# #use the breaks from above to decide the break points
+# joined_json$ref.breaks <- cut(joined_json$Num_Inds, breaks = c(intervalleref$brks), dig.lab = 2)
+# levels(joined_json$ref.breaks) <- rev(levels(joined_json$ref.breaks))
 
 #choropleth map: governorates shaded by no. of refugees (classes from above)
-rm(maplevel1_reff)
-maplevel1_reff <-  ggplot(adm1geo_f, aes(x = long, y = lat, group = group, fill=ref.breaks)) + 
+rm(choroplethmap)
+choroplethmap <-  ggplot(joined_json, aes(x = long, y = lat, group = group, fill=AVGAgecohort)) + 
   coord_equal() +
-  geom_polygon(data = adm1geo_f, aes(fill=ref.breaks), alpha = 0.3) +
-  geom_path(data = adm1geo_f, aes(x = long, y = lat, group = group), color="gray90", size=0.25) +
-  scale_fill_brewer(palette="YlOrBr", name="Refugees") + 
+  geom_polygon(data = joined_json, aes(fill=AVGAgecohort), alpha = 0.3) +
+  geom_path(data = joined_json, aes(x = long, y = lat, group = group), color="gray90", size=0.25) +
+  scale_fill_brewer(palette="YlOrBr", name="Average Age") + 
 
 
   theme_nothing(legend=TRUE)+
   
-  ggtitle("Refugees #") +
+  ggtitle(dyn_title.choropleth) +
   theme_tufte(base_family="Helvetica") +
   theme(plot.title=element_text(face="bold", size=14),
         axis.title.x=element_blank(),
@@ -200,7 +233,7 @@ maplevel1_reff <-  ggplot(adm1geo_f, aes(x = long, y = lat, group = group, fill=
         axis.text.x = element_blank(),axis.ticks = element_blank(),
         axis.text.y = element_blank(),legend.position = "right")
 
-ggsave("out/map/maplevel1_reff.png", maplevel1_reff, width=4, height=3,units="in", dpi=300)
+ggsave(outputpath.choropleth, choroplethmap, width=4, height=3,units="in", dpi=300)
 
 
 
