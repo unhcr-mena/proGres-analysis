@@ -50,46 +50,124 @@ library(geojsonio)
 
 ###### DECLARATION OF STATIC VARIABLES & DATAFRAMES ####################################################
 #load data from file (please consider to run previous code-files (""1-Recode-data..."))
-df <- read.csv("data/progrescase2.csv")
-data <- df
+dataoriginal <- read.csv("data/progrescase2.csv")
 
-##possible countries: "DZA", "EGY", "ESH", "GCC", "IRN", "IRQ", "JOR", "LBN", "LBY", "MAR", "MRT", "PSE", "SYR", "TUN", "TUR", "YEM"
-mena_countries <- c("DZA", "EGY", "ESH", "GCC", "IRN", "IRQ", "JOR", "LBN", "LBY", "MAR", "MRT", "PSE", "SYR", "TUN", "TUR", "YEM")
-countrynames <- c("","","","","","","Jordan","","","","","","","","","")
 adm_levels <- c("1","2","3","4")
 #possible admin-levels: Admin-level 1 = "1" and admin-level2 = "2"
 
 
+data <- dataoriginal
+
+countryAsylum_data <- data.frame(sort(unique(data$CountryAsylum)))
+# see which countries of asylum are in data and store alphabetically in dataframe
+countryAsylum_data["pcode_repo"] <- 0
+colnames(countryAsylum_data) <- c("data_code", "pcode_repo")
+
+
+
+#countryAsylum_data <- subset(countryAsylum_data, countryAsylum_data != "ISR") # as long as there is no ISR geojson on p-code repo
+
+
+for (i in 1:15) {
+  ifelse(countryAsylum_data[i,1] == "ALG", countryAsylum_data[i,2] <- "DZA",
+         ifelse(countryAsylum_data[i,1] == "ARE", countryAsylum_data[i,2] <-"EGY",
+                ifelse(countryAsylum_data[i,1] == "GCC", countryAsylum_data[i,2] <-"GCC",
+                       ifelse(countryAsylum_data[i,1] == "IRN", countryAsylum_data[i,2] <-"IRN",
+                              ifelse(countryAsylum_data[i,1] == "IRQ", countryAsylum_data[i,2] <-"IRQ",
+                                     ifelse(countryAsylum_data[i,1] == "ISR", countryAsylum_data[i,2] <-"0",  # geojson in p-code repo not available
+                                            ifelse(countryAsylum_data[i,1] == "JOR", countryAsylum_data[i,2] <-"JOR",
+                                                   ifelse(countryAsylum_data[i,1] == "LBY", countryAsylum_data[i,2] <-"LBY",
+                                                          ifelse(countryAsylum_data[i,1] == "LEB", countryAsylum_data[i,2] <-"LBN",
+                                                                 ifelse(countryAsylum_data[i,1] == "MAU", countryAsylum_data[i,2] <-"MRT",
+                                                                        ifelse(countryAsylum_data[i,1] == "MOR", countryAsylum_data[i,2] <-"MAR", 
+                                                                               ifelse(countryAsylum_data[i,1] == "SYR", countryAsylum_data[i,2] <-"SYR", 
+                                                                                      ifelse(countryAsylum_data[i,1] == "TUN", countryAsylum_data[i,2] <-"TUN", 
+                                                                                             ifelse(countryAsylum_data[i,1] == "TUR", countryAsylum_data[i,2] <-"TUR", 
+                                                                                                    ifelse(countryAsylum_data[i,1] == "YEM", countryAsylum_data[i,2] <-"YEM", 0
+                                                                                                           
+                                                                                                    )))))))))))))))
+}
+
+countryAsylum_data <- subset(countryAsylum_data, countryAsylum_data[ ,2] != "0") 
+
+
+###### BEGIN OF LOOPS ###################################################################################
+
+for (c in 1:15){
+  for (a in 1:1){
+#geojsons in adm2 on p-code repo need to be fixed  
+    
+rm(data, countryAsylum_data)
+
+data <- dataoriginal
+
+countryAsylum_data <- data.frame(sort(unique(data$CountryAsylum))) # see which countries of asylum are in data and store alphabetically in dataframe
+countryAsylum_data["pcode_repo"] <- 0
+colnames(countryAsylum_data) <- c("data_code", "pcode_repo")
+
+
+
+#countryAsylum_data <- subset(countryAsylum_data, countryAsylum_data != "ISR") # as long as there is no ISR geojson on p-code repo
+
+
+for (i in 1:15) {
+                          ifelse(countryAsylum_data[i,1] == "ALG", countryAsylum_data[i,2] <- "DZA",
+                          ifelse(countryAsylum_data[i,1] == "ARE", countryAsylum_data[i,2] <-"EGY",
+                          ifelse(countryAsylum_data[i,1] == "GCC", countryAsylum_data[i,2] <-"GCC",
+                          ifelse(countryAsylum_data[i,1] == "IRN", countryAsylum_data[i,2] <-"IRN",
+                          ifelse(countryAsylum_data[i,1] == "IRQ", countryAsylum_data[i,2] <-"IRQ",
+                          ifelse(countryAsylum_data[i,1] == "ISR", countryAsylum_data[i,2] <-"0",  # geojson in p-code repo not available
+                          ifelse(countryAsylum_data[i,1] == "JOR", countryAsylum_data[i,2] <-"JOR",
+                          ifelse(countryAsylum_data[i,1] == "LBY", countryAsylum_data[i,2] <-"LBY",
+                          ifelse(countryAsylum_data[i,1] == "LEB", countryAsylum_data[i,2] <-"LBN",
+                          ifelse(countryAsylum_data[i,1] == "MAU", countryAsylum_data[i,2] <-"MRT",
+                          ifelse(countryAsylum_data[i,1] == "MOR", countryAsylum_data[i,2] <-"MAR", 
+                          ifelse(countryAsylum_data[i,1] == "SYR", countryAsylum_data[i,2] <-"SYR", 
+                          ifelse(countryAsylum_data[i,1] == "TUN", countryAsylum_data[i,2] <-"TUN", 
+                          ifelse(countryAsylum_data[i,1] == "TUR", countryAsylum_data[i,2] <-"TUR", 
+                          ifelse(countryAsylum_data[i,1] == "YEM", countryAsylum_data[i,2] <-"YEM", 0
+                                                                   
+                          )))))))))))))))
+}
+
+countryAsylum_data <- subset(countryAsylum_data, countryAsylum_data[ ,2] != "0")  
+
+
+
+
+
+
+
+
 
 ###### DECLARATION OF DYNAMIC VARIABLES ##################################################################
-rm(ctrcode)
-rm(admlevel)
-rm(dyn_title)
-
-### dynamic variables for country and administrative level (will change in loop)
-ctrcode <- mena_countries[7]  #country code
-ctrname <- countrynames[7]     #country name
-admlevel <- adm_levels[1]      #administrative level
+rm(data_ctrcode, pcode_ctrcode, admlevel, dyn_title.base, dyn_title.choropleth)
 
 
-#dynamic path for map outputs
-outputpath.base <- paste0("out/mapbase/",ctrcode,"/map_",ctrcode,"_adm",admlevel,".png" )
-outputpath.choropleth <- paste0("out/choropleth/",ctrcode,"/map_",ctrcode,"_adm",admlevel,".png" )
-outputpath.symbol <- paste0("out/symbol/",ctrcode,"/map_",ctrcode,"_adm",admlevel,".png" )
+### dynamic variables for country, p-code repo and administrative level (will change in loop)
 
-#dynamic map title
-dyn_title.base<-ifelse(adm_level=="1", (paste0(ctrname," Governorates")), ifelse (adm_level=="2", (paste0(ctrname," Districts")), ifelse(adm_level=="3", (paste0(ctrname," Cities")), ifelse (adm_level=="4", (paste0(ctrname," Places")), (paste0(ctrname," other"))))))
-dyn_title.choropleth<- paste0(ctrname," ","to be done")
-
+data_ctrcode <- countryAsylum_data[c, 1]  #country code
+pcode_ctrcode <- countryAsylum_data[c, 2]
+admlevel <- adm_levels[a]      #administrative level
 
 ## data-subset for the country
-data <-data[data$CountryAsylum == ctrcode, ]
+data <-data[data$CountryAsylum == data_ctrcode,]
+
+#dynamic path for map outputs
+outputpath.base <- paste0("out/mapbase/",pcode_ctrcode,"_adm",admlevel,".png" )
+# outputpath.choropleth <- paste0("out/choropleth/",repo.ctrcode,"/map_",ctrcode,"_adm",admlevel,".png" )
+# outputpath.symbol <- paste0("out/symbol/",ctrcode,"/map_",repo.ctrcode,"_adm",admlevel,".png" )
+
+#dynamic map title
+dyn_title.base<-ifelse(admlevel=="1", (paste0(pcode_ctrcode," Governorates")), ifelse (admlevel=="2", (paste0(pcode_ctrcode," Districts")), ifelse(admlevel=="3", (paste0(pcode_ctrcode," Cities")), ifelse (admlevel=="4", (paste0(pcode_ctrcode," Places")), (paste0(pcode_ctrcode," other"))))))
+dyn_title.choropleth<- paste0(pcode_ctrcode," ","to be done")
+
 
 
 ###read geojson from github repository 'p-codes'
 rm(geojson)
-geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",ctrcode,"/ADM",admlevel,".geojson")
-destfilepath <- paste0("geo/geojson/",ctrcode,"/ADM",admlevel,".geojson" )
+geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",pcode_ctrcode,"/ADM",admlevel,".geojson")
+destfilepath <- paste0("geo/geojson/",pcode_ctrcode,"_ADM",admlevel,".geojson" )
 download.file( geojsonurl, destfile=destfilepath )
 raw_json <- geojson_read( destfilepath, method="local", what="sp" )
 plot(raw_json)
@@ -103,7 +181,7 @@ joined_json <- fortify(raw_json, region="id") #turns geojson in a dataframe
 joined_json <-join (joined_json, raw_json@data, by="id") #joining dataframe with geojson-data
 
 
-####data preparation
+#### DATA PREPARATION ########################################################################################
 ##aggregate individual numbers by adminlevel for maps
 
 data.asylum <- aggregate(cbind(Num_Inds  ) ~ coal1 + CountryAsylum, data = data, FUN = sum, na.rm = TRUE)
@@ -139,7 +217,7 @@ library("reshape2")
 names(data)  #see column names of data
 str(data)  #see structure of data
 
-data.asylum.Case.size <- dcast((melt(data, id=c(13), measure=c(45))), data[,13] ~ value )
+data.asylum.Case.size <- dcast((melt(data, id=c(13), measure=c(45))), coal1 ~ value )
 data.asylum.dependency <- dcast((melt(data, id=c(13), measure=c(46))), coal1 ~ value )
 data.asylum.youthdependency <- dcast((melt(data, id=c(13), measure=c(47))), coal1 ~ value )
 data.elederndependency <- dcast((melt(data, id=c(13), measure=c(48))), coal1 ~ value )
@@ -161,6 +239,8 @@ data.asylum.dem_religion <- dcast((melt(data, id=c(13), measure=c(37))), coal1 ~
 ##rename key column in dat for join with geojson to "name"=same columnname as in geojson
 colnames(data.asylum)[1] <- "name"
 colnames(data.asylum.AVG_Age)[1] <- "name"
+
+
 #join geojson dataframe with prepared data
 joined_json <-join(x=joined_json, y=data.asylum, by="name") 
 joined_json <-join(x=joined_json, y=data.asylum.AVG_Age, by="name") 
@@ -176,7 +256,7 @@ joined_json <-join(x=joined_json, y=data.asylum.AVG_Age, by="name")
 #centroids of polygons of joined_json for position of labels
 distcenters <- aggregate(cbind(long, lat) ~ name, data=joined_json, 
                          FUN=function(x)mean(range(x)))
-#distcenters <- ddply(adm1geo_f, .(name), summarize, clat = mean(lat), clong = mean(long))
+#distcenters <- ddply(joined_json, .(name), summarize, clat = mean(lat), clong = mean(long))
 
 
 ### styling of raw_json = basic geojson without data visualization
@@ -196,7 +276,8 @@ map.base <-  ggplot(joined_json, aes(long, lat)) + coord_equal()+
         axis.text.y = element_blank(),legend.position = "none")
 ggsave(outputpath.base, map.base, width=4, height=3,units="in", dpi=300)
 
-
+  }
+}
 
 ###not working so far
 ### choroplethmap: Remember just to map relative values in choroplethmap not absolute numbers
