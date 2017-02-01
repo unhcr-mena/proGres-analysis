@@ -22,8 +22,9 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
               "vcd", # Visualisation of categorical data
               "reshape2", # package to easily melt data to long form
               "RColorBrewer", # a package offering color palette from 
+              "viridis", # another color palette,
               "extrafont", ##" load additional font
-              "sp","maptools","rgdal","rgeos","ggmap",#"PBSmapping", ## packages used for the maps --
+              "sp","maptools","rgdal","rgeos","ggmap","cartography", "sqldf", "geojsonio",  #PBSmapping", ## packages used for the maps --
               ## install gdal and geos separately before  http://robinlovelace.net/r/2013/11/26/installing-rgdal-on-ubuntu.html
               "raster","classInt","lubridate","date","gdata","gridExtra","scales",
               "ggthemes", ## load different custmised theme: excel, stata, economist, tufte, wall street journal...
@@ -93,9 +94,11 @@ library(rgdal) ## Open geographic files
 library(rgeos)
 library(ggmap) ## get background map from google map
 library(sp) ## Spatial library
-#library(raster) ## Managing raster dataset
+library(raster) ## Managing raster dataset
 library(classInt) ## Classififcation
 library(hexbin) ## Hexa binning
+library(geojsonio)
+library(cartography)
 
 
 ############################################
@@ -108,6 +111,7 @@ library(xtable)
 library(knitr)
 library(pander)  ## library to format regression output in Rmd
 library(tufte)
+library(sqldf)  ## enables sql queries
 
 ############################################
 #### Regressions
@@ -171,6 +175,7 @@ library(gridExtra)
 ############################################
 ## Color palette
 library(RColorBrewer) 
+library(viridis) 
 
 #display.brewer.all()
 # Choose a qualitative color palette with blue and red
