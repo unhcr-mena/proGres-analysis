@@ -82,7 +82,7 @@ library(directlabels)
 library(extrafont) ## Additional fonts
 library(ggthemes) ## Additional themes for gplot2
 #library(gdata)
-#library(gridExtra)
+library(gridExtra)
 #library(scales)
 
 #library(lattice)
