@@ -30,10 +30,10 @@ data.country.list <- list(data.country.adm1, data.country.adm2)
 ##average age
 data.asylum.Num_Inds <- aggregate(cbind(Num_Inds) ~ coal1id, data = data.country.list[[1]], FUN = mean, na.rm = TRUE)
 data.asylum.Child_0_14 <- aggregate(cbind(Child_0_14) ~ coal1id, data = data.country.list[[1]], FUN = mean, na.rm = TRUE)
-data.asylum.Youth_15_17 <- aggregate(cbind(Youth_15_17) ~ coal1id, data = data.country.list[[1]], FUN = mean, na.rm = TRUE)
-data.asylum.Work_15_64 <- aggregate(cbind(Work_15_64) ~ coal1id, data = data.country.list[[1]], FUN = mean, na.rm = TRUE)
-data.asylum.Eldern_65 <- aggregate(cbind(Eldern_65) ~ coal1id, data = data.country.list[[1]], FUN = mean, na.rm = TRUE)
-data.asylum.AVG_Age <- aggregate(cbind(AVG_Age) ~ coal1id, data = data.country.list[[1]], FUN = mean, na.rm = TRUE)
+data.asylum.Youth_15_17 <- aggregate(cbind(Youth_15_17) ~ coal1id, data = data.country.list[[1]], FUN = mean, na.rm = FALSE)
+data.asylum.Work_15_64 <- aggregate(cbind(Work_15_64) ~ coal1id, data = data.country.list[[1]], FUN = mean, na.rm = FALSE)
+data.asylum.Eldern_65 <- aggregate(cbind(Eldern_65) ~ coal1id, data = data.country.list[[1]], FUN = mean, na.rm = FALSE)
+data.asylum.AVG_Age <- aggregate(cbind(AVG_Age) ~ coal1id, data = data.country.list[[1]], FUN = mean, na.rm = FALSE)
 data.asylum.STDEV_Age <- aggregate(cbind(STDEV_Age) ~ coal1id, data = data.country.list[[1]], FUN = mean, na.rm = TRUE)
 
 #join all ratios and avergages to one list for mapping purpose and delete variables as don't needed
@@ -46,6 +46,8 @@ rm(data.asylum.Num_Inds, data.asylum.Eldern_65, data.asylum.Work_15_64, data.asy
 #rm(geojson)
 
 geojsonurl1 <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/JOR/ADM1.geojson")
+# 
+# dir.create(file.path(mainDir, subDir))
 destfilepath1 <- paste0("geo/geojson/JOR_ADM1.geojson" )
 download.file( geojsonurl1, destfile=destfilepath1 )
 json.raw1 <- geojson_read( destfilepath1, method="local", what="sp" )
@@ -55,6 +57,7 @@ json.raw1 <- geojson_read( destfilepath1, method="local", what="sp" )
 json.raw1@data$id = rownames(json.raw1@data)
 map.data.fortified <- fortify(json.raw1, region = "id")
 map.data1 <- plyr::join(map.data.fortified, json.raw1@data, by="id") #joining dataframe with geojson-data
+map.data1 <- map.data1[, c("long", "lat", "order", "id", "group", "gid", "name", "iso3", "idprogres")]
 rm(map.data.fortified)
 
 # now we join the thematic data
@@ -99,6 +102,8 @@ json.raw2 <- geojson_read( destfilepath, method="local", what="sp" )
 json.raw2@data$id = rownames(json.raw2@data)
 map.data.fortified <- fortify(json.raw2, region = "id")
 map.data2 <- plyr::join(map.data.fortified, json.raw2@data, by="id") #joining dataframe with geojson-data
+map.data2 <- map.data2[, c("long", "lat", "order", "id", "group", "admin_unhcr2_fid", "adm2name", "idcountry", "idadm2")]
+
 rm(map.data.fortified)
 
 # now we join the thematic data
@@ -111,11 +116,9 @@ df.average2$fill <- 0
 df.average2 <- df.average2[,c(ncol(df.average2),1:(ncol(df.average2)-1))] ## do the same in df.choropleth to match with index
 
 
-
 ######## combine data of adm1 and adm2 in list that will be used in ggplot
 list.df.average <- list(df.average1, df.average2)
 list.map.data.average <- list(map.data.average1, map.data.average2)
-
 
 
 
@@ -166,7 +169,7 @@ rm(data.asylum.Torture, data.asylum.prot_needs, data.asylum.single_parent,data.a
 
 #join with geodata
 map.data.ratio1 <- plyr::join(x=map.data1, y=df.ratio1, by="idprogres")
-rm(map.data1)
+
 
 #adjust length of data for loop in '3-Create-Map'
 map.data.ratio1$brks <- 0
@@ -178,7 +181,7 @@ df.ratio1 <- df.ratio1[,c(ncol(df.ratio1),1:(ncol(df.ratio1)-1))] ## do the same
 
 
 
-#### ADMINLEVEL 2 ###########################
+#### ADMINLEVEL 2 ###############################
 
 #tortured
 data.asylum.Torture <- dcast((melt(data.country.list[[2]], id=c(16), measure=c(100))), coal2id ~ value  )
@@ -191,7 +194,7 @@ data.asylum.single_parent <- dcast((melt(data.country.list[[2]], id=c(16), measu
 data.asylum.single_parent$single_parent.ratio <- (data.asylum.single_parent$yes/(data.asylum.single_parent$yes+data.asylum.single_parent$no))*100
 #SGBV
 data.asylum.SGBV <- dcast((melt(data.country.list[[2]], id=c(16), measure=c(97))), coal2id ~ value  )
-data.asylum.SGBV$SGBV.ratio <- (data.asylum.JOR.SGBV$yes/(data.asylum.SGBV$yes+data.asylum.JOR.SGBV$no))*100
+data.asylum.SGBV$SGBV.ratio <- (data.asylum.SGBV$yes/(data.asylum.SGBV$yes+data.asylum.SGBV$no))*100
 #serious medical condition
 data.asylum.ser.medical.condition <- dcast((melt(data.country.list[[2]], id=c(16), measure=c(96))), coal2id ~ value  )
 data.asylum.ser.medical.condition$ser.medical.condition.ratio <- (data.asylum.ser.medical.condition$yes/(data.asylum.ser.medical.condition$yes+data.asylum.ser.medical.condition$no))*100
@@ -233,18 +236,22 @@ df.ratio2 <- df.ratio2[,c(ncol(df.ratio2),1:(ncol(df.ratio2)-1))] ## do the same
 
 
 
+
+# computation of labels for variables --> used in title of maps
+df.labels.average <- data.frame(x = (attributes(list.map.data.average[[1]]))[1], y = c( "brks", "long", "lat", "order", "id", "group", "gid", "name", "iso3", "idprogres",
+                                                                                        "number of individuals per case", "number of children in the age 0-14", "number of youth in the age of 15-17", "number of persons in working age 15-65", "number of persons with age > 65", "age of individuals", "standard deviation of age" )) 
+
+df.labels.ratio <- data.frame(x = (attributes(list.map.data.ratio[[1]]))[1], y = c( "brks", "long", "lat", "order", "id", "group", "gid", "name", "iso3", "idprogres",      
+                                                                                        "tortured persons", "persons with serious legal protection needs", "single parent households", "persons registered as suffered by SGBV", "persons in a serious medical condition", "pregnant or lactating women", "family unities", "disabled persons", "childs at risk", "female"))
+
+
+
 ######## combine ratio data of adm1 and adm2 in list that will be used in ggplot
 list.df.ratio <- list(df.ratio1, df.ratio2)
 list.map.data.ratio <- list(map.data.ratio1, map.data.ratio2)
 
 
 
-############################
-
-admlevel1 <- 1
-admlevel2 <- 2
-
-list.admlevel <- list(admlevel1, admlevel2)
 
 
 
@@ -276,27 +283,28 @@ list.admlevel <- list(admlevel1, admlevel2)
 # data.asylum.marragecat <- dcast((melt(data_country, id=c(14), measure=c(78))), coal1id ~ value  )
 # data.asylum.marragecat[2] <- NULL
 # 
-# list.multifactors <- list(data.asylum.ref.status, data.asylum.dem.ethn, data.asylum.case.size, data.asylum.dependency, data.asylum.youthdependency, data.asylum.elderndependency, data.asylum.season, data.asylum.education, data.asylum.occupation, data.asylum.marragecat)
+# list.multifactor <- list(data.asylum.ref.status, data.asylum.dem.ethn, data.asylum.case.size, data.asylum.dependency, data.asylum.youthdependency, data.asylum.elderndependency, data.asylum.season, data.asylum.education, data.asylum.occupation, data.asylum.marragecat)
 # 
-# # df.multfactors <- plyr::join_all(data.asylum.ref.status, data.asylum.dem.ethn, data.asylum.case.size, data.asylum.dependency, data.asylum.youthdependency, data.asylum.elderndependency, data.asylum.season, data.asylum.education, data.asylum.occupation, data.asylum.marragecat), by = 'coal1id', type = 'full')
+# for (l in 1:length(list.multifactor)) {
+# colnames(list.multifactor[[l]]['coal1id']) <- "idprogres"
+# 
+# }
+# 
+# list.multifactor <- list.multifactor
+# 
+# #df.multfactor <- plyr::join_all(data.asylum.ref.status, data.asylum.dem.ethn, data.asylum.case.size, data.asylum.dependency, data.asylum.youthdependency, data.asylum.elderndependency, data.asylum.season, data.asylum.education, data.asylum.occupation, data.asylum.marragecat), by = 'coal1id', type = 'full')
 # rm(data.asylum.ref.status, data.asylum.dem.ethn, data.asylum.case.size, data.asylum.dependency, data.asylum.youthdependency, data.asylum.elderndependency, data.asylum.season, data.asylum.education, data.asylum.occupation, data.asylum.marragecat)
-#
-##join with geodata
-#map.data.multfactor <- plyr::join(x=map.data, y=df.multfactor, by="idprogres")
+# 
+# #join all tables in df.multfactor list with geodata
+# 
+# 
+# map.data.multfactor <- plyr::join(x=map.data1, y=df.multfactor, by="idprogres")
 
 
 
 
 
-
-
-
-
-
-
-
-
-
+#styling theme for maps
 theme_map <- function(...) {
   theme_minimal() +
     theme(
@@ -307,13 +315,36 @@ theme_map <- function(...) {
       axis.ticks = element_blank(),
       axis.title.x = element_blank(),
       axis.title.y = element_blank(),
+      
       # panel.grid.minor = element_line(color = "#ebebe5", size = 0.2),
       panel.grid.major = element_line(color = "#f5f5f2", size = 0.2),
       panel.grid.minor = element_blank(),
-      plot.background = element_rect(fill = "#f5f5f2", color = NA), 
       panel.background = element_rect(fill = "#f5f5f2", color = NA), 
-      legend.background = element_rect(fill = "#f5f5f2", color = NA),
+      panel.spacing = unit(c(-.1,0.2,0.02,0.2), "cm"),
       panel.border = element_blank(),
+      
+      
+      plot.background = element_rect(fill = "#f5f5f2", color = NA), 
+      plot.title = element_text(hjust = 0, color = "#4e4d47", size = 22),
+      plot.subtitle = element_text(hjust = 0, color = "#4e4d47", size = 12, debug = F),
+      plot.margin = unit(c(.5,.5,1,.5), "cm"),
+      plot.caption = element_text(size = 10, hjust = 1, color = "#939184"),
+      
+
+      # legend.border = element_blank(),
+      legend.direction = "horizontal",
+      legend.position = "bottom", #c(0.5, 0.01),
+      legend.text.align = 1,                                                 #postition of label: 0=left, 1=right
+      legend.background = element_rect(fill = "#f5f5f2", color = NA),
+      legend.text = element_text(size = 14, hjust = 0, color = "#4e4d47"),
+      legend.margin = unit(c(1,.5,0.2,.5), "cm"),
+      legend.key.height = unit(4, units = "mm"),                             #height of legend
+      legend.key.width = unit(100/length(labels), units = "mm"),             #width of legend
+      legend.title = element_text(size = 0),                                 #put to 0 to remove title but keep space
+      
+
+
+
       ...
     )
 }
