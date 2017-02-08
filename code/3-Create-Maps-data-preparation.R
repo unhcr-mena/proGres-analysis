@@ -15,11 +15,14 @@ df_CountryAsylum <- sqldf("select * from df_original where CountryAsylum = 'JOR'
 
 #adminlevel1
 data.country.adm1 <- sqldf("select * from df_CountryAsylum where coal1id LIKE 'JOR%'")
-response_percentage <- round((nrow(data.country.adm1)/nrow(df_CountryAsylum))*100, 2)
 
 #adminlevel2
 data.country.adm2 <- sqldf("select * from df_CountryAsylum where coal2id LIKE 'JOR%'")
 data.country.list <- list(data.country.adm1, data.country.adm2)
+
+response_percentage_adm1 <- round((nrow(data.country.list[[1]])/nrow(df_CountryAsylum))*100, 2)
+response_percentage_adm2 <- round((nrow(data.country.list[[2]])/nrow(df_CountryAsylum))*100, 2)
+response.percentage.list <- list(response_percentage_adm1, response_percentage_adm2)
 
 # test <- unique(data.country.adm2$coal2id) #backup check of existing data
 
@@ -225,7 +228,6 @@ rm(data.asylum.Torture, data.asylum.prot_needs, data.asylum.single_parent,data.a
 
 #join with geodata
 map.data.ratio2 <- plyr::join(x=map.data2, y=df.ratio2, by="idadm2")
-rm(map.data2)
 
 #adjust length of data for loop in '3-Create-Map'
 map.data.ratio2$brks <- 0
@@ -233,6 +235,13 @@ map.data.ratio2 <- map.data.ratio2[,c(ncol(map.data.ratio2),1:(ncol(map.data.rat
 df.ratio2$fill <- 0
 df.ratio2 <- df.ratio2[,c(ncol(df.ratio2),1:(ncol(df.ratio2)-1))] ## do the same in df.choropleth to match with index
 
+
+
+
+
+######## combine ratio data of adm1 and adm2 in list that will be used in ggplot
+list.df.ratio <- list(df.ratio1, df.ratio2)
+list.map.data.ratio <- list(map.data.ratio1, map.data.ratio2)
 
 
 
@@ -246,12 +255,6 @@ df.labels.ratio <- data.frame(x = (attributes(list.map.data.ratio[[1]]))[1], y =
 
 
 
-######## combine ratio data of adm1 and adm2 in list that will be used in ggplot
-list.df.ratio <- list(df.ratio1, df.ratio2)
-list.map.data.ratio <- list(map.data.ratio1, map.data.ratio2)
-
-
-
 
 
 
@@ -259,47 +262,59 @@ list.map.data.ratio <- list(map.data.ratio1, map.data.ratio2)
 
 ################################################################################################
 ##data with multiple factors
+#calculation of row-wise ratios
 
 
-# #ref.status
-# data.asylum.ref.status <- dcast((melt(data_country, id=c(14), measure=c(42))), coal1id ~ value  )
-# #dem.ethn
-# data.asylum.dem.ethn <- dcast((melt(data_country, id=c(14), measure=c(36))), coal1id ~ value  )
-# #case size
-# data.asylum.case.size <- dcast((melt(data_country, id=c(14), measure=c(45))), coal1id ~ value  )
-# #dependency
-# data.asylum.dependency <- dcast((melt(data_country, id=c(14), measure=c(46))), coal1id ~ value  )
-# #youthdependency
-# data.asylum.youthdependency <- dcast((melt(data_country, id=c(14), measure=c(47))), coal1id ~ value  )
-# #elderndependency
-# data.asylum.elderndependency <- dcast((melt(data_country, id=c(14), measure=c(48))), coal1id ~ value  )
-# #season of arrival
-# data.asylum.season <- dcast((melt(data_country, id=c(14), measure=c(69))), coal1id ~ value  )
-# #highest education
-# data.asylum.education <- dcast((melt(data_country, id=c(14), measure=c(71))), coal1id ~ value  )
-# #occupation
-# data.asylum.occupation <- dcast((melt(data_country, id=c(14), measure=c(77))), coal1id ~ value  )
-# #marriage category
-# data.asylum.marragecat <- dcast((melt(data_country, id=c(14), measure=c(78))), coal1id ~ value  )
-# data.asylum.marragecat[2] <- NULL
-# 
-# list.multifactor <- list(data.asylum.ref.status, data.asylum.dem.ethn, data.asylum.case.size, data.asylum.dependency, data.asylum.youthdependency, data.asylum.elderndependency, data.asylum.season, data.asylum.education, data.asylum.occupation, data.asylum.marragecat)
-# 
-# for (l in 1:length(list.multifactor)) {
-# colnames(list.multifactor[[l]]['coal1id']) <- "idprogres"
-# 
-# }
-# 
-# list.multifactor <- list.multifactor
-# 
-# #df.multfactor <- plyr::join_all(data.asylum.ref.status, data.asylum.dem.ethn, data.asylum.case.size, data.asylum.dependency, data.asylum.youthdependency, data.asylum.elderndependency, data.asylum.season, data.asylum.education, data.asylum.occupation, data.asylum.marragecat), by = 'coal1id', type = 'full')
-# rm(data.asylum.ref.status, data.asylum.dem.ethn, data.asylum.case.size, data.asylum.dependency, data.asylum.youthdependency, data.asylum.elderndependency, data.asylum.season, data.asylum.education, data.asylum.occupation, data.asylum.marragecat)
-# 
-# #join all tables in df.multfactor list with geodata
-# 
-# 
-# map.data.multfactor <- plyr::join(x=map.data1, y=df.multfactor, by="idprogres")
+#ref.status
+data.asylum.ref.status <- dcast((melt(data.country.adm1, id=c(14), measure=c(42))), coal1id ~ value  )
+ratio.asylum.ref.status <- cbind(idprogres = data.asylum.ref.status[, 1], data.asylum.ref.status[, -1]/rowSums(data.asylum.ref.status[, -1])*100)
+map.ratio.asylum.ref.status <- plyr::join(x=map.data1, y=ratio.asylum.ref.status, by="idprogres")
+#dem.ethn
+data.asylum.dem.ethn <- dcast((melt(data.country.adm1, id=c(14), measure=c(36))), coal1id ~ value  )
+ratio.asylum.dem.ethn <- cbind(idprogres = data.asylum.dem.ethn[, 1], data.asylum.dem.ethn[, -1]/rowSums(data.asylum.dem.ethn[, -1])*100)
+map.ratio.asylum.dem.ethn <- plyr::join(x=map.data1, y=ratio.asylum.dem.ethn, by="idprogres")
+#case size
+data.asylum.case.size <- dcast((melt(data.country.adm1, id=c(14), measure=c(45))), coal1id ~ value)
+ratio.asylum.case.size <- cbind(idprogres = data.asylum.case.size[, 1], data.asylum.case.size[, -1]/rowSums(data.asylum.case.size[, -1])*100)
+map.ratio.asylum.case.size <- plyr::join(x=map.data1, y=ratio.asylum.case.size, by="idprogres")
+#dependency
+data.asylum.dependency <- dcast((melt(data.country.adm1, id=c(14), measure=c(46))), coal1id ~ value)
+ratio.asylum.dependency <- cbind(idprogres = data.asylum.dependency[, 1], data.asylum.dependency[, -1]/rowSums(data.asylum.dependency[, -1])*100)
+map.ratio.asylum.dependency <- plyr::join(x=map.data1, y=ratio.asylum.dependency, by="idprogres")
+#youthdependency
+data.asylum.youthdependency <- dcast((melt(data.country.adm1, id=c(14), measure=c(47))), coal1id ~ value)
+ratio.asylum.youthdependency <- cbind(idprogres = data.asylum.youthdependency[, 1], data.asylum.youthdependency[, -1]/rowSums(data.asylum.youthdependency[, -1])*100)
+map.ratio.asylum.youthdependency <- plyr::join(x=map.data1, y=ratio.asylum.youthdependency, by="idprogres")
+#elderndependency
+data.asylum.elderndependency <- dcast((melt(data.country.adm1, id=c(14), measure=c(48))), coal1id ~ value  )
+ratio.asylum.elderndependency <- cbind(idprogres = data.asylum.elderndependency[, 1], data.asylum.elderndependency[, -1]/rowSums(data.asylum.elderndependency[, -1])*100)
+map.ratio.asylum.elderndependency <- plyr::join(x=map.data1, y=ratio.asylum.elderndependency, by="idprogres")
+#season of arrival
+data.asylum.season <- dcast((melt(data.country.adm1, id=c(14), measure=c(69))), coal1id ~ value  )
+ratio.asylum.season <- cbind(idprogres = data.asylum.season[, 1], data.asylum.season[, -1]/rowSums(data.asylum.season[, -1])*100)
+map.ratio.asylum.season <- plyr::join(x=map.data1, y=ratio.asylum.season, by="idprogres")
+#highest education
+data.asylum.education <- dcast((melt(data.country.adm1, id=c(14), measure=c(71))), coal1id ~ value  )
+data.asylum.education$Var.2 <- NULL
+ratio.asylum.education <- cbind(idprogres = data.asylum.education[, 1], data.asylum.education[, -1]/rowSums(data.asylum.education[, -1])*100)
+map.ratio.asylum.education <- plyr::join(x=map.data1, y=ratio.asylum.education, by="idprogres")
+#occupation
+data.asylum.occupation <- dcast((melt(data.country.adm1, id=c(14), measure=c(77))), coal1id ~ value  )
+ratio.asylum.occupation <- cbind(idprogres = data.asylum.occupation[, 1], data.asylum.occupation[, -1]/rowSums(data.asylum.occupation[, -1])*100)
+map.ratio.asylum.occupation <- plyr::join(x=map.data1, y=ratio.asylum.occupation, by="idprogres")
 
+#marriage category
+data.asylum.marragecat <- dcast((melt(data.country.adm1, id=c(14), measure=c(78))), coal1id ~ value  )
+data.asylum.marragecat[2] <- NULL
+ratio.asylum.marragecat <- cbind(idprogres = data.asylum.marragecat[, 1], data.asylum.marragecat[, -1]/rowSums(data.asylum.marragecat[, -1])*100)
+map.ratio.asylum.marragecat <- plyr::join(x=map.data1, y=ratio.asylum.marragecat, by="idprogres")
+
+df.multifactor.ratio <- list(data.asylum.ref.status, data.asylum.dem.ethn, data.asylum.case.size, data.asylum.dependency, data.asylum.youthdependency, data.asylum.elderndependency, data.asylum.season, data.asylum.education, data.asylum.occupation, data.asylum.marragecat)
+rm(data.asylum.ref.status, data.asylum.dem.ethn, data.asylum.case.size, data.asylum.dependency, data.asylum.youthdependency, data.asylum.elderndependency, data.asylum.season, data.asylum.education, data.asylum.occupation, data.asylum.marragecat)
+
+list.multifactor.ratio <- list(map.ratio.asylum.ref.status, map.ratio.asylum.dem.ethn, map.ratio.asylum.case.size, map.ratio.asylum.dependency, map.ratio.asylum.youthdependency, map.ratio.asylum.elderndependency, map.ratio.asylum.season, map.ratio.asylum.education, map.ratio.asylum.occupation, map.ratio.asylum.marragecat)
+rm(ratio.asylum.ref.status, ratio.asylum.dem.ethn, ratio.asylum.case.size, ratio.asylum.dependency, ratio.asylum.youthdependency, ratio.asylum.elderndependency, ratio.asylum.season, ratio.asylum.education, ratio.asylum.occupation, ratio.asylum.marragecat)
+rm(map.ratio.asylum.ref.status, map.ratio.asylum.dem.ethn, map.ratio.asylum.case.size, map.ratio.asylum.dependency, map.ratio.asylum.youthdependency, map.ratio.asylum.elderndependency, map.ratio.asylum.season, map.ratio.asylum.education, map.ratio.asylum.occupation, map.ratio.asylum.marragecat)
 
 
 
