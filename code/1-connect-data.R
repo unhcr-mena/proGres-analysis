@@ -22,7 +22,7 @@ write.csv(progres.case, file = "data/progrescase.csv",na="")
 
 
 ## With general needs
-progres.specificneed <- sqlFetch(dbhandleprogres, "casespecificneed")
+progres.specificneed <- sqlFetch(dbhandleprogres, "T_SPneedsBreak")
 write.csv(progres.specificneed, file = "data/progresspecificneed.csv",na="")
 
 
@@ -51,3 +51,4 @@ dbhandlerais <- odbcConnect(rais, uid=user, pwd=passw)
 assistance.case <- sqlQuery(dbhandlerais, 'SELECT * FROM [RaisRepository].[Assistance].[vAssistanceSearch]')
 write.csv(assistance.case, file = "data/assistancecase.csv",na="")
 
+rm(dbhandleprogres,passw,progres,user)

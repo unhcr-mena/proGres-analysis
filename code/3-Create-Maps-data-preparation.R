@@ -5,6 +5,7 @@ source("code/0-packages.R")
 ###### LOAD DATA ###################################################################################
 #load thematic data from file (please consider to run previous code-files (""1-Recode-data..."))
 data.original <- read.csv("data/progrescase2.csv")
+df_original <- data
 df_original <- data.original
 # #vlookup to add iso3 codes to data according to existing pcodes
 # country_codes <- read.csv("data/country_code_translation.csv", sep = ";")

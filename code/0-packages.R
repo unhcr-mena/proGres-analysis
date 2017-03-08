@@ -39,6 +39,7 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
               "combinat","cluster",
               "corrplot", "doSNOW", "e1071", "extraTrees",
               "FactoMineR", "foreach", "foreign", "gbm", 
+              "prabclus",
               "glmnet", "gmodels", "grplasso", "ipred",
               "kernlab", "leaps", "LiblineaR",
               "MASS", "missForest", "nnet", "plsRglm", "misc3d",
@@ -49,7 +50,7 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
               "rpart", "rpart.plot", # "sas7bdat", 
               "snow", "speedglm", "tree",
              "animation","spacetime",
-             "gridExtra",
+             "gridExtra","directlabels",
               "prettyR","xtable","knitr","pander",
               "formatR" #, "gWidgetsRGtk2" # used to format the code
               #"XLConnect" ## Read and write excel files
@@ -94,7 +95,7 @@ library(rgdal) ## Open geographic files
 library(rgeos)
 library(ggmap) ## get background map from google map
 library(sp) ## Spatial library
-library(raster) ## Managing raster dataset
+#library(raster) ## Managing raster dataset
 library(classInt) ## Classififcation
 library(hexbin) ## Hexa binning
 library(geojsonio)
@@ -139,7 +140,7 @@ library(factoextra)
 #library(foreach)
 #library(gbm)
 library(glmnet)
-library(glmulti)
+#library(glmulti)
 library(gmodels)
 #library(grplasso)
 #library(ipred)
@@ -151,15 +152,15 @@ library(gmodels)
 #library(nnet)
 #library(plsRglm)
 #library(prim)
-library(pscl) ## used to verify the prediction power of a logistic model
+#library(pscl) ## used to verify the prediction power of a logistic model
 library(pROC)
 #library(questionr)
 library(randomForest)
 #library(randtoolbox)
 #library(rgl)
 #library(rgrs)
-library(ROCR)
-library(rpart)
+#library(ROCR)
+#library(rpart)
 library(rpart.plot)
 #library(snow)
 #library(speedglm)

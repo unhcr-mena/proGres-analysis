@@ -508,23 +508,26 @@ progres.case$gender.female <- ifelse(progres.case$dem_sex == "Female", 1, 0)
 ###########################################
 ### Recoding specific needs at the case level
 ###########################################
+
+### load re-encoding file for specific needs
+library(readxl)
+SpecificNeedsCodesV2 <- read_excel("D:/R-project/proGres-analysis/data/SpecificNeedsCodesV2.xlsx", 
+                                   sheet = "Revised")
+names(SpecificNeedsCodesV2)
+
+## Extract from DWH
 progres.specificneed <- read.csv("data/progresspecificneed.csv")
+progres.specificneed <- progres.specificneed[,c("CaseNo","IndividualID","code")]
 
 #summary(progres.specificneed)
-## Let's recode the vulnerability Text
-progres.specificneed$VulnerabilityText <- recode(progres.specificneed$VulnerabilityText,'"Child at risk" = "Child.at.risk"; 
-                                                    "Family unity"= "Family.unity";
-                                                    "Older person at risk" = "Older.person.at.risk";
-                                                    "Pregnant or lactating" = "Pregnant.or.lactating";
-                                                    "Single parent"= "Single.parent";
-                                                    "Serious medical condition" = "Serious.medical.condition";  
-                                                    "Specific legal and physical protection needs" = "Specific.legal.physical.protection.needs"; 
-                                                    "Unaccompanied or separated child" = "Unaccompanied.or.separated.child";
-                                                    "Woman at risk" = "Woman.at.risk"')
+names(progres.specificneed)
 
+## Check if duplicates
+progres.specificneed.unique <- unique(progres.specificneed[,c("CaseNo","IndividualID","code")])
+rm(progres.specificneed.unique)
 
-## sound slike there are duplicate for individuals
-progres.specificneed.unique <- unique(progres.specificneed[,c("CaseNo","IndividualID","VulnerabilityCode","VulnerabilityText")])
+progres.specificneed.case <- merge(x=progres.specificneed, y=SpecificNeedsCodesV2, by="code", all.x=TRUE)
+
 #progres.specificneed.unique.case <- unique(progres.specificneed[,c("CaseNo","VulnerabilityCode","VulnerabilityText")])
 #progres.specificneed.unique.case1 <- as.data.frame(unique(progres.specificneed[,c("CaseNo")]))
 
@@ -533,13 +536,28 @@ progres.specificneed.case <-  melt(progres.specificneed.unique, id.vars = c("Cas
                                    variable.name = "VulnerabilityText", 
                                    value.name = "value", na.rm = TRUE)
 
-progres.specificneed.case2 <- dcast(progres.specificneed.case, CaseNo ~ VulnerabilityText)
+progres.specificneed.case2 <- dcast(progres.specificneed.case, CaseNo ~ newcat)
 #names(progres.specificneed.case2)
-
+rm(progres.specificneed)
 
 ### merging back with progres case info
 
 progres.case.sp <- merge(x=progres.case, y=progres.specificneed.case2, all.x=TRUE)
+rm(progres.specificneed.case2)
+
+names(progres.case.sp)
+
+## Let's recode the vulnerability Text
+
+rename(progres.case.sp, c("CR" = "Child.at.risk", 
+            "FU"= "Family.unity",
+            "ER" = "Older.person.at.risk",
+            "LP" = "Pregnant.or.lactating",
+            "SP"= "Single.parent",
+            "SC" = "Serious.medical.condition",  
+            "LP" = "Specific.legal.physical.protection.needs", 
+            "SC" = "Unaccompanied.or.separated.child",
+            "WR" = "Woman.at.risk"))
 
 progres.case.sp$Child.at.risk.count <- progres.case.sp$Child.at.risk
 progres.case.sp$Child.at.risk <- as.factor(ifelse(progres.case.sp$Child.at.risk>=1, "yes", "no"))  
@@ -642,15 +660,17 @@ table(progres.case.sp$cool1id)
 
 write.csv(progres.case.sp, file = "data/progrescase-1.csv",na="")
 
+
+
+data <- progres.case.sp
+
 rm(assistancecase)
 rm(progres.case)
+rm(progres.case.sp)
 rm(progres.specificneed)
 rm(progres.specificneed.case)
 rm(progres.specificneed.case2)
 rm(progres.specificneed.unique)
-
-data <- progres.case.sp
-
 
 # rm(progres.case.sp)
 

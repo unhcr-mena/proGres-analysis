@@ -1,6 +1,6 @@
 source("code/0-packages.R")
 
-data <- read.csv("data/progrescase2.csv")
+data <- read.csv("data/progrescase-1.csv")
 
 
 # names(data)
@@ -11,10 +11,10 @@ data <- read.csv("data/progrescase2.csv")
 ####################################################################################
 ## http://rpubs.com/gaston/MCA
 
-data.JOR <-data[ data$CountryAsylum == "JOR", ]
+data.JOR <-data[ data$CountryAsylum == "JOR" & data$CountryOrigin == "SYR", ]
 ## We need to generate sample in order to create the MCA object
-data.JOR.sample <- data.JOR[sample(1:nrow(data.JOR), 3000,replace=FALSE),
-                                    c("Case.size", "dem_marriage", "dem_sex",
+data.JOR.sample <- data.JOR[sample(1:nrow(data.JOR), 5000,replace=FALSE),
+                                    c("Case.size", "dem_marriage", "dem_sex","cool1","coal1",
                                       "dependency", "youthdependency", "elederndependency",
                                       "agecohort", "AVGAgecohort", "STDEVAgeclass",
                                       "YearArrivalCategory", "season",
@@ -114,6 +114,7 @@ data.JOR.mca.hcpc$desc.var
 data.JOR.mca.hcpc.desc.var <- as.data.frame(data.JOR.mca.hcpc$desc.var$category$`1`)
 
 
+data.JOR.mca.hcpc$desc.var$category$`1` 
 data.JOR.mca.hcpc$desc.var$category$`1` 
 
 data.JOR.mca.hcpc$desc.axes
