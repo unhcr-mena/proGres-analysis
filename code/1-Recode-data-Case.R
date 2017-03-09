@@ -33,37 +33,89 @@ progres.case$Case.size <- recode(progres.case$Case.size,"'1'='Case.size.1';
                                                                       '17'='Case.size.7.and.more';
                                                                       '18'='Case.size.7.and.more';
                                                                       '19'='Case.size.7.and.more';
-                                                                      '20'='Case.size.7.and.more'")
+                                                                      '20'='Case.size.7.and.more';
+                                                                      '20'='Case.size.7.and.more';
+                                                                      '21'='Case.size.7.and.more';
+                                                                      '22'='Case.size.7.and.more';
+                                                                      '23'='Case.size.7.and.more';
+                                                                      '24'='Case.size.7.and.more';
+                                                                      '25'='Case.size.7.and.more';
+                                                                      '26'='Case.size.7.and.more';
+                                                                      '27'='Case.size.7.and.more';
+                                                                      '36'='Case.size.7.and.more';
+                                                                      '37'='Case.size.7.and.more';
+                                                                      '42'='Case.size.7.and.more';
+                                                                      '42'='Case.size.7.and.more';
+                                                                      '46'='Case.size.7.and.more';
+                                                                      '55'='Case.size.7.and.more';
+                                                                      '59'='Case.size.7.and.more';
+                                                                      '65'='Case.size.7.and.more';
+                                                                      '67'='Case.size.7.and.more';
+                                                                      '83'='Case.size.7.and.more';
+                                                                      '42'='Case.size.7.and.more'")
+
+prop.table(table(progres.case$Case.size, useNA = "ifany"))
 
 ##############################
 ## Calculating dependency ration
-progres.case$dependency <-  cut( (progres.case$Child_0_14+progres.case$Eldern_65) / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
+#progres.case$dependency1 <-   (progres.case$Child_0_14+progres.case$Eldern_65) / progres.case$Work_15_64
+#hist(progres.case$dependency1)
+progres.case$dependency <-  cut( (progres.case$Child_0_14+progres.case$Eldern_65) / progres.case$Work_15_64, c(0.0001,0.99,1.1,Inf))
+# progres.case$dependency <-  cut( (progres.case$Child_0_14+progres.case$Eldern_65) / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
+#levels(progres.case$dependency)
+#prop.table(table(progres.case$dependency, useNA = "ifany"))
 progres.case$dependency <- as.character(progres.case$dependency)
-progres.case$dependency[is.na(progres.case$dependency)]<- "0"
-progres.case$dependency <- as.factor(progres.case$dependency)
-progres.case$dependency <-  factor(progres.case$dependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+progres.case$dependency[is.na(progres.case$dependency)]<- "1.no.dependant"
+
+progres.case$dependency <- as.factor(recode(progres.case$dependency,"'(0.0001,0.99]'='2.few.dependant';
+                                                                      '(0.99,1.1]'='3.half.dependant';
+                                                                      '(1.1,Inf]'='4.majority.dependant'"))
+#prop.table(table(progres.case$dependency, useNA = "ifany"))
+
+#View(progres.case[ ,c("dependency","Child_0_14","Eldern_65","Work_15_64" )])
+#progres.case$dependency <- as.factor(progres.case$dependency)
+#progres.case$dependency <-  factor(progres.case$dependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+
 #<- relevel(sizes, "medium")
 # , levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]")
 
-progres.case$youthdependency <- cut(progres.case$Child_0_14 / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
+prop.table(table(progres.case$dependency, useNA = "ifany"))
+
+#progres.case$youthdependency <- cut(progres.case$Child_0_14 / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
+progres.case$youthdependency <- cut(progres.case$Child_0_14 / progres.case$Work_15_64, c(0.0001,0.99,1.1,Inf))
 progres.case$youthdependency <- as.character(progres.case$youthdependency)
-progres.case$youthdependency[is.na(progres.case$youthdependency)]<- "0"
-progres.case$youthdependency <- as.factor(progres.case$youthdependency)
-progres.case$youthdependency <-  factor(progres.case$youthdependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+progres.case$youthdependency[is.na(progres.case$youthdependency)]<- "1.no.dependant"
+progres.case$youthdependency <- as.factor(recode(progres.case$youthdependency,"'(0.0001,0.99]'='2.few.dependant';
+                                                                      '(0.99,1.1]'='3.half.dependant';
+                                                                      '(1.1,Inf]'='4.majority.dependant'"))
+#progres.case$youthdependency <-  factor(progres.case$youthdependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
 
-progres.case$elederndependency <- cut(progres.case$Eldern_65 / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
+prop.table(table(progres.case$youthdependency, useNA = "ifany"))
+
+#progres.case$elederndependency <- cut(progres.case$Eldern_65 / progres.case$Work_15_64, c(0.001,0.2,0.4,0.6,0.8,Inf))
+progres.case$elederndependency <- cut(progres.case$Eldern_65 / progres.case$Work_15_64, c(0.0001,0.99,1.1,Inf))
 progres.case$elederndependency <- as.character(progres.case$elederndependency)
-progres.case$elederndependency[is.na(progres.case$elederndependency)]<- "0"
-progres.case$elederndependency <- as.factor(progres.case$elederndependency)
-progres.case$elederndependency <-  factor(progres.case$elederndependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+progres.case$elederndependency[is.na(progres.case$elederndependency)]<- "1.no.dependant"
+progres.case$elederndependency <- as.factor(recode(progres.case$elederndependency,"'(0.0001,0.99]'='2.few.dependant';
+                                                                      '(0.99,1.1]'='3.half.dependant';
+                                                      '(1.1,Inf]'='4.majority.dependant'"))
+#progres.case$elederndependency <-  factor(progres.case$elederndependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
 
-progres.case$female.ratio <- cut(progres.case$Female / progres.case$Num_Inds, c(0.001,0.2,0.4,0.6,0.8,Inf))
+prop.table(table(progres.case$elederndependency, useNA = "ifany"))
+
+#progres.case$female.ratio <- cut(progres.case$Female / progres.case$Num_Inds, c(0.001,0.2,0.4,0.6,0.8,Inf))
+progres.case$female.ratio <- cut(progres.case$Female / progres.case$Num_Inds, c(0.0001,0.99,1.1,Inf))
+prop.table(table(progres.case$female.ratio, useNA = "ifany"))
 progres.case$female.ratio <- as.character(progres.case$female.ratio)
-progres.case$female.ratio[is.na(progres.case$female.ratio)]<- "0"
-progres.case$female.ratio <- as.factor(progres.case$female.ratio)
-progres.case$female.ratio <-  factor(progres.case$female.ratio, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+progres.case$female.ratio[is.na(progres.case$female.ratio)]<- "1.no.female"
+progres.case$female.ratio <- as.factor(recode(progres.case$female.ratio,"'(0.0001,0.99]'='2.few.female'; '(0.99,1.1]'='3.half.female';
+                                       '(1.1,Inf]'='4.female'"))
+View(progres.case[ ,c("Female","Male","Num_Inds","female.ratio" )])
+#progres.case$female.ratio <-  factor(progres.case$female.ratio, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
 
 
+### Checking proportion to recategorise accordingly
+prop.table(table(progres.case$female.ratio, useNA = "ifany"))
 
 ##############################
 ## Adding Age cohort of PA
@@ -113,7 +165,7 @@ progres.case$p.child.grp4 <- as.factor(ifelse(progres.case$Child_0_14/progres.ca
 #summary(progres.case$YearArrival)
 #YearArrival <- as.data.frame(table(progres.case$YearArrival))
 #rm(YearArrival)
-progres.case$YearArrivalCategory <- as.factor(recode(progres.case$YearArrival,"'1899'='1900-1980';
+progres.case$YearArrivalCategory2 <- as.factor(recode(progres.case$YearArrival,"'1899'='1900-1980';
                                                                       '1928'='1900-1980';
                                                                       '1932'='1900-1980';
                                                                       '1935'='1900-1980';
@@ -197,6 +249,108 @@ progres.case$YearArrivalCategory <- as.factor(recode(progres.case$YearArrival,"'
                                                                       '2013'='2013';
                                                                       '2014'='2014';
                                                                       '2015'='2015'"))
+
+
+progres.case$YearArrivalCategory <- as.factor(recode(progres.case$YearArrival,"'1899'='before.2011.or.unkown';
+                                                     '1900'='before.2011.or.unkown';
+                                                     '1902'='before.2011.or.unkown';
+                                                     '1905'='before.2011.or.unkown';
+                                                     '1911'='before.2011.or.unkown';
+                                                     '1926'='before.2011.or.unkown';
+                                                     '1927'='before.2011.or.unkown';
+                                                     '1930'='before.2011.or.unkown';
+                                                     '1931'='before.2011.or.unkown';
+                                                     '1933'='before.2011.or.unkown';
+                                                     '1934'='before.2011.or.unkown';
+                                                     '1928'='before.2011.or.unkown';
+                                                     '1932'='before.2011.or.unkown';
+                                                     '1935'='before.2011.or.unkown';
+                                                     '1936'='before.2011.or.unkown';
+                                                     '1937'='before.2011.or.unkown';
+                                                     '1938'='before.2011.or.unkown';
+                                                     '1939'='before.2011.or.unkown';
+                                                     '1940'='before.2011.or.unkown';
+                                                     '1941'='before.2011.or.unkown';
+                                                     '1942'='before.2011.or.unkown';
+                                                     '1943'='before.2011.or.unkown';
+                                                     '1944'='before.2011.or.unkown';
+                                                     '1945'='before.2011.or.unkown';
+                                                     '1946'='before.2011.or.unkown';
+                                                     '1947'='before.2011.or.unkown';
+                                                     '1948'='before.2011.or.unkown';
+                                                     '1949'='before.2011.or.unkown';
+                                                     '1950'='before.2011.or.unkown';
+                                                     '1951'='before.2011.or.unkown';
+                                                     '1952'='before.2011.or.unkown';
+                                                     '1953'='before.2011.or.unkown';
+                                                     '1954'='before.2011.or.unkown';
+                                                     '1955'='before.2011.or.unkown';
+                                                     '1956'='before.2011.or.unkown';
+                                                     '1957'='before.2011.or.unkown';
+                                                     '1958'='before.2011.or.unkown';
+                                                     '1959'='before.2011.or.unkown';
+                                                     '1960'='before.2011.or.unkown';
+                                                     '1961'='before.2011.or.unkown';
+                                                     '1962'='before.2011.or.unkown';
+                                                     '1963'='before.2011.or.unkown';
+                                                     '1964'='before.2011.or.unkown';
+                                                     '1965'='before.2011.or.unkown';
+                                                     '1966'='before.2011.or.unkown';
+                                                     '1967'='before.2011.or.unkown';
+                                                     '1968'='before.2011.or.unkown';
+                                                     '1969'='before.2011.or.unkown';
+                                                     '1970'='before.2011.or.unkown';
+                                                     '1971'='before.2011.or.unkown';
+                                                     '1972'='before.2011.or.unkown';
+                                                     '1973'='before.2011.or.unkown';
+                                                     '1974'='before.2011.or.unkown';
+                                                     '1975'='before.2011.or.unkown';
+                                                     '1976'='before.2011.or.unkown';
+                                                     '1977'='before.2011.or.unkown';
+                                                     '1978'='before.2011.or.unkown';
+                                                     '1979'='before.2011.or.unkown';
+                                                     '1980'='before.2011.or.unkown';
+                                                     '1981'='before.2011.or.unkown';
+                                                     '1982'='before.2011.or.unkown';
+                                                     '1983'='before.2011.or.unkown';
+                                                     '1984'='before.2011.or.unkown';
+                                                     '1985'='before.2011.or.unkown';
+                                                     '1986'='before.2011.or.unkown';
+                                                     '1987'='before.2011.or.unkown';
+                                                     '1988'='before.2011.or.unkown';
+                                                     '1989'='before.2011.or.unkown';
+                                                     '1990'='before.2011.or.unkown';
+                                                     '1991'='before.2011.or.unkown';
+                                                     '1992'='before.2011.or.unkown';
+                                                     '1993'='before.2011.or.unkown';
+                                                     '1994'='before.2011.or.unkown';
+                                                     '1995'='before.2011.or.unkown';
+                                                     '1996'='before.2011.or.unkown';
+                                                     '1997'='before.2011.or.unkown';
+                                                     '1998'='before.2011.or.unkown';
+                                                     '1999'='before.2011.or.unkown';
+                                                     '2000'='before.2011.or.unkown';
+                                                     '2001'='before.2011.or.unkown';
+                                                     '2002'='before.2011.or.unkown';
+                                                     '2003'='before.2011.or.unkown';
+                                                     '2004'='before.2011.or.unkown';
+                                                     '2005'='before.2011.or.unkown';
+                                                     '2006'='before.2011.or.unkown';
+                                                     '2007'='before.2011.or.unkown';
+                                                     '2008'='before.2011.or.unkown';
+                                                     '2009'='before.2011.or.unkown';
+                                                     '2010'='before.2011.or.unkown';
+                                                     '2011'='2011';
+                                                     '2012'='2012';
+                                                     '2013'='2013';
+                                                     '2014'='2014';
+                                                     '2015'='2015';
+                                                     '2016'='2016.and.2017';
+                                                     '2017'='2016.and.2017'"))
+
+progres.case$YearArrivalCategory[is.na(progres.case$YearArrivalCategory)] <- "before.2011.or.unkown"
+
+prop.table(table(progres.case$YearArrivalCategory, useNA = "ifany"))
 
 ##############################
 # Aggregating country of Origin
@@ -305,6 +459,15 @@ progres.case$CountryOriginCategory <- recode(progres.case$CountryOrigin,"'SYR'='
 progres.case$CountryOriginCategory <- factor(progres.case$CountryOriginCategory, levels = c("SYR","IRQ","AFG","IRN","HORN","AFR", "MENA", "ASIA", "OTH"))
 
 
+###########################################################################
+#### Recategorised "cool1","coal1", -- in each country of asylum if the category 
+
+## classes with low numbers are aggregated. Unknown adresses are recorded as 'other'.
+progres.case$cool1Cat <- progres.case$cool1
+progres.case$coal1Cat <- progres.case$coal1
+#table(progres.case$cool1,progres.case$CountryAsylum) 
+
+
 ##############################
 # Aggregating country of Asylum
 #ctrAsylum <- as.data.frame(table(progres.case$CountryAsylum))
@@ -393,6 +556,16 @@ progres.case$edu_highestcat[is.na(progres.case$edu_highestcat)]<- "Unknown"
 
 progres.case$edu_highestcat <- factor(progres.case$edu_highestcat, levels = c("Unknown", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14", "Higher Education"))
 #table(progres.case$edu_highestcat, useNA="always")
+
+
+progres.case$edu_highestcat <- recode(progres.case$edu_highest_t,"
+                                      'Up to Grade 5'='Other';
+                                      'Grade 6-8'='Other';
+                                      'Grade 9-11'='Other';
+                                      'Grade 12-14'='Other'")
+
+prop.table(table(progres.case$edu_highestcat, useNA = "ifany"))
+
 ##############################
 # Educational attainment
 progres.case$edu.highest.grp1 <- as.factor(ifelse((  progres.case$edu_highest_t == "No education" | 
@@ -532,115 +705,139 @@ progres.specificneed.case <- merge(x=progres.specificneed, y=SpecificNeedsCodesV
 #progres.specificneed.unique.case1 <- as.data.frame(unique(progres.specificneed[,c("CaseNo")]))
 
 ## let's build the summary per case
-progres.specificneed.case <-  melt(progres.specificneed.unique, id.vars = c("CaseNo","VulnerabilityText"),
-                                   variable.name = "VulnerabilityText", 
-                                   value.name = "value", na.rm = TRUE)
+# progres.specificneed.case <-  melt(progres.specificneed.unique, id.vars = c("CaseNo","VulnerabilityText"),
+#                                   variable.name = "VulnerabilityText", 
+#                                   value.name = "value", na.rm = TRUE)
 
 progres.specificneed.case2 <- dcast(progres.specificneed.case, CaseNo ~ newcat)
 #names(progres.specificneed.case2)
+#str(progres.specificneed.case2)
 rm(progres.specificneed)
+rm(progres.specificneed.case)
 
-### merging back with progres case info
+
+
+## Let's recode the vulnerability Text
+
+
+# "At.Risk", Child.Labour"                         
+# "Child.marriage..parent.or.pregnancy"   "Family.Needs"                          "Marginalised"                         
+# "Medical"                               "Need.of.Care"                          "Problem.with.violence.law.recruitment"
+# "Separated.Child"                       "Single.Parent"                         "Unaccompanied"                        
+# "Victim.of.Violence"                    "Woman.at.Risk"  
+progres.specificneed.case2$At.Risk.count <- progres.specificneed.case2$At.Risk
+progres.specificneed.case2$At.Risk <- as.factor(ifelse(progres.specificneed.case2$At.Risk>=1, "yes", "no"))  
+progres.specificneed.case2$At.Risk <- as.character(progres.specificneed.case2$At.Risk)
+progres.specificneed.case2$At.Risk[is.na(progres.specificneed.case2$At.Risk)]<- "no"
+progres.specificneed.case2$At.Risk <- as.factor(progres.specificneed.case2$At.Risk)
+
+progres.specificneed.case2$Child.Labour.count <- progres.specificneed.case2$Child.Labour
+progres.specificneed.case2$Child.Labour <- as.factor(ifelse(progres.specificneed.case2$Child.Labour>=1, "yes", "no"))  
+progres.specificneed.case2$Child.Labour <- as.character(progres.specificneed.case2$Child.Labour)
+progres.specificneed.case2$Child.Labour[is.na(progres.specificneed.case2$Child.Labour)]<- "no"
+progres.specificneed.case2$Child.Labour <- as.factor(progres.specificneed.case2$Child.Labour)
+
+
+progres.specificneed.case2$Child.marriage..parent.or.pregnancy.count <- progres.specificneed.case2$Child.marriage..parent.or.pregnancy
+progres.specificneed.case2$Child.marriage..parent.or.pregnancy <- as.factor(ifelse(progres.specificneed.case2$Child.marriage..parent.or.pregnancy>=1, "yes", "no"))  
+progres.specificneed.case2$Child.marriage..parent.or.pregnancy <- as.character(progres.specificneed.case2$Child.marriage..parent.or.pregnancy)
+progres.specificneed.case2$Child.marriage..parent.or.pregnancy[is.na(progres.specificneed.case2$Child.marriage..parent.or.pregnancy)]<- "no"
+progres.specificneed.case2$Child.marriage..parent.or.pregnancy <- as.factor(progres.specificneed.case2$Child.marriage..parent.or.pregnancy)
+
+
+progres.specificneed.case2$Family.Needs.count <- progres.specificneed.case2$Family.Needs
+progres.specificneed.case2$Family.Needs <- as.factor(ifelse(progres.specificneed.case2$Family.Needs>=1, "yes", "no"))  
+progres.specificneed.case2$Family.Needs <- as.character(progres.specificneed.case2$Family.Needs)
+progres.specificneed.case2$Family.Needs[is.na(progres.specificneed.case2$Family.Needs)]<- "no"
+progres.specificneed.case2$Family.Needs <- as.factor(progres.specificneed.case2$Family.Needs)
+
+
+progres.specificneed.case2$Marginalised.count <- progres.specificneed.case2$Marginalised
+progres.specificneed.case2$Marginalised <- as.factor(ifelse(progres.specificneed.case2$Marginalised>=1, "yes", "no"))  
+progres.specificneed.case2$Marginalised <- as.character(progres.specificneed.case2$Marginalised)
+progres.specificneed.case2$Marginalised[is.na(progres.specificneed.case2$Marginalised)]<- "no"
+progres.specificneed.case2$Marginalised <- as.factor(progres.specificneed.case2$Marginalised)
+
+
+progres.specificneed.case2$Medical.count <- progres.specificneed.case2$Medical
+progres.specificneed.case2$Medical <- as.factor(ifelse(progres.specificneed.case2$Medical>=1, "yes", "no"))  
+progres.specificneed.case2$Medical <- as.character(progres.specificneed.case2$Medical)
+progres.specificneed.case2$Medical[is.na(progres.specificneed.case2$Medical)]<- "no"
+progres.specificneed.case2$Medical <- as.factor(progres.specificneed.case2$Medical)
+
+
+progres.specificneed.case2$Need.of.Care.count <- progres.specificneed.case2$Need.of.Care
+progres.specificneed.case2$Need.of.Care <- as.factor(ifelse(progres.specificneed.case2$Need.of.Care>=1, "yes", "no"))  
+progres.specificneed.case2$Need.of.Care <- as.character(progres.specificneed.case2$Need.of.Care)
+progres.specificneed.case2$Need.of.Care[is.na(progres.specificneed.case2$Need.of.Care)]<- "no"
+progres.specificneed.case2$Need.of.Care <- as.factor(progres.specificneed.case2$Need.of.Care)
+
+
+progres.specificneed.case2$Problem.with.violence.law.recruitment.count <- progres.specificneed.case2$Problem.with.violence.law.recruitment
+progres.specificneed.case2$Problem.with.violence.law.recruitment <- as.factor(ifelse(progres.specificneed.case2$Problem.with.violence.law.recruitment>=1, "yes", "no"))  
+progres.specificneed.case2$Problem.with.violence.law.recruitment <- as.character(progres.specificneed.case2$Problem.with.violence.law.recruitment)
+progres.specificneed.case2$Problem.with.violence.law.recruitment[is.na(progres.specificneed.case2$Problem.with.violence.law.recruitment)]<- "no"
+progres.specificneed.case2$Problem.with.violence.law.recruitment <- as.factor(progres.specificneed.case2$Problem.with.violence.law.recruitment)
+
+
+progres.specificneed.case2$Separated.Child.count <- progres.specificneed.case2$Separated.Child
+progres.specificneed.case2$Separated.Child <- as.factor(ifelse(progres.specificneed.case2$Separated.Child>=1, "yes", "no"))  
+progres.specificneed.case2$Separated.Child <- as.character(progres.specificneed.case2$Separated.Child)
+progres.specificneed.case2$Separated.Child[is.na(progres.specificneed.case2$Separated.Child)]<- "no"
+progres.specificneed.case2$Separated.Child <- as.factor(progres.specificneed.case2$Separated.Child)
+
+
+progres.specificneed.case2$Single.Parent.count <- progres.specificneed.case2$Single.Parent
+progres.specificneed.case2$Single.Parent <- as.factor(ifelse(progres.specificneed.case2$Single.Parent>=1, "yes", "no"))  
+progres.specificneed.case2$Single.Parent <- as.character(progres.specificneed.case2$Single.Parent)
+progres.specificneed.case2$Single.Parent[is.na(progres.specificneed.case2$Single.Parent)]<- "no"
+progres.specificneed.case2$Single.Parent <- as.factor(progres.specificneed.case2$Single.Parent)
+
+
+progres.specificneed.case2$Unaccompanied.count <- progres.specificneed.case2$Unaccompanied
+progres.specificneed.case2$Unaccompanied <- as.factor(ifelse(progres.specificneed.case2$Unaccompanied>=1, "yes", "no"))  
+progres.specificneed.case2$Unaccompanied <- as.character(progres.specificneed.case2$Unaccompanied)
+progres.specificneed.case2$Unaccompanied[is.na(progres.specificneed.case2$Unaccompanied)]<- "no"
+progres.specificneed.case2$Unaccompanied <- as.factor(progres.specificneed.case2$Unaccompanied)
+
+
+progres.specificneed.case2$Victim.of.Violence.count <- progres.specificneed.case2$Victim.of.Violence
+progres.specificneed.case2$Victim.of.Violence <- as.factor(ifelse(progres.specificneed.case2$Victim.of.Violence>=1, "yes", "no"))  
+progres.specificneed.case2$Victim.of.Violence <- as.character(progres.specificneed.case2$Victim.of.Violence)
+progres.specificneed.case2$Victim.of.Violence[is.na(progres.specificneed.case2$Victim.of.Violence)]<- "no"
+progres.specificneed.case2$Victim.of.Violence <- as.factor(progres.specificneed.case2$Victim.of.Violence)
+
+
+
+progres.specificneed.case2$Woman.at.Risk.count <- progres.specificneed.case2$Woman.at.Risk
+progres.specificneed.case2$Woman.at.Risk <- as.factor(ifelse(progres.specificneed.case2$Woman.at.Risk>=1, "yes", "no"))  
+progres.specificneed.case2$Woman.at.Risk <- as.character(progres.specificneed.case2$Woman.at.Risk)
+progres.specificneed.case2$Woman.at.Risk[is.na(progres.specificneed.case2$Woman.at.Risk)]<- "no"
+progres.specificneed.case2$Woman.at.Risk <- as.factor(progres.specificneed.case2$Woman.at.Risk)
+
+
+
+
+###################################################
+### merging back with progres case info 
+###################################################
 
 progres.case.sp <- merge(x=progres.case, y=progres.specificneed.case2, all.x=TRUE)
 rm(progres.specificneed.case2)
 
-names(progres.case.sp)
+#names(progres.case.sp)
 
-## Let's recode the vulnerability Text
-
-rename(progres.case.sp, c("CR" = "Child.at.risk", 
-            "FU"= "Family.unity",
-            "ER" = "Older.person.at.risk",
-            "LP" = "Pregnant.or.lactating",
-            "SP"= "Single.parent",
-            "SC" = "Serious.medical.condition",  
-            "LP" = "Specific.legal.physical.protection.needs", 
-            "SC" = "Unaccompanied.or.separated.child",
-            "WR" = "Woman.at.risk"))
-
-progres.case.sp$Child.at.risk.count <- progres.case.sp$Child.at.risk
-progres.case.sp$Child.at.risk <- as.factor(ifelse(progres.case.sp$Child.at.risk>=1, "yes", "no"))  
-progres.case.sp$Child.at.risk <- as.character(progres.case.sp$Child.at.risk)
-progres.case.sp$Child.at.risk[is.na(progres.case.sp$Child.at.risk)]<- "no"
-progres.case.sp$Child.at.risk <- as.factor(progres.case.sp$Child.at.risk)
-
-progres.case.sp$Disability.count <- progres.case.sp$Disability
-progres.case.sp$Disability <- as.factor(ifelse(progres.case.sp$Disability>=1, "yes", "no")) 
-progres.case.sp$Disability <- as.character(progres.case.sp$Disability)
-progres.case.sp$Disability[is.na(progres.case.sp$Disability)]<- "no"
-progres.case.sp$Disability <- as.factor(progres.case.sp$Disability)
-
-progres.case.sp$Family.unity.count <- progres.case.sp$Family.unity
-progres.case.sp$Family.unity <- as.factor(ifelse(progres.case.sp$Family.unity>=1, "yes", "no"))
-progres.case.sp$Family.unity <- as.character(progres.case.sp$Family.unity)
-progres.case.sp$Family.unity[is.na(progres.case.sp$Family.unity)]<- "no"
-progres.case.sp$Family.unity <- as.factor(progres.case.sp$Family.unity)
-
-progres.case.sp$Older.person.at.risk.count <- progres.case.sp$Older.person.at.risk
-progres.case.sp$Older.person.at.risk <- as.factor(ifelse(progres.case.sp$Older.person.at.risk>=1, "yes", "no"))
-progres.case.sp$Older.person.at.risk <- as.character(progres.case.sp$Older.person.at.risk)
-progres.case.sp$Older.person.at.risk[is.na(progres.case.sp$Older.person.at.risk)]<- "no"
-progres.case.sp$Older.person.at.risk <- as.factor(progres.case.sp$Older.person.at.risk)
-
-progres.case.sp$Pregnant.or.lactating.count <- progres.case.sp$Pregnant.or.lactating
-progres.case.sp$Pregnant.or.lactating <- as.factor(ifelse(progres.case.sp$Pregnant.or.lactating>=1, "yes", "no")) 
-progres.case.sp$Pregnant.or.lactating <- as.character(progres.case.sp$Pregnant.or.lactating)
-progres.case.sp$Pregnant.or.lactating[is.na(progres.case.sp$Pregnant.or.lactating)]<- "no"
-progres.case.sp$Pregnant.or.lactating <- as.factor(progres.case.sp$Pregnant.or.lactating)
-
-progres.case.sp$Serious.medical.condition.count <- progres.case.sp$Serious.medical.condition
-progres.case.sp$Serious.medical.condition <- as.factor(ifelse(progres.case.sp$Serious.medical.condition>=1, "yes", "no"))
-progres.case.sp$Serious.medical.condition <- as.character(progres.case.sp$Serious.medical.condition)
-progres.case.sp$Serious.medical.condition[is.na(progres.case.sp$Serious.medical.condition)]<- "no"
-progres.case.sp$Serious.medical.condition <- as.factor(progres.case.sp$Serious.medical.condition)
-
-progres.case.sp$SGBV.count <- progres.case.sp$SGBV
-progres.case.sp$SGBV <- as.factor(ifelse(progres.case.sp$SGBV>=1, "yes", "no"))
-progres.case.sp$SGBV <- as.character(progres.case.sp$SGBV)
-progres.case.sp$SGBV[is.na(progres.case.sp$SGBV)]<- "no"
-progres.case.sp$SGBV <- as.factor(progres.case.sp$SGBV)
-
-progres.case.sp$Single.parent.count <- progres.case.sp$Single.parent
-progres.case.sp$Single.parent <- as.factor(ifelse(progres.case.sp$Single.parent>=1, "yes", "no"))
-progres.case.sp$Single.parent <- as.character(progres.case.sp$Single.parent)
-progres.case.sp$Single.parent[is.na(progres.case.sp$Single.parent)]<- "no"
-progres.case.sp$Single.parent <- as.factor(progres.case.sp$Single.parent)
-
-progres.case.sp$Specific.legal.physical.protection.needs.count <- progres.case.sp$Specific.legal.physical.protection.needs
-progres.case.sp$Specific.legal.physical.protection.needs <- as.factor(ifelse(progres.case.sp$Specific.legal.physical.protection.needs>=1, "yes", "no"))
-progres.case.sp$Specific.legal.physical.protection.needs <- as.character(progres.case.sp$Specific.legal.physical.protection.needs)
-progres.case.sp$Specific.legal.physical.protection.needs[is.na(progres.case.sp$Specific.legal.physical.protection.needs)]<- "no"
-progres.case.sp$Specific.legal.physical.protection.needs <- as.factor(progres.case.sp$Specific.legal.physical.protection.needs)
-
-progres.case.sp$Torture.count <- progres.case.sp$Torture
-progres.case.sp$Torture <- as.factor(ifelse(progres.case.sp$Torture>=1, "yes", "no"))
-progres.case.sp$Torture <- as.character(progres.case.sp$Torture)
-progres.case.sp$Torture[is.na(progres.case.sp$Torture)]<- "no"
-progres.case.sp$Torture <- as.factor(progres.case.sp$Torture)
-
-progres.case.sp$Unaccompanied.or.separated.child.count <- progres.case.sp$Unaccompanied.or.separated.child
-progres.case.sp$Unaccompanied.or.separated.child <- as.factor(ifelse(progres.case.sp$Unaccompanied.or.separated.child>=1, "yes", "no"))
-progres.case.sp$Unaccompanied.or.separated.child <- as.character(progres.case.sp$Unaccompanied.or.separated.child)
-progres.case.sp$Unaccompanied.or.separated.child[is.na(progres.case.sp$Unaccompanied.or.separated.child)]<- "no"
-progres.case.sp$Unaccompanied.or.separated.child <- as.factor(progres.case.sp$Unaccompanied.or.separated.child)
-
-progres.case.sp$Woman.at.risk.count <- progres.case.sp$Woman.at.risk
-progres.case.sp$Woman.at.risk <- as.factor(ifelse(progres.case.sp$Woman.at.risk>=1, "yes", "no"))
-progres.case.sp$Woman.at.risk <- as.character(progres.case.sp$Woman.at.risk)
-progres.case.sp$Woman.at.risk[is.na(progres.case.sp$Woman.at.risk)]<- "no"
-progres.case.sp$Woman.at.risk <- as.factor(progres.case.sp$Woman.at.risk)
 
 ###################################################
 ######## Recode the address information 
 ###################################################
 
-names(data)
+#names(data)
 
 ## if the admin unit is not in the correct country -- then fill with "Data Entry Mistake"
 ## if the admin unit is not available, then "Not reported"
 
-table(progres.case.sp$cool1id)
+#table(progres.case.sp$cool1id)
 
 #CountryOrigin"               
 #"cool1id"  
@@ -662,7 +859,7 @@ write.csv(progres.case.sp, file = "data/progrescase-1.csv",na="")
 
 
 
-data <- progres.case.sp
+#data <- progres.case.sp
 
 rm(assistancecase)
 rm(progres.case)
@@ -677,12 +874,12 @@ rm(progres.specificneed.unique)
 ### Cleaning data
 
 ## Remove observation where we do not have PA Age or Arrival Date or Sex of PA
-data <- data[!rowSums(is.na(data["dem_age"])), ]
-data <- data[!rowSums(is.na(data["AVG_Age"])), ]
-data <- data[!rowSums(is.na(data["YearArrival"])), ]
-data <- data[data$dem_sex !="Unknown", ]
+#data <- data[!rowSums(is.na(data["dem_age"])), ]
+#data <- data[!rowSums(is.na(data["AVG_Age"])), ]
+#data <- data[!rowSums(is.na(data["YearArrival"])), ]
+#data <- data[data$dem_sex !="Unknown", ]
 
-write.csv(data, file = "data/progrescase2.csv",na="")
+#write.csv(data, file = "data/progrescase2.csv",na="")
 
 ## Description of all variables 
-data.str <- strtable(data, factor.values=as.integer)
+#data.str <- strtable(data, factor.values=as.integer)
