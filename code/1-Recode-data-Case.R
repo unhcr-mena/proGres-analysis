@@ -42,6 +42,7 @@ progres.case$Case.size <- recode(progres.case$Case.size,"'1'='Case.size.1';
                                                                       '25'='Case.size.7.and.more';
                                                                       '26'='Case.size.7.and.more';
                                                                       '27'='Case.size.7.and.more';
+                                                                      '29'='Case.size.7.and.more';
                                                                       '36'='Case.size.7.and.more';
                                                                       '37'='Case.size.7.and.more';
                                                                       '42'='Case.size.7.and.more';
@@ -104,13 +105,13 @@ progres.case$elederndependency <- as.factor(recode(progres.case$elederndependenc
 prop.table(table(progres.case$elederndependency, useNA = "ifany"))
 
 #progres.case$female.ratio <- cut(progres.case$Female / progres.case$Num_Inds, c(0.001,0.2,0.4,0.6,0.8,Inf))
-progres.case$female.ratio <- cut(progres.case$Female / progres.case$Num_Inds, c(0.0001,0.99,1.1,Inf))
+progres.case$female.ratio <- cut(progres.case$Female / progres.case$Num_Inds, c(0.0001,0.45,0.55,0.99,1.1))
 prop.table(table(progres.case$female.ratio, useNA = "ifany"))
 progres.case$female.ratio <- as.character(progres.case$female.ratio)
 progres.case$female.ratio[is.na(progres.case$female.ratio)]<- "1.no.female"
-progres.case$female.ratio <- as.factor(recode(progres.case$female.ratio,"'(0.0001,0.99]'='2.few.female'; '(0.99,1.1]'='3.half.female';
-                                       '(1.1,Inf]'='4.female'"))
-View(progres.case[ ,c("Female","Male","Num_Inds","female.ratio" )])
+progres.case$female.ratio <- as.factor(recode(progres.case$female.ratio,"'(0.0001,0.45]'='2.few.female'; '(0.45,0.55]'='3.half.female';
+                                              '(0.55,0.99]'='4.most.female'; '(0.99,1.1]'='5.all.female'"))
+#View(progres.case[ ,c("Female","Male","Num_Inds","female.ratio" )])
 #progres.case$female.ratio <-  factor(progres.case$female.ratio, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
 
 
@@ -254,6 +255,7 @@ progres.case$YearArrivalCategory2 <- as.factor(recode(progres.case$YearArrival,"
 progres.case$YearArrivalCategory <- as.factor(recode(progres.case$YearArrival,"'1899'='before.2011.or.unkown';
                                                      '1900'='before.2011.or.unkown';
                                                      '1902'='before.2011.or.unkown';
+                                                     '1903'='before.2011.or.unkown';
                                                      '1905'='before.2011.or.unkown';
                                                      '1911'='before.2011.or.unkown';
                                                      '1926'='before.2011.or.unkown';
@@ -465,8 +467,75 @@ progres.case$CountryOriginCategory <- factor(progres.case$CountryOriginCategory,
 ## classes with low numbers are aggregated. Unknown adresses are recorded as 'other'.
 progres.case$cool1Cat <- progres.case$cool1
 progres.case$coal1Cat <- progres.case$coal1
-#table(progres.case$cool1,progres.case$CountryAsylum) 
 
+progres.case$cool2Cat <- progres.case$cool2
+progres.case$coal2Cat <- progres.case$coal2
+
+#frequ.coo <- as.data.frame(table(progres.case$cool1,progres.case$CountryAsylum)) 
+frequ2.coo <- as.data.frame(prop.table(table(progres.case$cool1,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
+frequ2.coa <- as.data.frame(prop.table(table(progres.case$coal1,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
+frequ3.coo <- as.data.frame(prop.table(table(progres.case$cool2,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
+frequ3.coa <- as.data.frame(prop.table(table(progres.case$coal3,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
+
+#View(frequ2.coo[frequ2.coo$Var2=="JOR" & frequ2.coo$Var3=="SYR" &  frequ2.coo$Freq>=0.01, ])
+#View(frequ2.coa[frequ2.coa$Var2=="JOR" & frequ2.coa$Var3=="SYR" &  frequ2.coa$Freq>=0.01, ])
+#View(frequ3.coa[frequ3.coa$Var2=="JOR" & frequ3.coa$Var3=="SYR" &  frequ3.coa$Freq>=0.01, ])
+#View(frequ3.coo[frequ3.coo$Var2=="JOR" & frequ3.coo$Var3=="SYR" &  frequ3.coo$Freq>=0.01, ])
+
+
+#prop.table(table(progres.case[progres.case$CountryOrigin=="SYR", c("cool1Cat") ], useNA = "ifany"))
+
+isEmpty <- function(x) {
+  return(length(x)==0)
+}
+
+
+
+
+for (i in 1:nrow(progres.case)){
+  # i <- 1
+  asyle <- as.character(progres.case[ i , c("CountryAsylum")])
+  origin <- as.character(progres.case[ i , c("CountryOrigin")])
+  l1coo <- as.character(progres.case[ i , c("cool1")])
+  l1coa <- as.character(progres.case[ i , c("coal1")])
+  l2coo <- as.character(progres.case[ i , c("cool2")])
+  l2coa <- as.character(progres.case[ i , c("coal2")])
+  
+  if (isEmpty(frequ3.coo[frequ3.coo$Var1==l2coo & frequ3.coo$Var2==origin & frequ3.coo$Var3==asyle, c("Freq")] ) ) { 
+    progres.case$cool2Cat =="Other.or.Unknown"
+    } else if(frequ3.coo[frequ3.coo$Var1==l2coo & frequ3.coo$Var2==origin & frequ3.coo$Var3==asyle, c("Freq")] <=0.01) { 
+           progres.case$cool2Cat == "Other.or.Unknown"
+    }  else { 
+          progres.case$cool2Cat == progres.case$cool2
+    }
+  
+ 
+  
+  
+  if (isEmpty(frequ3.coa[frequ3.coa$Var1==l2coa & frequ3.coa$Var2==origin & frequ3.coa$Var3==asyle, c("Freq")] ) ) { 
+    progres.case$cool2Cat =="Other.or.Unknown"
+  } else if(as.numeric(frequ3.coa[frequ3.coa$Var1==l2coa & frequ3.coa$Var2==origin & frequ3.coa$Var3==asyle, c("Freq")]) <=0.01) {
+    progres.case$coal2Cat =="Other.or.Unknown"}
+  else { progres.case$coal2Cat == progres.case$coal2
+    }
+  
+  
+  if (isEmpty(frequ2.coo[frequ2.coo$Var1==l1coo & frequ2.coo$Var2==origin & frequ2.coo$Var3==asyle, c("Freq")] ) ) { 
+    progres.case$cool2Cat =="Other.or.Unknown"
+  } else if(frequ2.coo[frequ2.coo$Var1==l1coo & frequ2.coo$Var2==origin & frequ2.coo$Var3==asyle, c("Freq")] <=0.01) {
+    progres.case$cool2Cat =="Other.or.Unknown"}
+  else { progres.case$cool2Cat == progres.case$cool1
+    }
+  
+  
+  if (isEmpty(frequ2.coa[frequ2.coo$Var1==l1coa & frequ2.coa$Var2==origin & frequ2.coa$Var3==asyle, c("Freq")] ) ) { 
+    progres.case$cool2Cat =="Other.or.Unknown"
+  } else if(frequ2.coa[frequ2.coo$Var1==l1coa & frequ2.coa$Var2==origin & frequ2.coa$Var3==asyle, c("Freq")] <=0.01) { 
+    progres.case$coal2Cat =="Other.or.Unknown"}
+  else { progres.case$coal2Cat == progres.case$coal1
+    }
+
+}
 
 ##############################
 # Aggregating country of Asylum
@@ -554,7 +623,8 @@ progres.case$edu_highestcat <- as.character(progres.case$edu_highestcat)
 progres.case$edu_highestcat[is.na(progres.case$edu_highestcat)]<- "Unknown"
 #table(progres.case$edu_highestcat, useNA="always")
 
-progres.case$edu_highestcat <- factor(progres.case$edu_highestcat, levels = c("Unknown", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14", "Higher Education"))
+progres.case$edu_highestcat <- factor(progres.case$edu_highestcat, levels = c("Unknown","No education", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14",
+                                                                              "Higher Education"))
 #table(progres.case$edu_highestcat, useNA="always")
 
 
@@ -623,6 +693,7 @@ progres.case$occupationcat[is.na(progres.case$occupationcat)]<- "UnknownOccup"
 progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Manager-Professional-Technician-Clerk", "ServiceMarket",
                                                                             "Agricultural", "Craft-Machine", "Elementary", "Military",
                                                                             "UnknownOccup", "NoOccup", "Student"))
+prop.table(table(progres.case$occupationcat, useNA = "ifany"))
 
 #progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Manager", "Professional", "Technician", "Clerk", "ServiceMarket",
 #                                                                            "Agricultural", "Craft", "Machine", "Elementary", "Military",
@@ -646,13 +717,18 @@ progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Man
 # Marital status
 #dem_marriage <- as.data.frame(table(data$dem_marriage))
 #rm(dem_marriage)
-progres.case$dem_marriagecat <- recode(progres.case$dem_marriage,"'WD'='Widowed'; 'SN'='Single';'DV'='Divorced';'MA'='Married'; 'EG'='Engaged'; 'SR'='Separated'; 'CL'='Married'")
+#progres.case$dem_marriagecat <- recode(progres.case$dem_marriage,"'WD'='Widowed'; 'SN'='Single';'DV'='Divorced';'MA'='Married'; 'EG'='Engaged'; 'SR'='Separated'; 'CL'='Married'")
+progres.case$dem_marriagecat <- recode(progres.case$dem_marriage,"'WD'='Widowed'; 'SN'='Single-Engaged';'DV'='Divorced-Separated-Unknown';'MA'='Married';
+                                       'EG'='Single-Engaged'; 'SR'='Divorced-Separated-Unknown'; 'CL'='Married'")
 
-progres.case$dem_marriagecat <- as.character(progres.case$dem_marriagecat)
-progres.case$dem_marriagecat[is.na(progres.case$dem_marriagecat)]<- "Unknown"
-progres.case$dem_marriagecat <- as.factor(progres.case$dem_marriagecat)
-progres.case$dem_marriagecat <- as.factor(progres.case$dem_marriagecat)
-progres.case$dem_marriagecat <- factor(progres.case$dem_marriagecat, levels = c("Engaged", "Single", "Married", "Widowed", "Separated", "Divorced","Unknown"))
+#progres.case$dem_marriagecat <- as.character(progres.case$dem_marriagecat)
+#progres.case$dem_marriagecat <- as.factor(progres.case$dem_marriagecat)
+#progres.case$dem_marriagecat <- as.factor(progres.case$dem_marriagecat)
+#progres.case$dem_marriagecat <- factor(progres.case$dem_marriagecat, levels = c("Engaged", "Single", "Married", "Widowed", "Separated", "Divorced","Unknown"))
+progres.case$dem_marriagecat <- factor(progres.case$dem_marriagecat, levels = c("Single-Engaged", "Married", "Widowed", "Divorced-Separated-Unknown"))
+progres.case$dem_marriagecat[is.na(progres.case$dem_marriagecat)]<- "Divorced-Separated-Unknown"
+
+prop.table(table(progres.case$dem_marriagecat, useNA = "ifany"))
 
 progres.case$mar_widow <- as.factor(ifelse(progres.case$dem_marriage == "WD", 1, 0)) 
 progres.case$mar_single <- as.factor(ifelse(progres.case$dem_marriage == "SN", 1, 0))
