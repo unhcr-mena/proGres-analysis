@@ -54,6 +54,8 @@ SELECT I.CaseNo,
     Cal_1.Eldern_65,
     Cal_1.Male,
     Cal_1.Female,
+    Cal_1.NOGender,
+ 
     Cal_1.AVG_Age,
     Cal_1.STDEV_Age,
     DATENAME(mm, I.ArrivalDate) Montharrival,
@@ -82,12 +84,14 @@ LEFT JOIN
         COUNT(DISTINCT IndividualGUID) Num_Inds,
         AVG(IndividualAge) AVG_Age,
         STDEV(IndividualAge) STDEV_Age,
-        Count(DISTINCT CASE WHEN(IndividualAge < 15) THEN(IndividualGUID) ELSE(NULL) END) Child_0_14,
-        Count(DISTINCT CASE WHEN(IndividualAge < 19 AND IndividualAge > 14) THEN(IndividualGUID) ELSE(NULL) END) Youth_15_17,
-        Count(DISTINCT CASE WHEN(IndividualAge < 65 AND IndividualAge > 14) THEN(IndividualGUID) ELSE(NULL) END) Work_15_64,
-        Count(DISTINCT CASE WHEN(IndividualAge > 64) THEN(IndividualGUID) ELSE(NULL) END) Eldern_65,
-        Count(DISTINCT CASE WHEN(Sex = 'M') THEN(Sex) ELSE(NULL) END) Male,
-        Count(DISTINCT CASE WHEN(Sex = 'F') THEN(Sex) ELSE(NULL) END) Female FROM[DWH].[dbo].[T_AllIndividuals] WHERE Current_process_Status IN('a') GROUP BY CaseNo) AS Cal_1
+        Count( CASE WHEN(IndividualAge < 15) THEN(IndividualGUID) ELSE(NULL) END) Child_0_14,
+        Count( CASE WHEN(IndividualAge < 19 AND IndividualAge > 14) THEN(IndividualGUID) ELSE(NULL) END) Youth_15_17,
+        Count( CASE WHEN(IndividualAge < 65 AND IndividualAge > 14) THEN(IndividualGUID) ELSE(NULL) END) Work_15_64,
+        Count( CASE WHEN(IndividualAge > 64) THEN(IndividualGUID) ELSE(NULL) END) Eldern_65,
+        Count( CASE WHEN(Sex = 'M') THEN(Sex) ELSE(NULL) END) Male,
+        Count( CASE WHEN(Sex = 'F') THEN(Sex) ELSE(NULL) END) Female,
+	   Count( CASE WHEN(Sex not in  ('F','M')) THEN('Empty')  END) NOGender
+	    FROM[DWH].[dbo].[T_AllIndividuals] WHERE Current_process_Status IN('a') GROUP BY CaseNo) AS Cal_1
 ON I.CaseNo = Cal_1.CaseNo
 
 WHERE I.Current_process_Status = 'A' AND I.Relationship = 'PA'
