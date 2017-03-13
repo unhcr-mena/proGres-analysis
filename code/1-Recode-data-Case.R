@@ -462,80 +462,58 @@ progres.case$CountryOriginCategory <- factor(progres.case$CountryOriginCategory,
 
 
 ###########################################################################
-#### Recategorised "cool1","coal1", -- in each country of asylum if the category 
+#### Recategorised "cool1","coal1","cool2","coal2", -- in each country of asylum if the category 
+## classes with low numbers - less than 1% - are aggregated. Unknown adresses are recorded as 'other'.
 
-## classes with low numbers are aggregated. Unknown adresses are recorded as 'other'.
-progres.case$cool1Cat <- progres.case$cool1
-progres.case$coal1Cat <- progres.case$coal1
-
-progres.case$cool2Cat <- progres.case$cool2
-progres.case$coal2Cat <- progres.case$coal2
+######################################################################
+## Generating frequency tables to be used for the recategorisation
 
 #frequ.coo <- as.data.frame(table(progres.case$cool1,progres.case$CountryAsylum)) 
-frequ2.coo <- as.data.frame(prop.table(table(progres.case$cool1,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
-frequ2.coa <- as.data.frame(prop.table(table(progres.case$coal1,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
-frequ3.coo <- as.data.frame(prop.table(table(progres.case$cool2,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
-frequ3.coa <- as.data.frame(prop.table(table(progres.case$coal3,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
+freq1.coo <- as.data.frame(prop.table(table(progres.case$cool1,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
+freq1.coo$keycool1 <- paste(freq1.coo$Var1,freq1.coo$Var2,freq1.coo$Var3,sep="-")
+freq1.coo$cool1Cat <- as.character(freq1.coo$Var1)
+freq1.coo[freq1.coo$Freq <= 0.01, c("cool1Cat")] <- "Other.or.Unknown"
+freq1.coo[freq1.coo$Var1 =="", c("cool1Cat")] <- "Other.or.Unknown"
+# levels(as.factor(freq1.coo$cool1Cat))
+freq1.coo <- freq1.coo[ ,c("keycool1","cool1Cat")]
 
-#View(frequ2.coo[frequ2.coo$Var2=="JOR" & frequ2.coo$Var3=="SYR" &  frequ2.coo$Freq>=0.01, ])
-#View(frequ2.coa[frequ2.coa$Var2=="JOR" & frequ2.coa$Var3=="SYR" &  frequ2.coa$Freq>=0.01, ])
-#View(frequ3.coa[frequ3.coa$Var2=="JOR" & frequ3.coa$Var3=="SYR" &  frequ3.coa$Freq>=0.01, ])
-#View(frequ3.coo[frequ3.coo$Var2=="JOR" & frequ3.coo$Var3=="SYR" &  frequ3.coo$Freq>=0.01, ])
+freq1.coa <- as.data.frame(prop.table(table(progres.case$coal1,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
+freq1.coa$keycoal1 <- paste(freq1.coa$Var1,freq1.coa$Var2,freq1.coa$Var3,sep="-")
+freq1.coa$coal1Cat <- as.character(freq1.coa$Var1)
+freq1.coa[freq1.coa$Freq <= 0.01, c("coal1Cat")] <- "Other.or.Unknown"
+freq1.coa[freq1.coa$Var1 =="", c("coal1Cat")] <- "Other.or.Unknown"
+freq1.coa <- freq1.coa[ ,c("keycoal1","coal1Cat")]
 
+freq2.coo <- as.data.frame(prop.table(table(progres.case$cool2,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
+freq2.coo$keycool2 <- paste(freq2.coo$Var1,freq2.coo$Var2,freq2.coo$Var3,sep="-")
+freq2.coo$cool2Cat <- as.character(freq2.coo$Var1)
+freq2.coo[freq2.coo$Freq <= 0.01, c("cool2Cat")] <- "Other.or.Unknown"
+freq2.coo[freq2.coo$Var1 =="", c("cool2Cat")] <- "Other.or.Unknown"
+freq2.coo <- freq2.coo[ ,c("keycool2","cool2Cat")]
 
-#prop.table(table(progres.case[progres.case$CountryOrigin=="SYR", c("cool1Cat") ], useNA = "ifany"))
+freq2.coa <- as.data.frame(prop.table(table(progres.case$coal2,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
+freq2.coa$keycoal2 <- paste(freq2.coa$Var1,freq2.coa$Var2,freq2.coa$Var3,sep="-")
+freq2.coa$coal2Cat <- as.character(freq2.coa$Var1)
+freq2.coa[freq2.coa$Freq <= 0.01, c("coal2Cat")] <- "Other.or.Unknown"
+freq2.coa[freq2.coa$Var1 =="", c("coal2Cat")] <- "Other.or.Unknown"
+freq2.coa <- freq2.coa[ ,c("keycoal2","coal2Cat")]
 
-isEmpty <- function(x) {
-  return(length(x)==0)
-}
+#View(freq1.coo[freq1.coo$Var2=="JOR" & freq1.coo$Var3=="SYR" &  freq1.coo$Freq>=0.01, ])
 
+## generation of key to join with frequency tables
+progres.case$keycool1 <- paste(progres.case$cool1,progres.case$CountryAsylum,progres.case$CountryOrigin,sep="-")
+progres.case$keycoal1 <- paste(progres.case$coal1,progres.case$CountryAsylum,progres.case$CountryOrigin,sep="-")
+progres.case$keycool2 <- paste(progres.case$cool2,progres.case$CountryAsylum,progres.case$CountryOrigin,sep="-")
+progres.case$keycoal2 <- paste(progres.case$coal2,progres.case$CountryAsylum,progres.case$CountryOrigin,sep="-")
 
+progres.case <- join(x=progres.case, y=freq1.coa, by="keycoal1", type="left")
+progres.case <- join(x=progres.case, y=freq2.coa, by="keycoal2", type="left")
+progres.case <- join(x=progres.case, y=freq1.coo, by="keycool1", type="left")
+progres.case <- join(x=progres.case, y=freq2.coo, by="keycool2", type="left")
 
-
-for (i in 1:nrow(progres.case)){
-  # i <- 1
-  asyle <- as.character(progres.case[ i , c("CountryAsylum")])
-  origin <- as.character(progres.case[ i , c("CountryOrigin")])
-  l1coo <- as.character(progres.case[ i , c("cool1")])
-  l1coa <- as.character(progres.case[ i , c("coal1")])
-  l2coo <- as.character(progres.case[ i , c("cool2")])
-  l2coa <- as.character(progres.case[ i , c("coal2")])
-  
-  if (isEmpty(frequ3.coo[frequ3.coo$Var1==l2coo & frequ3.coo$Var2==origin & frequ3.coo$Var3==asyle, c("Freq")] ) ) { 
-    progres.case$cool2Cat =="Other.or.Unknown"
-    } else if(frequ3.coo[frequ3.coo$Var1==l2coo & frequ3.coo$Var2==origin & frequ3.coo$Var3==asyle, c("Freq")] <=0.01) { 
-           progres.case$cool2Cat == "Other.or.Unknown"
-    }  else { 
-          progres.case$cool2Cat == progres.case$cool2
-    }
-  
- 
-  
-  
-  if (isEmpty(frequ3.coa[frequ3.coa$Var1==l2coa & frequ3.coa$Var2==origin & frequ3.coa$Var3==asyle, c("Freq")] ) ) { 
-    progres.case$cool2Cat =="Other.or.Unknown"
-  } else if(as.numeric(frequ3.coa[frequ3.coa$Var1==l2coa & frequ3.coa$Var2==origin & frequ3.coa$Var3==asyle, c("Freq")]) <=0.01) {
-    progres.case$coal2Cat =="Other.or.Unknown"}
-  else { progres.case$coal2Cat == progres.case$coal2
-    }
-  
-  
-  if (isEmpty(frequ2.coo[frequ2.coo$Var1==l1coo & frequ2.coo$Var2==origin & frequ2.coo$Var3==asyle, c("Freq")] ) ) { 
-    progres.case$cool2Cat =="Other.or.Unknown"
-  } else if(frequ2.coo[frequ2.coo$Var1==l1coo & frequ2.coo$Var2==origin & frequ2.coo$Var3==asyle, c("Freq")] <=0.01) {
-    progres.case$cool2Cat =="Other.or.Unknown"}
-  else { progres.case$cool2Cat == progres.case$cool1
-    }
-  
-  
-  if (isEmpty(frequ2.coa[frequ2.coo$Var1==l1coa & frequ2.coa$Var2==origin & frequ2.coa$Var3==asyle, c("Freq")] ) ) { 
-    progres.case$cool2Cat =="Other.or.Unknown"
-  } else if(frequ2.coa[frequ2.coo$Var1==l1coa & frequ2.coa$Var2==origin & frequ2.coa$Var3==asyle, c("Freq")] <=0.01) { 
-    progres.case$coal2Cat =="Other.or.Unknown"}
-  else { progres.case$coal2Cat == progres.case$coal1
-    }
-
-}
+### A few check
+# prop.table(table(progres.case[progres.case$CountryOrigin=="SYR" & progres.case$CountryOrigin=="JOR", c("cool1Cat") ], useNA = "ifany"))
+# prop.table(table(progres.case[progres.case$CountryOrigin=="SYR", c("cool1Cat") ], useNA = "ifany"))
 
 ##############################
 # Aggregating country of Asylum
@@ -563,40 +541,42 @@ progres.case$Montharrival <- factor(progres.case$Montharrival, levels = c("Jan",
 ##############################
 # Recoding Education
 progres.case$edu_highest_t <- progres.case$edu_highest
-#progres.case$edu_highest_t <- recode(progres.case$edu_highest_t,"'01' = 'Grade 1'; '02' = 'Grade 2';  
-#                                     '03' = 'Grade 3';  '04' = '4 years (or Grade 4)';   '05' = 'Grade 5';  
-#                                     '06' = 'Grade 6';   '07' = 'Grade 7';  '08' = 'Grade 8';  
-#                                     '09' = 'Grade 9';    '10' = 'Grade 10';  '11' = 'Grade 11'; 
-#                                     '12' = 'Grade 12';    '13' = 'Grade 13';   '14' = 'Grade 14';  
-#                                     'IN' = 'Informal Education';    'NE' = 'No education'; 'U' = 'Unknown'; 
-#                                     'TC' = 'Techn Vocational';     'UG' = 'University level'; 'PG' = 'Post university level';
-#                                     'KG' = 'Kindergarten'")
-
-progres.case$edu_highest_t <- recode(progres.case$edu_highest_t,"'1 year (or Grade 1)' = 'Grade 1'; '2 year (or Grade 2)' = 'Grade 2';  
-                                     '3 year (or Grade 3)' = 'Grade 3';  '04' = '4 year (or Grade 4)';
-                                     '5 year (or Grade 5)' = 'Grade 5';  
-                                     '6 year (or Grade 6)' = 'Grade 6';
-                                     '7 year (or Grade 7)' = 'Grade 7';  
-                                     '8 year (or Grade 8)' = 'Grade 8';  
-                                     '9 year (or Grade 9)' = 'Grade 9';
-                                     '10 year (or Grade 10)' = 'Grade 10';  '11 year (or Grade 11)' = 'Grade 11'; 
-                                     '12 year (or Grade 12)' = 'Grade 12';    '13 year (or Grade 13)' = 'Grade 13';
-                                     '14 year (or Grade 14)' = 'Grade 14';  
-                                     'IN' = 'Informal Education'; 'Informal Educaiton' = 'Informal Education';
-                                      'NE' = 'No education';
-                                      'U' = 'Unknown'; 
-                                      '-' = 'Unknown'; 
+prop.table(table(progres.case$edu_highest, useNA = "ifany"))
+#table(progres.case$edu_highest, useNA="always")
+progres.case$edu_highest_t <- recode(progres.case$edu_highest_t,"'01' = 'Grade 1'; '02' = 'Grade 2';  
+                                     '03' = 'Grade 3';  '04' = '4 years (or Grade 4)';   '05' = 'Grade 5';  
+                                     '06' = 'Grade 6';   '07' = 'Grade 7';  '08' = 'Grade 8';  
+                                     '09' = 'Grade 9';    '10' = 'Grade 10';  '11' = 'Grade 11'; 
+                                     '12' = 'Grade 12';    '13' = 'Grade 13';   '14' = 'Grade 14';  
+                                     'IN' = 'Informal Education';    'NE' = 'No education'; 'U' = 'Unknown'; '-' = 'Unknown';
                                      'TC' = 'Techn Vocational';     'UG' = 'University level'; 'PG' = 'Post university level';
                                      'KG' = 'Kindergarten'")
+
+#progres.case$edu_highest_t <- recode(progres.case$edu_highest_t,"'1 year (or Grade 1)' = 'Grade 1'; '2 year (or Grade 2)' = 'Grade 2';  
+#                                     '3 year (or Grade 3)' = 'Grade 3';  '04' = '4 year (or Grade 4)';
+#                                     '5 year (or Grade 5)' = 'Grade 5';  
+#                                     '6 year (or Grade 6)' = 'Grade 6';
+#                                     '7 year (or Grade 7)' = 'Grade 7';  
+#                                     '8 year (or Grade 8)' = 'Grade 8';  
+#                                     '9 year (or Grade 9)' = 'Grade 9';
+#                                     '10 year (or Grade 10)' = 'Grade 10';  '11 year (or Grade 11)' = 'Grade 11'; 
+#                                     '12 year (or Grade 12)' = 'Grade 12';    '13 year (or Grade 13)' = 'Grade 13';
+#                                     '14 year (or Grade 14)' = 'Grade 14';  
+#                                     'IN' = 'Informal Education'; 'Informal Educaiton' = 'Informal Education';
+#                                      'NE' = 'No education';
+#                                      'U' = 'Unknown'; 
+#                                      '-' = 'Unknown'; 
+#                                     'TC' = 'Techn Vocational';     'UG' = 'University level'; 'PG' = 'Post university level';
+#                                     'KG' = 'Kindergarten'")
 
 progres.case$edu_highest_t <- factor(progres.case$edu_highest_t, levels = c("Unknown", "No education", "Informal Education","Kindergarten",
                                                                             "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
                                                                             "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
                                                                             "Grade 11", "Grade 12", "Grade 13", "Grade 14",
                                                                             "Techn Vocational", "University level", "Post university level"))
-
+prop.table(table(progres.case$edu_highest_t, useNA = "ifany"))
 progres.case$edu_highestcat <- recode(progres.case$edu_highest_t,"'Unknown'='Unknown';
-                                      'Informal Educaiton'='Other';
+                                      'Informal Education'='Other';
                                       'Techn Vocational'='Other';
                                       'No education'='No education';
                                       'Kindergarten'='Up to Grade 5';
@@ -616,23 +596,40 @@ progres.case$edu_highestcat <- recode(progres.case$edu_highest_t,"'Unknown'='Unk
                                       'Grade 14'='Grade 12-14';
                                       'University level'='Higher Education';
                                       'Post university level'='Higher Education'")
-
+prop.table(table(progres.case$edu_highestcat, useNA = "ifany"))
 progres.case$edu_highestcat <- as.character(progres.case$edu_highestcat)
 #table(progres.case$edu_highestcat, useNA="always")
 
-progres.case$edu_highestcat[is.na(progres.case$edu_highestcat)]<- "Unknown"
+
 #table(progres.case$edu_highestcat, useNA="always")
 
-progres.case$edu_highestcat <- factor(progres.case$edu_highestcat, levels = c("Unknown","No education", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14",
-                                                                              "Higher Education"))
+#progres.case$edu_highestcat <- factor(progres.case$edu_highestcat, levels = c("Unknown","No education", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14",
+#                                                                              "Higher Education"))
 #table(progres.case$edu_highestcat, useNA="always")
 
 
-progres.case$edu_highestcat <- recode(progres.case$edu_highest_t,"
-                                      'Up to Grade 5'='Other';
-                                      'Grade 6-8'='Other';
-                                      'Grade 9-11'='Other';
-                                      'Grade 12-14'='Other'")
+progres.case$edu_highestcat <- recode(progres.case$edu_highest_t,"'Unknown'='Informal.Voca.or.Unknown';
+                                      'Informal Education'='Informal.Voca.or.Unknown';
+                                      'Techn Vocational'='Informal.Voca.or.Unknown';
+                                      'No education'='No education';
+                                      'Kindergarten'='Up to Grade 5';
+                                      'Grade 1'='Up to Grade 5';
+                                      'Grade 2'='Up to Grade 5';
+                                      'Grade 3'='Up to Grade 5';
+                                      'Grade 4'='Up to Grade 5';
+                                      'Grade 5'='Up to Grade 5';
+                                      'Grade 6'='Grade 6-8';
+                                      'Grade 7'='Grade 6-8';
+                                      'Grade 8'='Grade 6-8';
+                                      'Grade 9'='Grade 9-11';
+                                      'Grade 10'='Grade 9-11';
+                                      'Grade 11'='Grade 9-11';
+                                      'Grade 12'='Grade 12-14';
+                                      'Grade 13'='Grade 12-14';
+                                      'Grade 14'='Grade 12-14';
+                                      'University level'='Higher Education';
+                                      'Post university level'='Higher Education'")
+progres.case$edu_highestcat[is.na(progres.case$edu_highestcat)]<- "Informal.Voca.or.Unknown"
 
 prop.table(table(progres.case$edu_highestcat, useNA = "ifany"))
 
@@ -663,11 +660,11 @@ progres.case$edu.highest.grp5 <- as.factor(ifelse((progres.case$edu_highest_t ==
 
 ##############################
 # Extracting main ocupation category from occupation code 
-summary(progres.case$occupationcode)
+#summary(progres.case$occupationcode)
 progres.case$occupationcat <- "UnknownOccup"
 progres.case$occupationcat[progres.case$occupationcode ==  "0001"] <- "Military"
-progres.case$occupationcat[progres.case$occupationcode ==  "None"] <- "NoOccup"
-progres.case$occupationcat[progres.case$occupationcode ==  "0110"] <- "Student"
+progres.case$occupationcat[progres.case$occupationcode ==  "None"] <- "Student.or.NoOccup"
+progres.case$occupationcat[progres.case$occupationcode ==  "0110"] <- "Student.or.NoOccup"
 #progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "1"] <- "Manager"
 progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "1"] <- "Manager-Professional-Technician-Clerk"
 #progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "2"] <- "Professional"
@@ -677,9 +674,10 @@ progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "3"] <- "
 #progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "4"] <- "Clerk"
 progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "4"] <- "Manager-Professional-Technician-Clerk"
 progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "5"] <- "ServiceMarket"
-progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "6"] <- "Agricultural"
-progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "7"] <- "Craft-Machine"
-progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "8"] <- "Craft-Machine"
+progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "6"] <- "Agricultural.Craft.Machine"
+progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "7"] <- "Agricultural.Craft.Machine"
+progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "8"] <- "Agricultural.Craft.Machine"
+#progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "6"] <- "Agricultural"
 #progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "7"] <- "Craft"
 #progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "8"] <- "Machine"
 progres.case$occupationcat[substr(progres.case$occupationcode, 1,1 )== "9"] <- "Elementary"
@@ -691,8 +689,8 @@ progres.case$occupationcat[is.na(progres.case$occupationcat)]<- "UnknownOccup"
 
 
 progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Manager-Professional-Technician-Clerk", "ServiceMarket",
-                                                                            "Agricultural", "Craft-Machine", "Elementary", "Military",
-                                                                            "UnknownOccup", "NoOccup", "Student"))
+                                                                            "Agricultural.Craft.Machine", "Elementary", "Military",
+                                                                            "UnknownOccup", "Student.or.NoOccup"))
 prop.table(table(progres.case$occupationcat, useNA = "ifany"))
 
 #progres.case$occupationcat <- factor(progres.case$occupationcat, levels = c("Manager", "Professional", "Technician", "Clerk", "ServiceMarket",
@@ -934,16 +932,18 @@ rm(progres.specificneed.case2)
 write.csv(progres.case.sp, file = "data/progrescase-1.csv",na="")
 
 
+rm(progres.case, freq1.coa,freq1.coo,freq2.coa,freq2.coo,SpecificNeedsCodesV2)  
+
+
 
 #data <- progres.case.sp
 
-rm(assistancecase)
-rm(progres.case)
-rm(progres.case.sp)
-rm(progres.specificneed)
-rm(progres.specificneed.case)
-rm(progres.specificneed.case2)
-rm(progres.specificneed.unique)
+#rm(assistancecase)
+#rm(progres.case.sp)
+#rm(progres.specificneed)
+#rm(progres.specificneed.case)
+#rm(progres.specificneed.case2)
+#rm(progres.specificneed.unique)
 
 # rm(progres.case.sp)
 
