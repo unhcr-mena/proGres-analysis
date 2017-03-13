@@ -118,8 +118,12 @@ rm(adm2.Num_Inds, adm2.Child_0_14, adm2.Youth_15_17, adm2.Work_15_64, adm2.Elder
 
 geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/JOR/ADM1.geojson")
 
-# dir.create(file.path(mainDir, subDir)) # create directory if it isn't done
-destfilepath <- paste0("geo/geojson/JOR_ADM1.geojson" )
+# create output folder
+mainDir <- "out"
+subDir <- "/geo/geojson"
+dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+filename <- "JOR_ADM1.geojson"
+destfilepath <- paste0("out/geo/geojson/", filename )
 download.file( geojsonurl, destfile=destfilepath )
 json.raw <- geojson_read( destfilepath, method="local", what="sp" )
 #plot(json.raw)
@@ -143,8 +147,10 @@ rm(map.data.fortified, destfilepath, json.raw, geojsonurl)
 
 geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/JOR/ADM2.geojson")
 
-# dir.create(file.path(mainDir, subDir)) # create directory if it isn't done
-destfilepath <- paste0("geo/geojson/JOR_ADM2.geojson" )
+
+filename <- "JOR_ADM2.geojson"
+destfilepath <- paste0("out/geo/geojson/", filename )
+
 download.file( geojsonurl, destfile=destfilepath )
 json.raw <- geojson_read( destfilepath, method="local", what="sp" )
 #plot(json.raw)

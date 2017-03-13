@@ -92,6 +92,17 @@ theme.confidence <- function(...) {
   )
 }
 
+
+## creation of folders for map output
+mainDir <- "out"
+subDir <- "/geo/maps/JOR/adm1"
+dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+
+mainDir <- "out"
+subDir <- "/geo/maps/JOR/adm2"
+dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+
+
 titlename <- c("number of individuals", 
            "number of children in the age of 0-14", "number of adolescent in the age of 15-17", "number of persons in working age (15-65)", "number of elderly in the age of 65+",
            "standard deviation of age within cases", "age of head of case", 
@@ -202,23 +213,14 @@ for (n in 1:length(list.adm1)) {
     labs(x = NULL, y = NULL, 
          title = "")
   p.confidence
-  
-  # path <- paste0("out/maps/JOR/average_numbers/adm1/JOR_ADM1_conf_",colname,".png")
-  # ggsave(path, p.map, width=10, height=10,units="in", dpi=300)
-  # 
-  # path <- paste0("out/maps/JOR/average_numbers/adm1_confidence/JOR_ADM1_avg_",colname,".png")
-  # ggsave(path, p.confidence, width=5, height=5,units="in", dpi=300)
-  # 
-  # path <- paste0("out/maps/JOR/average_numbers/adm1_numbers/JOR_ADM1_numb_",colname,".png")
-  # ggsave(path, p.number, width=5, height=5,units="in", dpi=300)
-  
+
   p <- ggdraw() +
     draw_plot(p.map, 0, 0, 0.5, 1) +
     draw_plot(p.number, 0.5, 0.5, 0.5, 0.5) +
     draw_plot(p.confidence, 0.5, 0, 0.5, 0.5) +
     draw_plot_label(c("", "", ""), c(0, 0.5, 0.5), c(0.5, 1, 0.5), size = 15)
   
-  path <- paste0("out/maps/JOR/average_numbers/adm1_final/JOR_ADM1_",colname,".png")
+  path <- paste0("out/geo/maps/JOR/adm1/JOR_ADM1_",colname,".png")
   ggsave(path, p, width=15, height=8,units="in", dpi=300)
 
 }
@@ -325,23 +327,14 @@ for (n in 1:length(list.adm2)) {
     labs(x = NULL, y = NULL, 
          title = "")
   p.confidence
-   
-  # path <- paste0("out/maps/JOR/average_numbers/adm2/JOR_ADM2_",colname,".png")
-  # ggsave(path, p.map, width=10, height=10,units="in", dpi=300)
-  # 
-  # path <- paste0("out/maps/JOR/average_numbers/adm2_confidence/JOR_ADM2_conf_",colname,".png")
-  # ggsave(path, p.confidence, width=5, height=5,units="in", dpi=300)
-  # 
-  # path <- paste0("out/maps/JOR/average_numbers/adm2_numbers/JOR_ADM2_numb_",colname,".png")
-  # ggsave(path, p.number, width=5, height=5,units="in", dpi=300)
-  
+
   p <- ggdraw() +
     draw_plot(p.map, 0, 0, 0.5, 1) +
     draw_plot(p.number, 0.5, 0.5, 0.5, 0.5) +
     draw_plot(p.confidence, 0.5, 0, 0.5, 0.5) +
     draw_plot_label(c("", "", ""), c(0, 0.5, 0.5), c(0.5, 1, 0.5), size = 15)
   
-  path <- paste0("out/maps/JOR/average_numbers/adm2_final/JOR_ADM2_",colname,".png")
+  path <- paste0("out/geo/maps/JOR/adm2/JOR_ADM2_",colname,".png")
   ggsave(path, p, width=15, height=8,units="in", dpi=300)
   
 }
@@ -427,53 +420,3 @@ for (n in 1:length(list.adm2)) {
 #     ggsave(path, p, width=10, height=10,units="in", dpi=300)
 #   }
 # }
-
-
-
-
-
-# Multiple plot function
-#
-# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
-# - cols:   Number of columns in layout
-# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
-#
-# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
-# then plot 1 will go in the upper left, 2 will go in the upper right, and
-# 3 will go all the way across the bottom.
-#
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-  library(grid)
-  
-  # Make a list from the ... arguments and plotlist
-  plots <- c(list(...), plotlist)
-  
-  numPlots = length(plots)
-  
-  # If layout is NULL, then use 'cols' to determine layout
-  if (is.null(layout)) {
-    # Make the panel
-    # ncol: Number of columns of plots
-    # nrow: Number of rows needed, calculated from # of cols
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                     ncol = cols, nrow = ceiling(numPlots/cols))
-  }
-  
-  if (numPlots==1) {
-    print(plots[[1]])
-    
-  } else {
-    # Set up the page
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-    
-    # Make each plot, in the correct location
-    for (i in 1:numPlots) {
-      # Get the i,j matrix positions of the regions that contain this subplot
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-      
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                      layout.pos.col = matchidx$col))
-    }
-  }
-}
