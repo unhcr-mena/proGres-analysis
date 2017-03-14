@@ -93,16 +93,6 @@ theme.confidence <- function(...) {
 }
 
 
-## creation of folders for map output
-mainDir <- "out"
-subDir <- "/geo/maps/JOR/adm1"
-dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-
-mainDir <- "out"
-subDir <- "/geo/maps/JOR/adm2"
-dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-
-
 titlename <- c("number of individuals", 
            "number of children in the age of 0-14", "number of adolescent in the age of 15-17", "number of persons in working age (15-65)", "number of elderly in the age of 65+",
            "standard deviation of age within cases", "age of head of case", 
@@ -112,7 +102,7 @@ titlename <- c("number of individuals",
 
 #jor <- get_map("Jordan", zoom = 7, maptype = "terrain")
 #jor <- get_map("Jordan", zoom = 7, source = "osm")
-jor <- get_map("Jordan", zoom = 7, maptype="satellite")
+jor <- get_map("Egypt", zoom = 7, maptype="satellite")
 #ggmap(jor)
 n=1
 #### SINGLE CHOROPLETH MAP LOOP AVERAGE ###############################################################################
@@ -220,7 +210,7 @@ for (n in 1:length(list.adm1)) {
     draw_plot(p.confidence, 0.5, 0, 0.5, 0.5) +
     draw_plot_label(c("", "", ""), c(0, 0.5, 0.5), c(0.5, 1, 0.5), size = 15)
   
-  path <- paste0("out/geo/maps/JOR/adm1/JOR_ADM1_",colname,".png")
+  path <- paste0("out/geo/maps/EGY/adm1/EGY_ADM1_",colname,".png")
   ggsave(path, p, width=15, height=8,units="in", dpi=300)
 
 }
@@ -341,82 +331,3 @@ for (n in 1:length(list.adm2)) {
 
 
 
-
-#not working so far
-# #### SINGLE CHOROPLETH MAP LOOP RATIO ###############################################################################
-# #ADMINLEVEL 1+2
-# 
-# 
-# for (n in 1:length(list.multifactor.ratio)) {       
-#   for (i in 11:length(list.multifactor.ratio[[n]])){  # loop for different data/columns within each admin level
-#     
-#     
-#     list.multifactor.ratio[[n]]$brks <- 0
-#     list.multifactor.ratio[[n]] <- list.multifactor.ratio[[n]][,c(ncol(list.multifactor.ratio[[n]]),1:(ncol(list.multifactor.ratio[[n]])-1))] #reorder data so that column 'brks' is at 3, first comma means keep all the rows
-#     df.multifactor.ratio[[n]]$fill <- 0
-#     df.multifactor.ratio[[n]] <- df.multifactor.ratio[[n]][,c(ncol(df.multifactor.ratio[[n]]),1:(ncol(df.multifactor.ratio[[n]])-1))] ## do the same in df.choropleth to match with index
-#     
-#     
-#     # var.labels <- df.labels.average[[2]][i]
-#     colname <- colnames(list.multifactor.ratio[[n]][i])
-#     natural.breaks <- (classIntervals(df.multifactor.ratio[[n]][,i-8], n = 5, style = "fisher", intervalClosure='right')$brks) #applied in df.choropleth because much faster as in map.data
-#     
-#     # compute breaks and labels
-#     labels <- c()
-#     brks <- natural.breaks
-#     for(idx in 1:length(brks)){
-#       labels <- c(labels,round(brks[idx + 1], 2))
-#     }
-#     labels <- labels[1:length(labels)-1]
-#     
-#     # define a new variable on the data set with computed breaks
-#     list.multifactor.ratio[[n]]$brks <- cut(list.multifactor.ratio[[n]][,i], 
-#                                            breaks = brks, 
-#                                            include.lowest = TRUE,
-#                                            label = labels)
-#     brks.scale <- levels(list.multifactor.ratio[[n]]$brks)
-#     labels.scale <- rev(brks.scale)
-#     
-#     
-#     # creation of map
-#     p <- ggplot() +
-#       # administrative polygons
-#       scale_alpha(name = "", range = c(0.6, 0), guide = F)  + 
-#       geom_polygon(data = list.multifactor.ratio[[n]], aes(x = long, 
-#                                                           y = lat, 
-#                                                           group = group, alpha = 0.5)) +
-#       geom_polygon(data = list.multifactor.ratio[[n]], aes(fill = brks, 
-#                                                           x = long, 
-#                                                           y = lat, 
-#                                                           group = group)) +
-#       # administrative border
-#       geom_path(data = list.multifactor.ratio[[n]], aes(x = long, 
-#                                                        y = lat, 
-#                                                        group = group), 
-#                 color = "white", size = 0.1) +
-#       coord_equal() +
-#       # map text and styling
-#       theme_map() +
-#       labs(x = NULL, 
-#            y = NULL, 
-#            title = paste0("Average ",colname,"\nby registered in Jordan governorates as place of asylum"),
-#            #subtitle =  paste0("Based on registration data by UNHCR. Percentage of mapped cases: ",response.percentage.list[[n]],"%"),
-#            caption = "Datasource:\nUNHCR proGres\nUNHCR Github repository 'p-codes'") + 
-#       scale_fill_manual(
-#         values = rev(magma(8, alpha = 0.8)[2:7]),
-#         breaks = rev(brks.scale),
-#         # name = paste0("Average of ",colname),
-#         drop = FALSE,
-#         labels = labels.scale,
-#         guide = guide_legend(
-#           byrow = T,
-#           reverse = T,
-#           label.position = "bottom"
-#         )
-#       )
-#     p
-#     
-#     path <- paste0("out/maps/JOR/percent_facets/adm",n,"/JOR_ADM",n,"_avg_",colname,".png")
-#     ggsave(path, p, width=10, height=10,units="in", dpi=300)
-#   }
-# }

@@ -25,6 +25,16 @@ incomplete.rows
 # data.progrescase.complete <- na.omit(data.progrescase) # would delete all incomplete rows
 
 
+##############################
+## Add iso3 countrycodes for merge with geojson later
+country.codes <- read.csv("data/countrycodes.csv")
+# data.progrescase <- merge(data.progrescase, country.codes, by.x = "CountryAsylum", by.y = "P_Code", all.x=TRUE)
+# data.progrescase$ISO_Alpha_3Code[data.progrescase$ISO_Alpha_3Code == NA] <- "GCC"
+# data.progrescase$ISO_Alpha_3Code <- factor(data.progrescase$ISO_Alpha_3Code, levels = c("DZA",  "EGY",  "GCC", "IRN",  "IRQ" , "ISR" , "JOR" , "LBY",  "LBN" , "MRT"  ,"MAR",  "SYR" , "TUN",  "TUR",  "YEM" ))
+
+# unique(data.progrescase.iso$CountryAsylum)
+# unique(data.progrescase.iso$ISO_Alpha_3Code)
+
 
 
 ### Recoding of categorical data with adding of category 'noData' for NA or empty cells
@@ -260,6 +270,7 @@ data.progrescase$CountryOriginCategory <- as.factor(recode(data.progrescase$Coun
                                              NA = 'noData';
                                              ''= 'noData'"))
 data.progrescase$CountryOriginCategory <- factor(data.progrescase$CountryOriginCategory, levels = c("SYR","IRQ","AFG","IRN","HORN","AFR", "MENA", "ASIA", "OTH", "Unknown", "noData"))
+
 
 
 
