@@ -1,5 +1,51 @@
 ## clear workspace except necessary aggregation function
-keep(summarySE, country.codes, sure = TRUE)
+keep(country.codes, sure = TRUE)
+
+
+## Function to summarize data, source (http://www.cookbook-r.com/Manipulating_data/Summarizing_data/):
+## Gives count, mean, standard deviation, standard error of the mean, and confidence interval (default 95%).
+##   data: a data frame.
+##   measurevar: the name of a column that contains the variable to be summariezed
+##   groupvars: a vector containing names of columns that contain grouping variables
+##   na.rm: a boolean that indicates whether to ignore NA's
+##   conf.interval: the percent range of the confidence interval (default is 95%)
+summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
+                      conf.interval=.95, .drop=TRUE) {
+  library(plyr)
+  
+  # New version of length which can handle NA's: if na.rm==T, don't count them
+  length2 <- function (x, na.rm=FALSE) {
+    if (na.rm) sum(!is.na(x))
+    else       length(x)
+  }
+  
+  # This does the summary. For each group's data frame, return a vector with
+  # N, mean, and sd
+  datac <- ddply(data, groupvars, .drop=.drop,
+                 .fun = function(xx, col) {
+                   c(N    = length2(xx[[col]], na.rm=na.rm),
+                     mean = mean   (xx[[col]], na.rm=na.rm),
+                     sd   = sd     (xx[[col]], na.rm=na.rm)
+                   )
+                 },
+                 measurevar
+  )
+  
+  # Rename the "mean" column    
+  datac <- rename(datac, c("mean" = measurevar))
+  
+  datac$se <- datac$sd / sqrt(datac$N)  # Calculate standard error of the mean
+  
+  
+  # Confidence interval multiplier for standard error
+  # Calculate t-statistic for confidence interval: 
+  # e.g., if conf.interval is .95, use .975 (above/below), and use df=N-1
+  ciMult <- qt(conf.interval/2 + .5, datac$N-1)
+  datac$ci <- datac$se * ciMult
+  
+  
+  return(datac)
+}
 
 ##############################
 ## load prepared data
@@ -20,8 +66,10 @@ country<- country[!country$P_Code == "LEB", ] #remove as long as geojson has dif
 
 
 ## create list for mapping data that will be filled in the loop by joining countrydata and geojson
+adm1.list <- list()
+adm2.list <- list()
 mapdata.list <- list()
-
+consistency.table <- NULL
 
 ## looping spatial data aggregation through all countries
 for (i in 1:nrow(all.countries)) {
@@ -38,12 +86,13 @@ adm2 <- adm1[grep(pcode, adm1$coal2id), ] #only rows where adm1 and adm2 are con
 ## let's check how much percent of data is consistent within each country and adminlevel
 ## rows where CountryAsylum has countrycode is considered as total
 ## create empty consistency table and fill with accuracy percentage data
-consistency.table <-data.frame(adm0=NA, adm1=NA, adm2=NA)[numeric(1), ]
-consistency.table[i,1] <- nrow(df_CountryAsylum)
-consistency.table[i,2] <- round((nrow(adm1)/consistency.table[i,1]), digits = 2)
-consistency.table[i,3] <- round((nrow(adm2)/consistency.table[i,1]), digits = 2)
-pct.consistent.data.adm1 <- round((nrow(adm1)/nrow(df_CountryAsylum)), digits = 2) # if nrow country codes is considered as total 
-pct.consistent.data.adm2 <- round((nrow(adm2)/nrow(df_CountryAsylum)), digits = 2) # if nrow country codes is considered as total 
+
+total <- nrow(df_CountryAsylum)
+pct.adm1 <- round((nrow(adm1)/total), digits = 2) # if nrow country codes is considered as total 
+pct.adm2 <- round((nrow(adm2)/total), digits = 2) # if nrow country codes is considered as total 
+
+consistency.table <- rbind(consistency.table, data.frame(iso3, total, pct.adm1, pct.adm2))
+
 
 ## change column names of key columns for successful join with geojson
 names(adm1)[names(adm1) == 'coal1id'] <- 'idprogres'
@@ -74,6 +123,8 @@ adm1.sex <- adm1[adm1$dem_sex !=c("Unknown","U","f","m","-"), ]
 adm2.sex <- adm2[adm2$dem_sex !=c("Unknown","U","f","m","-"), ]
 
 
+
+
 ##############################
 ## store data of adm1 and adm2 together in one list
 data.country.list <- list(adm1, adm2)
@@ -100,6 +151,7 @@ adm1.case.female.headed <- summarySE(adm1.sex, measurevar="female.headed", group
 
 #join all processed variables to one list for mapping purpose and delete variables for better variable management
 list.adm1 <- list(adm1.Num_Inds, adm1.Child_0_14, adm1.Youth_15_17, adm1.Work_15_64, adm1.Eldern_65, adm1.case.STDEV_Age, adm1.head.dem_age, adm1.case.female, adm1.case.male, adm1.case.only.female, adm1.case.only.male, adm1.case.female.headed, adm1.case.dependency, adm1.case.youthdependency, adm1.case.elederndependency)
+adm1.list[[iso3]] <- list(list.adm1)
 rm(adm1.Num_Inds, adm1.Child_0_14, adm1.Youth_15_17, adm1.Work_15_64, adm1.Eldern_65, adm1.case.STDEV_Age, adm1.head.dem_age, adm1.case.female, adm1.case.male, adm1.case.only.female, adm1.case.only.male, adm1.case.female.headed, adm1.case.dependency, adm1.case.youthdependency, adm1.case.elederndependency)
 
 
@@ -125,6 +177,7 @@ adm2.case.female.headed <- summarySE(adm2.sex, measurevar="female.headed", group
 
 #join all processed variables to one list for mapping purpose and delete variables for better variable management
 list.adm2 <- list(adm2.Num_Inds, adm2.Child_0_14, adm2.Youth_15_17, adm2.Work_15_64, adm2.Eldern_65, adm2.case.STDEV_Age, adm2.head.dem_age, adm2.case.female, adm2.case.male, adm2.case.only.female, adm2.case.only.male, adm2.case.female.headed, adm2.case.dependency, adm2.case.youthdependency, adm2.case.elederndependency)
+adm2.list[[iso3]] <- list(list.adm2)
 rm(adm2.Num_Inds, adm2.Child_0_14, adm2.Youth_15_17, adm2.Work_15_64, adm2.Eldern_65, adm2.case.STDEV_Age, adm2.head.dem_age, adm2.case.female, adm2.case.male, adm2.case.only.female, adm2.case.only.male, adm2.case.female.headed, adm2.case.dependency, adm2.case.youthdependency, adm2.case.elederndependency)
 
 
@@ -158,12 +211,11 @@ json.raw <- gBuffer(json.raw, byid=TRUE, width=0)
 json.raw@data$id = rownames(json.raw@data)
 map.data.fortified <- fortify(json.raw, region = "id")
 map.data <- plyr::join(map.data.fortified, json.raw@data, by="id") #joining dataframe with geojson-data
-map.data.process <- map.data[, c("long", "lat", "order", "id", "group", "gid", "name", "iso3", "idprogres")] # subset with only needed columns to accelerate performance
+map.data <- map.data[, c("long", "lat", "order", "id", "group", "gid", "name", "iso3", "idprogres")] # subset with only needed columns to accelerate performance
 name <- paste0(iso3,"_adm1",sep='')
 
 ## write data in list instead of saving to save time
-mapdata.list[[name]] <- map.data.process
-
+mapdata.list[[name]] <- map.data
 rm(map.data.fortified, destfilepath, json.raw, geojsonurl)
 
 ## creation of folders for map output
@@ -187,33 +239,33 @@ dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
 
 
 
-#######
-# ADM2
-
-
-geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/JOR/ADM2.geojson")
-
-
-filename <- "JOR_ADM2.geojson"
-destfilepath <- paste0("out/geo/geojson/", filename )
-
-download.file( geojsonurl, destfile=destfilepath )
-json.raw <- geojson_read( destfilepath, method="local", what="sp" )
-#plot(json.raw)
-
-proj4string(json.raw) # describes current coordinate reference system: here "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
-json.raw <- spTransform(json.raw,
-                         CRS("+proj=longlat +datum=WGS84")) # change in this system to match with basemap later
-
-# fortify, i.e., make ggplot2-compatible
-json.raw@data$id = rownames(json.raw@data)
-map.data.fortified <- fortify(json.raw, region = "id")
-map.data <- plyr::join(map.data.fortified, json.raw@data, by="id") #joining dataframe with geojson-data
-map.data2 <- map.data[, c("long", "lat", "order", "id", "group", "admin_unhcr2_fid", "adm2name", "idcountry", "idadm2")] # subset with only needed columns to accelerate performance
-rm(map.data.fortified, destfilepath, json.raw, geojsonurl)
-
-####################
-####################
+# #######
+# # ADM2
+# 
+# 
+# geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/JOR/ADM2.geojson")
+# 
+# 
+# filename <- "JOR_ADM2.geojson"
+# destfilepath <- paste0("out/geo/geojson/", filename )
+# 
+# download.file( geojsonurl, destfile=destfilepath )
+# json.raw <- geojson_read( destfilepath, method="local", what="sp" )
+# #plot(json.raw)
+# 
+# proj4string(json.raw) # describes current coordinate reference system: here "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
+# json.raw <- spTransform(json.raw,
+#                          CRS("+proj=longlat +datum=WGS84")) # change in this system to match with basemap later
+# 
+# # fortify, i.e., make ggplot2-compatible
+# json.raw@data$id = rownames(json.raw@data)
+# map.data.fortified <- fortify(json.raw, region = "id")
+# map.data <- plyr::join(map.data.fortified, json.raw@data, by="id") #joining dataframe with geojson-data
+# map.data2 <- map.data[, c("long", "lat", "order", "id", "group", "admin_unhcr2_fid", "adm2name", "idcountry", "idadm2")] # subset with only needed columns to accelerate performance
+# rm(map.data.fortified, destfilepath, json.raw, geojsonurl)
+# 
+# ####################
+# ####################
 
 
 

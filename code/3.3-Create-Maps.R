@@ -1,5 +1,9 @@
 #source("code/0-packages.R")
 # source("code/3-Create-Maps-data-preparation.R")
+
+## clear workspace except necessary aggregation function
+#keep(country, consistency.table,sure = TRUE)
+
 devtools::install_github("wilkelab/cowplot")
 library(cowplot)
 
@@ -93,21 +97,27 @@ theme.confidence <- function(...) {
 }
 
 
-titlename <- c("number of individuals", 
+
+
+titles <- c("number of individuals", 
            "number of children in the age of 0-14", "number of adolescent in the age of 15-17", "number of persons in working age (15-65)", "number of elderly in the age of 65+",
            "standard deviation of age within cases", "age of head of case", 
            "number of females", "number of males", "number of cases with only female members", "number of cases with only male members", "number of female headed cases",
            "number of dependent persons (children < 14 & elderly 65+)", "number of dependent children < 14", "number of dependent elderly 65 +")
 
 
-#jor <- get_map("Jordan", zoom = 7, maptype = "terrain")
-#jor <- get_map("Jordan", zoom = 7, source = "osm")
-jor <- get_map("Egypt", zoom = 7, maptype="satellite")
-#ggmap(jor)
+## create list with all basemaps
+#basemap <- get_map("Jordan", zoom = 7, maptype = "terrain")
+#basemap <- get_map("Jordan", zoom = 7, source = "osm")
+jordan.map <- get_map("Jordan", zoom = 7, maptype="satellite")
+#ggmap(basemap)
+
+
 n=1
 #### SINGLE CHOROPLETH MAP LOOP AVERAGE ###############################################################################
 #ADMINLEVEL1
 for (n in 1:length(list.adm1)) {       
+  
   
   
   # now we join the thematic data
@@ -153,7 +163,7 @@ for (n in 1:length(list.adm1)) {
     theme.base() +
     theme.choropleth() +     # map text and styling
     labs(x = NULL, y = NULL, 
-         title = paste0("Average ",titlename[n],"\nby Governorate of Jordan as place of asylum"),
+         title = paste0("Average ",titles[n],"\nby Governorate of Jordan as place of asylum"),
          subtitle =  paste0("Based on registration data by UNHCR. Percentage of mapped cases in total: ",pct.consistent.data.adm1,"%\n(percent shows consistent data rows as proportion of all registered cases for this country)"),
          caption = "Datasource:\nUNHCR proGres\nUNHCR Github repository 'p-codes'") + 
     scale_fill_manual( values = rev(magma(8, alpha = 0.8)[2:7]), breaks = rev(brks.scale),
