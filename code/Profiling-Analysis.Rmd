@@ -1,21 +1,24 @@
 ---
-title: "Cluster Analysis for Profiling of Syrian Refugees in Egypt, Iraq, Jordan & Lebanon"
+title: "Profiling Analysis of Syrian Refugees in Egypt, Iraq, Jordan & Lebanon"
 author: "UNHCR MENA Regional Protection Service - Information Management"
 date: "`r Sys.Date()`"
 output:
-  pdf_document:
+  word_document: 
     fig_caption: yes
-    number_sections: yes
+    fig_height: 5
+    fig_width: 10
     toc: yes
-    toc_depth: 3
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library("knitr")
+library(knitr)
 library(FactoMineR) ## Multiple correspondance analysis and classification
 library(factoextra)
-library("ggplot2")
+library(ggplot2)
+library(reshape2)
+library(simFrame)
+library(sampling)
 ```
 
 
@@ -26,6 +29,8 @@ samplesize <- 10000
 #getwd("D:/R-project/proGres-analysis")
 ## Load the pre-processed dataset (cf "code/1-recode-data.R"")
 data1 <- read.csv("D:/R-project/proGres-analysis/data/progrescase-1.csv")
+# data1 <- progres.case.sp
+
 ##Load packages
 ## load all packages
 source("D:/R-project/proGres-analysis/code/0-packages.R")
@@ -34,24 +39,53 @@ source("D:/R-project/proGres-analysis/code/0-packages.R")
 
 data <- data1
 
-## Subset for Syria
+## Subset for Syria & main countries
+data <-data[  data$CountryAsylum %in% c("JOR","LEB", "ARE", "IRQ"), ]
+data$CountryAsylum <- as.character(data$CountryAsylum)
+data$CountryAsylum <- as.factor(data$CountryAsylum)
+
+#prop.table(table(data$CountryAsylum, useNA = "ifany"))
+
 data <-data[ data$CountryOrigin == "SYR", ]
 
 ## Reorder factor levels
-data$dependency <-  factor(data$dependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
-data$youthdependency <-  factor(data$youthdependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
-data$elederndependency <-  factor(data$elederndependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
-data$female.ratio <-  factor(data$female.ratio, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
-data$STDEVAgeclass <-  factor(data$STDEVAgeclass, levels = c( "0", "(0.001,5]", "(5,10]", "(10,15]", "(15,20]", "(20,Inf]"))
-data$AVGAgecohort <-  factor(data$AVGAgecohort, levels = c( "0", "(0.1,18]", "(18,25]", "(25,35]", "(35,45]","(45,59]", "(59,Inf]"))
-data$season <- factor(data$season, levels = c("Spring", "Summer", "Autumn", "Winter"))
+#data$dependency <-  factor(data$dependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+#data$youthdependency <-  factor(data$youthdependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+#data$elederndependency <-  factor(data$elederndependency, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+#data$female.ratio <-  factor(data$female.ratio, levels = c( "0", "(0.001,0.2]", "(0.2,0.4]", "(0.4,0.6]", "(0.6,0.8]", "(0.8,Inf]"))
+#data$STDEVAgeclass <-  factor(data$STDEVAgeclass, levels = c( "0", "(0.001,5]", "(5,10]", "(10,15]", "(15,20]", "(20,Inf]"))
+#data$AVGAgecohort <-  factor(data$AVGAgecohort, levels = c( "0", "(0.1,18]", "(18,25]", "(25,35]", "(35,45]","(45,59]", "(59,Inf]"))
+#data$season <- factor(data$season, levels = c( "Winter","Spring", "Summer", "Autumn"))
+#levels(data$season)
+
+data$YearArrivalCategory <- factor(data$YearArrivalCategory, levels = c("2011.or.before.or.unkown", "2011", "2012", "2013", "2014", "2015", "2016.and.2017"))
+
 data$CountryOriginCategory <- factor(data$CountryOriginCategory, levels = c("SYR","IRQ","AFG","IRN","HORN","AFR", "MENA", "ASIA", "OTH"))
 data$Montharrival <- factor(data$Montharrival, levels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"))
-data$edu_highestcat <- factor(data$edu_highestcat, levels = c("Unknown", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14", "Higher Education"))
-data$dem_marriagecat <- factor(data$dem_marriagecat, levels = c("Engaged", "Single", "Married", "Widowed", "Separated", "Divorced","Unknown"))
-data$occupationcat <- factor(data$occupationcat, levels = c("Manager-Professional-Technician-Technician", "ServiceMarket",
-                                                                            "Agricultural", "Craft-Machine", "Elementary", "Military",
-                                                                            "UnknownOccup", "NoOccup", "Student"))
+
+data$edu_highestcat <- factor(data$edu_highestcat, 
+                              #levels = c("Unknown", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14", "Higher Education"))
+                              levels = c("Unknown","No education", "Other", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14",  "Higher Education"))
+#data$dem_marriagecat <- factor(data$dem_marriagecat, levels = c("Engaged", "Single", "Married", "Widowed", "Separated", "Divorced","Unknown"))
+#data$occupationcat <- factor(data$occupationcat, levels = c("Manager-Professional-Technician-Technician", "ServiceMarket",
+#                                                                            "Agricultural", "Craft-Machine", "Elementary", "Military",
+#                                                                            "UnknownOccup", "NoOccup", "Student"))
+
+
+
+### Check sp needs
+#prop.table(table(data$At.Risk, useNA = "ifany"))
+#prop.table(table(data$Child.Labour, useNA = "ifany"))
+#prop.table(table(data$Child.marriage..parent.or.pregnancy, useNA = "ifany"))
+#prop.table(table(data$Family.Needs, useNA = "ifany"))
+#prop.table(table(data$Marginalised, useNA = "ifany"))
+#prop.table(table(data$Medical, useNA = "ifany"))
+#prop.table(table(data$Need.of.Care, useNA = "ifany"))
+#prop.table(table(data$Problem.with.violence.law.recruitment, useNA = "ifany"))
+#prop.table(table(data$Separated.Child, useNA = "ifany"))
+#prop.table(table(data$Single.Parent, useNA = "ifany"))
+#prop.table(table(data$Victim.of.Violence, useNA = "ifany"))
+#prop.table(table(data$Woman.at.Risk, useNA = "ifany"))
 
 
 data.JOR <-data[data$CountryAsylum == "JOR", ]
@@ -59,38 +93,71 @@ data.LEB <-data[data$CountryAsylum == "LEB", ]
 data.ARE <-data[data$CountryAsylum == "ARE", ]
 data.IRQ <-data[data$CountryAsylum == "IRQ", ]
 
+### Need to rebuild factor level for cool1 & coal1 for each country
+
+#levels(data.JOR$cool1Cat)
+data.JOR$cool1Cat <- as.character(data.JOR$cool1Cat)
+data.JOR$cool1Cat <- as.factor(data.JOR$cool1Cat)
+data.JOR$coal1Cat <- as.character(data.JOR$coal1Cat)
+data.JOR$coal1Cat <- as.factor(data.JOR$coal1Cat)
+#levels(data.JOR$cool1Cat)
+#table(data.JOR$cool1Cat)
+#prop.table(table(data.JOR$cool1Cat, useNA = "ifany"))
+
+
+data.LEB$cool1Cat <- as.character(data.LEB$cool1Cat)
+data.LEB$cool1Cat <- as.factor(data.LEB$cool1Cat)
+data.LEB$coal1Cat <- as.character(data.LEB$coal1Cat)
+data.LEB$coal1Cat <- as.factor(data.LEB$coal1Cat)
+
+
+data.ARE$cool1Cat <- as.character(data.ARE$cool1Cat)
+data.ARE$cool1Cat <- as.factor(data.ARE$cool1Cat)
+data.ARE$coal1Cat <- as.character(data.ARE$coal1Cat)
+data.ARE$coal1Cat <- as.factor(data.ARE$coal1Cat)
+
+
+data.IRQ$cool1Cat <- as.character(data.IRQ$cool1Cat)
+data.IRQ$cool1Cat <- as.factor(data.IRQ$cool1Cat)
+data.IRQ$coal1Cat <- as.character(data.IRQ$coal1Cat)
+data.IRQ$coal1Cat <- as.factor(data.IRQ$coal1Cat)
+
 
 
 ```
+# Executive Summary
 
-This study is an attempt to improve the profiling of Syrian refugees living in Egypt, Iraq, Jordan & Lebanon. The objective is to define a series of consistent profile within this population group. The study presents the results of advanced statistical techniques, caled "cluster analysis". 
+
+
+
 
 ***
 
 # Introduction
 
-## Methodology
-
 An important challenge to understand the profile of a population is to discover how categories interact together. Refugees profiles are defined by multiple categories.  Univariate analysis does not allow to get a synthetic vision from a large set of variables that can describe a population. Because of inherent brain & cognitive limitations, it is challenging to process together more than 7 categories and to make sense out of too many graphs.
 
-Since the 70's, Social scientist have developed advanced __exploratory__ techniques that allow to discover statistical clusters among a specific population. Cluster analysis is an exploratory data analysis tool wich aims to group a set of records in such a way that records in the same group are more similar to each other than to those in other groups. The groups of similar records are called clusters.
+## Methodology
 
-[Multiple Correspondence Analysis (MCA)](https://en.wikipedia.org/wiki/Multiple_correspondence_analysis) together with [Hierarchical Classification on Principle Components](http://factominer.free.fr/classical-methods/hierarchical-clustering-on-principal-components.html) allow to process nominal categorical data (as it is the case for Refugee biodata) in order to detect and represent the underlying structures in a data set. Those analysis are performed with the [R statistical language](http://www.sthda.com/english/wiki/hcpc-hierarchical-clustering-on-principal-components-hybrid-approach-2-2-unsupervised-machine-learning).
+Since the 70's, Social scientist have developed advanced __exploratory__ techniques that allow to discover statistical profiles among a specific population. Clustering is an exploratory data analysis tool wich aims to group a set of records in such a way that records in the same group are more similar to each other than to those in other groups. [Multiple Correspondence Analysis (MCA)](https://en.wikipedia.org/wiki/Multiple_correspondence_analysis) together with [Hierarchical Classification on Principle Components](http://factominer.free.fr/classical-methods/hierarchical-clustering-on-principal-components.html) allow to process nominal categorical data (as it is the case for Refugee biodata) in order to detect and represent the underlying structures in a data set. This approach is based on looking at description to generate induction rather than testing an hypothesis according to model. Those analysis are performed with the [R statistical language](http://www.sthda.com/english/wiki/hcpc-hierarchical-clustering-on-principal-components-hybrid-approach-2-2-unsupervised-machine-learning).
+
+![Correspondence Analysis Handbook : J.-P. Benzecri (1992).](bencrezi.jpg)
+
 
 This approach implies 5 simple steps:
 
  *  __Dimensionnality reduction__: Reduce the numbers of dimensions to two main composite dimensions in order to represent each observation in a 2D space.
  *  __Composition of the 2 axis__: Describe the componnent of each axis
  *  __Categories Representation__: This allow to visualise how close different variables are
- *  __Clustering__: Cluster records using the underlying proximity between variables
- *  __Modalities within each group__: Describe the main variable modalities that describe the cluster.
+ *  __Clustering__: Records are grouped according to profile using the underlying proximity between variables
+ *  __Modalities within each group__: Describe the main variable modalities that describe the profile.
  *  __Overview of groups__: Display the frequency of each group as well the breakdown of specific needs within each group.
  
-The variable modalities in the cluster can be __interpreted__ using the following information: 
+The variable modalities in each of the profiles can be __interpreted__ using the following information: 
 
- * _Cla/Mod_ is the pourcentage of records who have that modality who in that the statistical cluster (for instance: 50.3% of the cases who have a head of family who marrital status is single also belongs to statistical cluster 1)
+ * _Cla/Mod_ is the pourcentage of records who have that modality and who are in that the profile (for instance: 50.3% of the cases who have a head of family who marrital status is single also belongs to profile 1)
 
- * _Mod/Cla_ is the pourcentage of records in that statistical cluster who have that modality (for instance: 81.5% of the cases of statistical cluster  1 have a head of family who marrital status is single )
+ * _Mod/Cla_ is the pourcentage of records in that profile who have that modality (for instance: 81.5% of the cases of profile  1 have a head of family who marrital status is single )
 
  * _Global_ is the global pourcentage of all records who have that modality (for instance: in all population, 51.67% of of the cases who have a head of family who marrital status is single.)
 
@@ -98,33 +165,429 @@ The variable modalities in the cluster can be __interpreted__ using the followin
  
  * _v-test_ If the v-test is positive, it means that the category is over-expressed for the category and if the v-test is negative it means that the category is under-expressed for the category.What is interesting in the v-test is only the sign of the v-test.
 
-## Data
+## Overview of available data
 
-The __analysis is performed at the case level__. The approach described above is applied for Syrian cases living in Egypt, Jordan , Iraq & Lebanon. A sample of 10,000 cases is randomly selected for each country in order to perform the analysis below.
+The __analysis is performed at the case level__. The approach described above is applied for Syrian cases living in Egypt, Jordan , Iraq & Lebanon. The computation of the analysis is very heavy in terms of computer ressources. For that reason, a sample of 10,000 cases is randomly selected for each country in order to perform the analysis below.
 
-The variables used for the analysis are processed to limit the number of modalities (reclassification) and to ensure a sufficient number of observation in each modalitiy. The variables are the following:
+The variables used for the analysis are processed to limit the number of modalities (reclassification) and to ensure a sufficient number of observation in each modalitiy. 
 
-Variable             | Description
----------------------|---------------------------------------
-Case.size            | Size of the household - Discretisation & recategorisation of the Number of Individual in the household 
-dem_marriagecat      | Recategorisation of the Marrital status of the head of Household 
-dem_sex              | Sex of the head of Household
-dependency           | [Dependency Ratio](https://en.wikipedia.org/wiki/Dependency_ratio) (Child + Eldern / Working)
-youthdependency      | Youth Dependency Ratio (Child + Eldern / Working)
-elederndependency    | Youth Dependency Ratio (Child + Eldern / Working)
-agecohort            | Age of the head of Household categorised in 5 classes
-AVGAgecohort         | Average age within the household categorised in 5 classes
-STDEVAgeclass        | Standard Deviation of ages within the household categorised in 5 classes
-female.ratio         | % of Female in the Household categorised in 5 classes 
-YearArrivalCategory  | Discretisation & recategorisation of the Year of Arrival
-season               | Discretisation & recategorisation of the Month of Arrival variable
-cool1                | Administrative level 1 in Country of Origin- classes with 
--                    | low numbers are aggregated. Unknown adresses are recorded as 'other'. 
-coal1                | Administrative level 1 in Country of Asylum- classes  
--                    | with low numbers are aggregated. Unknown adresses are recorded as 'other'.
-occupationcat        | Recategorisation of the Occupation type  of the head of Household according to
--                    | [International Standard Classification of Occupations](http://www.ilo.org/public/english/bureau/stat/isco/isco08/) 
-edu_highestcat       | Recategorisation of the Highest education level of the head of Household 
+__Disclaimer__: When looking at the data below, the dimension and importance of data quality should always be considered. Specific patterns can allow to detect real life phenomenon but can also translate potential flaw in the data collection process.
+
+
+### Case Size 
+
+The variable is labelled __Case.size__.
+
+The Size of the household is the discretisation & recategorisation of the Number of Individual in the household. Households with more than 7 members are grouped together.
+
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data, aes(x=Case.size)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+### Marrital status of the head of Household 
+
+The variable is labelled __dem_marriagecat__.
+
+This variable is a recategorisation of the variable from proGres in 4 main classes.
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data, aes(x=dem_marriagecat)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.2))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+### Sex of the head of Household
+
+The variable is labelled __dem_sex__.   
+
+For the sake of analysis below, the very few head of Household with "unknown" are not presented.
+
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data[data$dem_sex %in% c("Male", "Female"), ], aes(x=dem_sex)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.2))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+### Dependency Ratio  within household 
+
+The variable is labelled __dependency__. 
+ 
+[Dependency Ratio](https://en.wikipedia.org/wiki/Dependency_ratio) represents the total number of Child (up to 14 years included) plus Eldern (above 65 years old included) divided by the number of household members who are in the Working age bracket (15 to 64 years included). 
+
+For analysis purpose, the ratio is then categorise in the following 4 classes:  
+
+ * 1.no.dependant: ratio is 0% 
+ * 2.few.dependant: ratio less than 99% 
+ * 3.half.dependant: ratio between 99 & 101% 
+ * 4.majority.dependant: ratio is above 101%
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data, aes(x=dependency)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per case size per country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+### Youth Dependency Ratio  within household 
+
+The variable is labelled __youthdependency__.
+
+Youth Dependency Ratio (Child / Working) represents the total number of Child (up to 14 years included) divided by the number of household members who are in the Working age bracket (15 to 64 years included).
+
+For analysis purpose, the ratio is then categorise in the following 4 classes:
+
+ * 1.no.dependant: ratio is 0% 
+ * 2.few.dependant: ratio less than 99% 
+ * 3.half.dependant: ratio between 99 & 101% 
+ * 4.majority.dependant: ratio is above 101%
+
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data, aes(x=youthdependency)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+### Eldern Dependency Ratio within household 
+
+The variable is labelled __elederndependency__.
+Dependency Ratio for Eldern (Eldern / Working) represents the total number of Child (up to 14 years included) divided by the number of household members who are in the Working age bracket (15 to 64 years included).
+
+For analysis purpose, the ratio is then categorise in the following 4 classes: 
+
+ * 1.no.dependant: ratio is 0% 
+ * 2.few.dependant: ratio less than 99% 
+ * 3.half.dependant: ratio between 99 & 101% 
+ * 4.majority.dependant: ratio is above 101%
+ 
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data, aes(x=elederndependency)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.2))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+### Female Ratio within household 
+
+The variable is labelled __female.ratio__.
+
+For analysis purpose, the ratio of Female in the Household is then categorise in the following 4 classes: 
+
+ * 1.no.female: ratio is 0% 
+ * 2.few.female: ratio less than 45% 
+ * 3.half.female: ratio between 45 & 55% 
+ * 4.most.female: ratio is between 56% & 99%
+ * 4.all.female: ratio is 99%
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data, aes(x=female.ratio)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+### Age of the head of Household 
+
+The variable is labelled __agecohort__.  
+Age of the head of Household categorised in 5 classes corresponding to different age bracket.
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data, aes(x=agecohort)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+### Average age within the household
+
+The variable is labelled __AVGAgecohort__.
+Average age within the household categorised in 5 classes corresponding to different age bracket.
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data, aes(x=AVGAgecohort)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+
+### Deviation of ages within the household  
+
+The variable is labelled __STDEVAgeclass__.
+Standard Deviation of ages within the household categorised in 5 classes corresponding to different age difference bracket.
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data, aes(x=STDEVAgeclass)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+
+### Year of Arrival  
+
+The variable is labelled __YearArrivalCategory__.
+
+Discretisation & recategorisation of the Year of Arrival.
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data, aes(x=YearArrivalCategory)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+
+
+
+### Occupation type  of the head of Household 
+
+
+The variable is labelled __occupationcat__.
+
+Recategorisation of the Occupation type  of the head of Household according to [International Standard Classification of Occupations](http://www.ilo.org/public/english/bureau/stat/isco/isco08/) 
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data, aes(x=occupationcat)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+### Highest education level of the head of Household 
+
+The variable is labelled __edu_highestcat__.
+
+Recategorisation of the Highest education level of the head of Household 
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data, aes(x=edu_highestcat)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+
+### Administrative unit in the country of Origin & asylum 
+classes with low numbers (with a relative frequency of less than 1%) are aggregated together with Unknown adresses as 'other'. 
+
+
+Thes variables are labelled __cool1Cat__ , __cool2Cat__ for Country of Origin and __coal1Cat__, __coal2Cat__ for Country of Asylum.
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(data, aes(x=cool1Cat)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per governorate of origin & country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+ggplot(data, aes(x=cool2Cat)) +
+      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+               fill="#2a87c8",colour="#2a87c8") +
+      facet_wrap(~CountryAsylum, ncol=4) +
+      guides(fill=FALSE) +
+      ylab("Frequency") +
+      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
+      xlab("") +
+      coord_flip() +
+      ggtitle("Percentage of case per disctrict of origin & country of asylum")+
+      theme(plot.title=element_text(face="bold", size=9),
+            plot.background = element_rect(fill = "transparent",colour = NA))
+
+```
+
+## Specific Needs
+
+Specific Needs are recorded at the individual level during registration using a [series of code](https://cms.emergency.unhcr.org/documents/11982/43248/UNHCR,+Guidance+on+the+Use+of+Standardized+Specific+Needs+Codes+Annex+2+IOM+030-FOM+030-2009/cf93c655-c996-4573-8681-23b3824d058d).
+
+To retranscript the information at the case level, 2 steps are taken: 
+
+ * Specific needs code are aggregated in larger categories
+ 
+ * Occurence of specific needs are described as yes/no within each household.
+ 
+
+
+```{r, echo=FALSE, warning=FALSE}
+
+data.need <- data[ , c("CaseNo","CountryAsylum",  "At.Risk", "Child.Labour", "Child.marriage..parent.or.pregnancy", "Family.Needs", "Marginalised", "Medical",  "Need.of.Care", "Problem.with.violence.law.recruitment", "Separated.Child", "Single.Parent", "Unaccompanied", "Victim.of.Violence",  "Woman.at.Risk")]
+
+data.need.metlt <- melt(data.need, id.vars = c("CaseNo", "CountryAsylum"),
+                        variable.name = "specificcat", 
+                        value.name = "num.case")
+
+##prop.table(table(data.need.metlt$specificcat,data.need.metlt$num.case, data.need.metlt$CountryAsylum, useNA = "ifany"))
+
+need.prop <- as.data.frame(prop.table(table(data.need.metlt$specificcat,data.need.metlt$num.case)))
+need.prop <- need.prop[need.prop$Var2=="yes", ]
+need.prop$Var1 <-factor(need.prop$Var1, levels=need.prop[order(need.prop$Freq), "Var1"])
+
+ggplot(need.prop, aes(x=Var1, y=Freq)) +
+  geom_bar( fill="#2a87c8",colour="#2a87c8",stat = "identity") +
+  #facet_wrap(~Var3, ncol=4) +
+  guides(fill=FALSE) +
+  ylab("Frequency") +
+  #xlab(Var1) +
+  scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.01))+
+  xlab("") +
+  coord_flip() +
+  ggtitle("Percentage of case")+
+  theme(plot.title=element_text(face="bold", size=9),
+        plot.background = element_rect(fill = "transparent",colour = NA))
+
+
+need.prop1 <- as.data.frame(prop.table(table(data.need.metlt$specificcat,data.need.metlt$num.case,data.need.metlt$CountryAsylum)))
+need.prop1 <- need.prop1[need.prop1$Var2=="yes", ]
+
+need.prop1$Var1 <-factor(need.prop1$Var1, levels=need.prop[order(need.prop$Freq), "Var1"])
+
+ggplot(need.prop1, aes(x=Var1, y=Freq)) +
+  geom_bar( fill="#2a87c8",colour="#2a87c8",stat = "identity") +
+  facet_wrap(~Var3, ncol=4) +
+  guides(fill=FALSE) +
+  ylab("Frequency") +
+  #xlab(Var1) +
+  scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.01))+
+  xlab("") +
+  coord_flip() +
+  ggtitle("Percentage of case per country of asylum")+
+  theme(plot.title=element_text(face="bold", size=9),
+        plot.background = element_rect(fill = "transparent",colour = NA))
+
+
+```
 
 
 ***
@@ -133,13 +596,22 @@ edu_highestcat       | Recategorisation of the Highest education level of the he
 
 ## Dimensionnality reduction
 ```{r, echo=FALSE, warning=FALSE}
-data <- data.ARE
-data.sample <- data[sample(1:nrow(data), samplesize,replace=FALSE),
-                                    c("Case.size", "dem_marriagecat", "dem_sex","cool1","coal1",
-                                      "dependency", "youthdependency", "elederndependency", "female.ratio",
-                                      "agecohort", "AVGAgecohort", "STDEVAgeclass",
-                                      "YearArrivalCategory", "season",
-                                      "occupationcat", "edu_highestcat")]
+data2 <- data.ARE
+
+data2 <- data2[,  c("Case.size", "dem_marriagecat", "dem_sex","cool1Cat","coal1Cat",
+                    "dependency",  "female.ratio",
+                    "agecohort", "AVGAgecohort", "STDEVAgeclass",
+                    "YearArrivalCategory",  "occupationcat", "edu_highestcat")]
+
+
+
+data.sample <- data2[sample(1:nrow(data2), samplesize,replace=FALSE), ]
+
+
+### Checking sample modalities frequency
+#prop.table(table(data.sample$cool1Cat, useNA = "ifany"))
+#prop.table(table(data2$cool1Cat, useNA = "ifany"))
+
 
 # Multiple correspondance analysis
 data.mca <- MCA(data.sample, graph=FALSE)
@@ -168,24 +640,24 @@ fviz_mca_var(data.mca, labelsize = 3, pointsize = 0, select.var = list(contrib =
   theme_minimal()
 ```
 
-## Clustering
+## Hierarchical Classification
 ```{r, echo=FALSE, warning=FALSE}
 
 ## Predict projection for new rows with Multiple Correspondence Analysis
 
-#data.predict <- predict(data.mca, data)
+#data.predict <- predict(data.mca, data2)
 
-data.mca.hcpc <- HCPC(data.mca, nb.clust=-1, min=3, max=4, graph=FALSE, order=FALSE, consol=TRUE)
+data.mca.hcpc <- HCPC(data.mca, nb.clust=-1, min=3, max=4, graph=FALSE, order=FALSE, consol=TRUE, kk=1000)
 
-kable(data.mca.hcpc$desc.var$test.chi2, digits = 4, caption = "Ordered importance of variable contributions to clusters")
+kable(data.mca.hcpc$desc.var$test.chi2, digits = 4, caption = "Ordered importance of variable contributions to profiles")
 # Visualize dendrogram
 #fviz_dend(data.mca.hcpc, show_labels = FALSE, rect = TRUE)
-#fviz_dend(data.mca.hcpc, cex = 0.5, k = 4,  color_labels_by_k = TRUE,  title="Hierarchical clustering",  horiz=TRUE, rect = TRUE)
+#fviz_dend(data.mca.hcpc, cex = 0.5, k = 4,  color_labels_by_k = TRUE,  title="Hierarchical classification",  horiz=TRUE, rect = TRUE)
 
-plot(data.mca.hcpc, choice="tree", title="Hierarchical clustering",  horiz=TRUE, tree.barplot=FALSE, cex = 0.6)
+plot(data.mca.hcpc, choice="tree", title="Hierarchical classification",  horiz=TRUE, tree.barplot=FALSE, cex = 0.6)
 
-plot(data.mca.hcpc, title="3D view within the cloud of point of the Statistical clusters")
-plot(data.mca.hcpc, choice="map", title="Statistical clusters within the cloud of points")
+plot(data.mca.hcpc, title="3D view within the cloud of point of the profiles")
+plot(data.mca.hcpc, choice="map", title="profiles within the cloud of points")
 
 
 
@@ -200,16 +672,16 @@ plot(data.mca.hcpc, choice="map", title="Statistical clusters within the cloud o
 Only variable modalities for which critical probility is below 0.02 are used.
 ```{r, echo=FALSE, warning=FALSE}
 
-kable(data.mca.hcpc$desc.var$category$`1`, digits = 2, caption = "Description of modalities contribution to Cluster 1")
+kable(data.mca.hcpc$desc.var$category$`1`, digits = 2, caption = "Description of modalities contribution to Profile 1")
 
 
-kable(data.mca.hcpc$desc.var$category$`2`, digits = 2, caption = "Description of modalities contribution to Cluster 2")
+kable(data.mca.hcpc$desc.var$category$`2`, digits = 2, caption = "Description of modalities contribution to Profile 2")
 
 
-kable(data.mca.hcpc$desc.var$category$`3`, digits = 2, caption = "Description of modalities contribution to Cluster 3")
+kable(data.mca.hcpc$desc.var$category$`3`, digits = 2, caption = "Description of modalities contribution to Profile 3")
 
 
-kable(data.mca.hcpc$desc.var$category$`4`, digits = 2, caption = "Description of modalities contribution to Cluster 4")
+kable(data.mca.hcpc$desc.var$category$`4`, digits = 2, caption = "Description of modalities contribution to Profile 4")
 
 ```
 
@@ -219,10 +691,10 @@ kable(data.mca.hcpc$desc.var$category$`4`, digits = 2, caption = "Description of
 
 cluster <- data.mca.hcpc$data.clust
 cluster$clust <- as.character(cluster$clust)
-cluster$clust[cluster$clust==1] <- "Cluster 1"
-cluster$clust[cluster$clust==2] <- "Cluster 2"
-cluster$clust[cluster$clust==3] <- "Cluster 3"
-cluster$clust[cluster$clust==4] <- "Cluster 4"
+cluster$clust[cluster$clust==1] <- "Profile 1"
+cluster$clust[cluster$clust==2] <- "Profile 2"
+cluster$clust[cluster$clust==3] <- "Profile 3"
+cluster$clust[cluster$clust==4] <- "Profile 4"
 cluster$clust <- as.factor(cluster$clust)
 
 #names(cluster)
@@ -236,9 +708,31 @@ ggplot(cluster, aes(x=clust)) +
       scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
       xlab("") +
       coord_flip() +
-      ggtitle("Percentage of case per statistical cluster within the sample")+
+      ggtitle("Percentage of case per profile within the sample")+
       theme(plot.title=element_text(face="bold", size=9),
             plot.background = element_rect(fill = "transparent",colour = NA))
+
+## Getting spread of specific needs within each clusters
+## Need to melt data
+
+#c("At.Risk", "Child.Labour", "Child.marriage..parent.or.pregnancy", "Family.Needs", "Marginalised", "Medical",                               "Need.of.Care", "Problem.with.violence.law.recruitment", "Separated.Child", "Single.Parent", "Unaccompanied", "Victim.of.Violence",  "Woman.at.Risk")  
+
+#cluster <- merge(x=cluster, y=data.ARE, by= )
+
+#ggplot(cluster, aes(x=At.Risk)) +
+#      geom_bar(aes(y = ..count.. / sapply(PANEL, FUN=function(x) sum(count[PANEL == x]))),
+#               fill="#2a87c8",colour="#2a87c8") +
+#      facet_wrap(~clust, ncol=4) +
+#      guides(fill=FALSE) +
+#      ylab("Frequency") +
+#      scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
+#      xlab("") +
+#      coord_flip() +
+#      ggtitle("Percentage of case per profile within the sample")+
+#      theme(plot.title=element_text(face="bold", size=9),
+#            plot.background = element_rect(fill = "transparent",colour = NA))
+
+
 ```
 
 
@@ -250,10 +744,10 @@ ggplot(cluster, aes(x=clust)) +
 ```{r, echo=FALSE, warning=FALSE}
 data <- data.IRQ
 data.sample <- data[sample(1:nrow(data), samplesize,replace=FALSE),
-                                    c("Case.size", "dem_marriagecat", "dem_sex","cool1","coal1",
-                                      "dependency", "youthdependency", "elederndependency", "female.ratio",
+                                    c("Case.size", "dem_marriagecat", "dem_sex","cool1Cat","coal1Cat",
+                                      "dependency",  "female.ratio",
                                       "agecohort", "AVGAgecohort", "STDEVAgeclass",
-                                      "YearArrivalCategory", "season",
+                                      "YearArrivalCategory", 
                                       "occupationcat", "edu_highestcat")]
 
 # Multiple correspondance analysis
@@ -283,14 +777,14 @@ fviz_mca_var(data.mca, labelsize = 3, pointsize = 0, select.var = list(contrib =
   theme_minimal()
 ```
 
-## Clustering
+## Hierarchical Classification
 ```{r, echo=FALSE, warning=FALSE}
-data.mca.hcpc <- HCPC(data.mca, nb.clust=-1, min=3, max=4, graph=FALSE, order=FALSE, consol=TRUE)
+data.mca.hcpc <- HCPC(data.mca, nb.clust=-1, min=3, max=4, graph=FALSE, order=FALSE, consol=TRUE, kk=1000)
 
 kable(data.mca.hcpc$desc.var$test.chi2, digits = 4, caption = "Ordered importance of variable contributions to clusters")
-plot(data.mca.hcpc, choice="tree", title="Hierarchical clustering",  horiz=TRUE, tree.barplot=FALSE, cex = 0.6)
-plot(data.mca.hcpc, title="3D view within the cloud of point of the Statistical clusters")
-plot(data.mca.hcpc, choice="map", title="Statistical clusters within the cloud of points")
+plot(data.mca.hcpc, choice="tree", title="Hierarchical classification",  horiz=TRUE, tree.barplot=FALSE, cex = 0.6)
+plot(data.mca.hcpc, title="3D view within the cloud of point of the profiles")
+plot(data.mca.hcpc, choice="map", title="profiles within the cloud of points")
 
 ```
 
@@ -298,16 +792,16 @@ plot(data.mca.hcpc, choice="map", title="Statistical clusters within the cloud o
 Only variable modalities for which critical probility is below 0.02 are used.
 ```{r, echo=FALSE, warning=FALSE}
 
-kable(data.mca.hcpc$desc.var$category$`1`, digits = 2, caption = "Description of modalities contribution to Cluster 1")
+kable(data.mca.hcpc$desc.var$category$`1`, digits = 2, caption = "Description of modalities contribution to Profile 1")
 
 
-kable(data.mca.hcpc$desc.var$category$`2`, digits = 2, caption = "Description of modalities contribution to Cluster 2")
+kable(data.mca.hcpc$desc.var$category$`2`, digits = 2, caption = "Description of modalities contribution to Profile 2")
 
 
-kable(data.mca.hcpc$desc.var$category$`3`, digits = 2, caption = "Description of modalities contribution to Cluster 3")
+kable(data.mca.hcpc$desc.var$category$`3`, digits = 2, caption = "Description of modalities contribution to Profile 3")
 
 
-kable(data.mca.hcpc$desc.var$category$`4`, digits = 2, caption = "Description of modalities contribution to Cluster 4")
+kable(data.mca.hcpc$desc.var$category$`4`, digits = 2, caption = "Description of modalities contribution to Profile 4")
 
 ```
 
@@ -317,10 +811,10 @@ kable(data.mca.hcpc$desc.var$category$`4`, digits = 2, caption = "Description of
 
 cluster <- data.mca.hcpc$data.clust
 cluster$clust <- as.character(cluster$clust)
-cluster$clust[cluster$clust==1] <- "Cluster 1"
-cluster$clust[cluster$clust==2] <- "Cluster 2"
-cluster$clust[cluster$clust==3] <- "Cluster 3"
-cluster$clust[cluster$clust==4] <- "Cluster 4"
+cluster$clust[cluster$clust==1] <- "Profile 1"
+cluster$clust[cluster$clust==2] <- "Profile 2"
+cluster$clust[cluster$clust==3] <- "Profile 3"
+cluster$clust[cluster$clust==4] <- "Profile 4"
 cluster$clust <- as.factor(cluster$clust)
 
 #names(cluster)
@@ -334,7 +828,7 @@ ggplot(cluster, aes(x=clust)) +
       scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
       xlab("") +
       coord_flip() +
-      ggtitle("Percentage of case per statistical cluster within the sample")+
+      ggtitle("Percentage of case per profile within the sample")+
       theme(plot.title=element_text(face="bold", size=9),
             plot.background = element_rect(fill = "transparent",colour = NA))
 ```
@@ -348,10 +842,10 @@ ggplot(cluster, aes(x=clust)) +
 ```{r, echo=FALSE, warning=FALSE}
 data <- data.JOR
 data.sample <- data[sample(1:nrow(data), samplesize,replace=FALSE),
-                                    c("Case.size", "dem_marriagecat", "dem_sex","cool1","coal1",
-                                      "dependency", "youthdependency", "elederndependency", "female.ratio",
+                                    c("Case.size", "dem_marriagecat", "dem_sex","cool1Cat","coal1Cat",
+                                      "dependency",  "female.ratio",
                                       "agecohort", "AVGAgecohort", "STDEVAgeclass",
-                                      "YearArrivalCategory", "season",
+                                      "YearArrivalCategory", 
                                       "occupationcat", "edu_highestcat")]
 
 # Multiple correspondance analysis
@@ -381,14 +875,14 @@ fviz_mca_var(data.mca, labelsize = 3, pointsize = 0, select.var = list(contrib =
   theme_minimal()
 ```
 
-## Clustering
+## Hierarchical Classification
 ```{r, echo=FALSE, warning=FALSE}
-data.mca.hcpc <- HCPC(data.mca, nb.clust=-1, min=3, max=4, graph=FALSE, order=FALSE, consol=TRUE)
+data.mca.hcpc <- HCPC(data.mca, nb.clust=-1, min=3, max=4, graph=FALSE, order=FALSE, consol=TRUE, kk=1000)
 
 kable(data.mca.hcpc$desc.var$test.chi2, digits = 4, caption = "Ordered importance of variable contributions to clusters")
-plot(data.mca.hcpc, choice="tree", title="Hierarchical clustering",  horiz=TRUE, tree.barplot=FALSE, cex = 0.6)
-plot(data.mca.hcpc, title="3D view within the cloud of point of the Statistical clusters")
-plot(data.mca.hcpc, choice="map", title="Statistical clusters within the cloud of points")
+plot(data.mca.hcpc, choice="tree", title="Hierarchical classification",  horiz=TRUE, tree.barplot=FALSE, cex = 0.6)
+plot(data.mca.hcpc, title="3D view within the cloud of point of the profiles")
+plot(data.mca.hcpc, choice="map", title="profiles within the cloud of points")
 
 ```
 
@@ -396,16 +890,16 @@ plot(data.mca.hcpc, choice="map", title="Statistical clusters within the cloud o
 Only variable modalities for which critical probility is below 0.02 are used.
 ```{r, echo=FALSE, warning=FALSE}
 
-kable(data.mca.hcpc$desc.var$category$`1`, digits = 2, caption = "Description of modalities contribution to Cluster 1")
+kable(data.mca.hcpc$desc.var$category$`1`, digits = 2, caption = "Description of modalities contribution to Profile 1")
 
 
-kable(data.mca.hcpc$desc.var$category$`2`, digits = 2, caption = "Description of modalities contribution to Cluster 2")
+kable(data.mca.hcpc$desc.var$category$`2`, digits = 2, caption = "Description of modalities contribution to Profile 2")
 
 
-kable(data.mca.hcpc$desc.var$category$`3`, digits = 2, caption = "Description of modalities contribution to Cluster 3")
+kable(data.mca.hcpc$desc.var$category$`3`, digits = 2, caption = "Description of modalities contribution to Profile 3")
 
 
-kable(data.mca.hcpc$desc.var$category$`4`, digits = 2, caption = "Description of modalities contribution to Cluster 4")
+kable(data.mca.hcpc$desc.var$category$`4`, digits = 2, caption = "Description of modalities contribution to Profile 4")
 
 ```
 
@@ -415,10 +909,10 @@ kable(data.mca.hcpc$desc.var$category$`4`, digits = 2, caption = "Description of
 
 cluster <- data.mca.hcpc$data.clust
 cluster$clust <- as.character(cluster$clust)
-cluster$clust[cluster$clust==1] <- "Cluster 1"
-cluster$clust[cluster$clust==2] <- "Cluster 2"
-cluster$clust[cluster$clust==3] <- "Cluster 3"
-cluster$clust[cluster$clust==4] <- "Cluster 4"
+cluster$clust[cluster$clust==1] <- "Profile 1"
+cluster$clust[cluster$clust==2] <- "Profile 2"
+cluster$clust[cluster$clust==3] <- "Profile 3"
+cluster$clust[cluster$clust==4] <- "Profile 4"
 cluster$clust <- as.factor(cluster$clust)
 
 #names(cluster)
@@ -432,7 +926,7 @@ ggplot(cluster, aes(x=clust)) +
       scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
       xlab("") +
       coord_flip() +
-      ggtitle("Percentage of case per statistical cluster within the sample")+
+      ggtitle("Percentage of case per profile within the sample")+
       theme(plot.title=element_text(face="bold", size=9),
             plot.background = element_rect(fill = "transparent",colour = NA))
 ```
@@ -445,10 +939,10 @@ ggplot(cluster, aes(x=clust)) +
 ```{r, echo=FALSE, warning=FALSE}
 data <- data.LEB
 data.sample <- data[sample(1:nrow(data), samplesize,replace=FALSE),
-                                    c("Case.size", "dem_marriagecat", "dem_sex","cool1","coal1",
-                                      "dependency", "youthdependency", "elederndependency", "female.ratio",
+                                    c("Case.size", "dem_marriagecat", "dem_sex","cool1Cat","coal1Cat",
+                                      "dependency",  "female.ratio",
                                       "agecohort", "AVGAgecohort", "STDEVAgeclass",
-                                      "YearArrivalCategory", "season",
+                                      "YearArrivalCategory", 
                                       "occupationcat", "edu_highestcat")]
 
 # Multiple correspondance analysis
@@ -478,14 +972,14 @@ fviz_mca_var(data.mca, labelsize = 3, pointsize = 0, select.var = list(contrib =
   theme_minimal()
 ```
 
-## Clustering
+## Hierarchical Classification
 ```{r, echo=FALSE, warning=FALSE}
-data.mca.hcpc <- HCPC(data.mca, nb.clust=-1, min=3, max=4, graph=FALSE, order=FALSE, consol=TRUE)
+data.mca.hcpc <- HCPC(data.mca, nb.clust=-1, min=3, max=4, graph=FALSE, order=FALSE, consol=TRUE, kk=1000)
 
 kable(data.mca.hcpc$desc.var$test.chi2, digits = 4, caption = "Ordered importance of variable contributions to clusters")
-plot(data.mca.hcpc, choice="tree", title="Hierarchical clustering",  horiz=TRUE, tree.barplot=FALSE, cex = 0.6)
-plot(data.mca.hcpc, title="3D view within the cloud of point of the Statistical clusters")
-plot(data.mca.hcpc, choice="map", title="Statistical clusters within the cloud of points")
+plot(data.mca.hcpc, choice="tree", title="Hierarchical classification",  horiz=TRUE, tree.barplot=FALSE, cex = 0.6)
+plot(data.mca.hcpc, title="3D view within the cloud of point of the profiles")
+plot(data.mca.hcpc, choice="map", title="profiles within the cloud of points")
 
 ```
 
@@ -493,16 +987,16 @@ plot(data.mca.hcpc, choice="map", title="Statistical clusters within the cloud o
 Only variable modalities for which critical probility is below 0.02 are used.
 ```{r, echo=FALSE, warning=FALSE}
 
-kable(data.mca.hcpc$desc.var$category$`1`, digits = 2, caption = "Description of modalities contribution to Cluster 1")
+kable(data.mca.hcpc$desc.var$category$`1`, digits = 2, caption = "Description of modalities contribution to Profile 1")
 
 
-kable(data.mca.hcpc$desc.var$category$`2`, digits = 2, caption = "Description of modalities contribution to Cluster 2")
+kable(data.mca.hcpc$desc.var$category$`2`, digits = 2, caption = "Description of modalities contribution to Profile 2")
 
 
-kable(data.mca.hcpc$desc.var$category$`3`, digits = 2, caption = "Description of modalities contribution to Cluster 3")
+kable(data.mca.hcpc$desc.var$category$`3`, digits = 2, caption = "Description of modalities contribution to Profile 3")
 
 
-kable(data.mca.hcpc$desc.var$category$`4`, digits = 2, caption = "Description of modalities contribution to Cluster 4")
+kable(data.mca.hcpc$desc.var$category$`4`, digits = 2, caption = "Description of modalities contribution to Profile 4")
 
 ```
 
@@ -512,10 +1006,10 @@ kable(data.mca.hcpc$desc.var$category$`4`, digits = 2, caption = "Description of
 
 cluster <- data.mca.hcpc$data.clust
 cluster$clust <- as.character(cluster$clust)
-cluster$clust[cluster$clust==1] <- "Cluster 1"
-cluster$clust[cluster$clust==2] <- "Cluster 2"
-cluster$clust[cluster$clust==3] <- "Cluster 3"
-cluster$clust[cluster$clust==4] <- "Cluster 4"
+cluster$clust[cluster$clust==1] <- "Profile 1"
+cluster$clust[cluster$clust==2] <- "Profile 2"
+cluster$clust[cluster$clust==3] <- "Profile 3"
+cluster$clust[cluster$clust==4] <- "Profile 4"
 cluster$clust <- as.factor(cluster$clust)
 
 #names(cluster)
@@ -529,7 +1023,7 @@ ggplot(cluster, aes(x=clust)) +
       scale_y_continuous(labels=scales::percent, breaks= seq(0, 1, by = 0.1))+
       xlab("") +
       coord_flip() +
-      ggtitle("Percentage of case per statistical cluster within the sample")+
+      ggtitle("Percentage of case per profile within the sample")+
       theme(plot.title=element_text(face="bold", size=9),
             plot.background = element_rect(fill = "transparent",colour = NA))
 ```
@@ -590,10 +1084,10 @@ Variable                 | Description
 CountryOrigin            | Three letters code for Country of Origin.
 CountryOriginCategory    | Recategorised Country of origin - classes with 
 -                        | low numbers are aggregated.
-cool1                    | Administrative level 1 in Country of Origin- classes with 
+cool1Cat                 | Administrative level 1 in Country of Origin- classes with 
 -                        | low numbers are aggregated. Unknown adresses are recorded as 'other'. 
 CountryAsylum            | Three letters code for Country of Asylum.
-coal1                    | Administrative level 1 in Country of Asylum- classes  
+coal1Cat                 | Administrative level 1 in Country of Asylum- classes  
 -                        | with low numbers are aggregated. Unknown adresses are recorded as 'other'. 
 
 ## Chronologic Information

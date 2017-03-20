@@ -5,7 +5,7 @@ source("code/0-packages.R")
 ### Recoding the Case level Information
 ###########################################
 
-rm(progres.case)
+#rm(progres.case)
 progres.case <- read.csv("data/progrescase.csv")
 #str(progres.case)
 
@@ -122,6 +122,43 @@ prop.table(table(progres.case$female.ratio, useNA = "ifany"))
 ## Adding Age cohort of PA
 progres.case$agecohort <- cut(progres.case$dem_age,c(0,18,25,35,45,59,Inf))
 
+progres.case$agecohort <- as.character(progres.case$agecohort)
+
+##Eliminating records where PA has no age -- less than 0.5%
+progres.case <- progres.case[!is.na(progres.case$agecohort), ] 
+#progres.case$agecohort[is.na(progres.case$agecohort)] <- "Unknown"
+prop.table(table(progres.case$agecohort, useNA = "ifany"))
+progres.case$agecohort <-  as.factor(progres.case$agecohort)
+
+
+prop.table(table(progres.case$agecohort, useNA = "ifany"))
+
+
+##############################
+## Adding Age cohort for Average age
+progres.case$AVGAgecohort <- cut(progres.case$AVG_Age,c(0.1,18,25,35,45,59,Inf))
+
+progres.case <- progres.case[!is.na(progres.case$AVGAgecohort), ] 
+prop.table(table(progres.case$AVGAgecohort, useNA = "ifany"))
+
+progres.case$AVGAgecohort <- as.character(progres.case$AVGAgecohort)
+progres.case <- progres.case[!is.na(progres.case$AVGAgecohort), ] 
+#progres.case$AVGAgecohort[is.na(progres.case$AVGAgecohort)]<- "Unknown"
+progres.case$AVGAgecohort <- as.factor(progres.case$AVGAgecohort)
+progres.case$AVGAgecohort <-  factor(progres.case$AVGAgecohort, levels = c(  "(0.1,18]", "(18,25]", "(25,35]", "(35,45]","(45,59]", "(59,Inf]"))
+
+prop.table(table(progres.case$AVGAgecohort, useNA = "ifany"))
+##############################
+## Adding class for standard age deviation
+#summary(progres.case$STDEV_Age)
+progres.case$STDEVAgeclass <- cut(progres.case$STDEV_Age,c(0.001,10,15,20,Inf))
+progres.case$STDEVAgeclass <- as.character(progres.case$STDEVAgeclass)
+progres.case$STDEVAgeclass[is.na(progres.case$STDEVAgeclass)]<- "No.deviation"
+progres.case$STDEVAgeclass <- as.factor(progres.case$STDEVAgeclass)
+progres.case$STDEVAgeclass <-  factor(progres.case$STDEVAgeclass, levels = c(  "(0.001,10]", "(10,15]", "(15,20]", "(20,Inf]","No.deviation"))
+
+prop.table(table(progres.case$STDEVAgeclass, useNA = "ifany"))
+
 ##############################
 # Age group
 progres.case$dem_age_grp1 <- as.factor(ifelse(progres.case$dem_age < 35, 1, 0))
@@ -137,22 +174,6 @@ progres.case$age.PA1 <- as.factor(ifelse(progres.case$dem_age < 35, 1, 0))
 progres.case$age.PA2 <- as.factor(ifelse((progres.case$dem_age > 34) & (progres.case$dem_age < 55), 1, 0))
 progres.case$age.PA3 <- as.factor(ifelse(progres.case$dem_age > 54, 1, 0))
 
-##############################
-## Adding Age cohort for Average age
-progres.case$AVGAgecohort <- cut(progres.case$AVG_Age,c(0.1,18,25,35,45,59,Inf))
-progres.case$AVGAgecohort <- as.character(progres.case$AVGAgecohort)
-progres.case$AVGAgecohort[is.na(progres.case$AVGAgecohort)]<- "0"
-progres.case$AVGAgecohort <- as.factor(progres.case$AVGAgecohort)
-progres.case$AVGAgecohort <-  factor(progres.case$AVGAgecohort, levels = c( "0", "(0.1,18]", "(18,25]", "(25,35]", "(35,45]","(45,59]", "(59,Inf]"))
-
-##############################
-## Adding class for standard age deviation
-#summary(progres.case$STDEV_Age)
-progres.case$STDEVAgeclass <- cut(progres.case$STDEV_Age,c(0.001,5,10,15,20,Inf))
-progres.case$STDEVAgeclass <- as.character(progres.case$STDEVAgeclass)
-progres.case$STDEVAgeclass[is.na(progres.case$STDEVAgeclass)]<- "0"
-progres.case$STDEVAgeclass <- as.factor(progres.case$STDEVAgeclass)
-progres.case$STDEVAgeclass <-  factor(progres.case$STDEVAgeclass, levels = c( "0", "(0.001,5]", "(5,10]", "(10,15]", "(15,20]", "(20,Inf]"))
 
 ##############################
 # Percentage of children
@@ -252,97 +273,97 @@ progres.case$YearArrivalCategory2 <- as.factor(recode(progres.case$YearArrival,"
                                                                       '2015'='2015'"))
 
 
-progres.case$YearArrivalCategory <- as.factor(recode(progres.case$YearArrival,"'1899'='before.2011.or.unkown';
-                                                     '1900'='before.2011.or.unkown';
-                                                     '1902'='before.2011.or.unkown';
-                                                     '1903'='before.2011.or.unkown';
-                                                     '1905'='before.2011.or.unkown';
-                                                     '1911'='before.2011.or.unkown';
-                                                     '1926'='before.2011.or.unkown';
-                                                     '1927'='before.2011.or.unkown';
-                                                     '1930'='before.2011.or.unkown';
-                                                     '1931'='before.2011.or.unkown';
-                                                     '1933'='before.2011.or.unkown';
-                                                     '1934'='before.2011.or.unkown';
-                                                     '1928'='before.2011.or.unkown';
-                                                     '1932'='before.2011.or.unkown';
-                                                     '1935'='before.2011.or.unkown';
-                                                     '1936'='before.2011.or.unkown';
-                                                     '1937'='before.2011.or.unkown';
-                                                     '1938'='before.2011.or.unkown';
-                                                     '1939'='before.2011.or.unkown';
-                                                     '1940'='before.2011.or.unkown';
-                                                     '1941'='before.2011.or.unkown';
-                                                     '1942'='before.2011.or.unkown';
-                                                     '1943'='before.2011.or.unkown';
-                                                     '1944'='before.2011.or.unkown';
-                                                     '1945'='before.2011.or.unkown';
-                                                     '1946'='before.2011.or.unkown';
-                                                     '1947'='before.2011.or.unkown';
-                                                     '1948'='before.2011.or.unkown';
-                                                     '1949'='before.2011.or.unkown';
-                                                     '1950'='before.2011.or.unkown';
-                                                     '1951'='before.2011.or.unkown';
-                                                     '1952'='before.2011.or.unkown';
-                                                     '1953'='before.2011.or.unkown';
-                                                     '1954'='before.2011.or.unkown';
-                                                     '1955'='before.2011.or.unkown';
-                                                     '1956'='before.2011.or.unkown';
-                                                     '1957'='before.2011.or.unkown';
-                                                     '1958'='before.2011.or.unkown';
-                                                     '1959'='before.2011.or.unkown';
-                                                     '1960'='before.2011.or.unkown';
-                                                     '1961'='before.2011.or.unkown';
-                                                     '1962'='before.2011.or.unkown';
-                                                     '1963'='before.2011.or.unkown';
-                                                     '1964'='before.2011.or.unkown';
-                                                     '1965'='before.2011.or.unkown';
-                                                     '1966'='before.2011.or.unkown';
-                                                     '1967'='before.2011.or.unkown';
-                                                     '1968'='before.2011.or.unkown';
-                                                     '1969'='before.2011.or.unkown';
-                                                     '1970'='before.2011.or.unkown';
-                                                     '1971'='before.2011.or.unkown';
-                                                     '1972'='before.2011.or.unkown';
-                                                     '1973'='before.2011.or.unkown';
-                                                     '1974'='before.2011.or.unkown';
-                                                     '1975'='before.2011.or.unkown';
-                                                     '1976'='before.2011.or.unkown';
-                                                     '1977'='before.2011.or.unkown';
-                                                     '1978'='before.2011.or.unkown';
-                                                     '1979'='before.2011.or.unkown';
-                                                     '1980'='before.2011.or.unkown';
-                                                     '1981'='before.2011.or.unkown';
-                                                     '1982'='before.2011.or.unkown';
-                                                     '1983'='before.2011.or.unkown';
-                                                     '1984'='before.2011.or.unkown';
-                                                     '1985'='before.2011.or.unkown';
-                                                     '1986'='before.2011.or.unkown';
-                                                     '1987'='before.2011.or.unkown';
-                                                     '1988'='before.2011.or.unkown';
-                                                     '1989'='before.2011.or.unkown';
-                                                     '1990'='before.2011.or.unkown';
-                                                     '1991'='before.2011.or.unkown';
-                                                     '1992'='before.2011.or.unkown';
-                                                     '1993'='before.2011.or.unkown';
-                                                     '1994'='before.2011.or.unkown';
-                                                     '1995'='before.2011.or.unkown';
-                                                     '1996'='before.2011.or.unkown';
-                                                     '1997'='before.2011.or.unkown';
-                                                     '1998'='before.2011.or.unkown';
-                                                     '1999'='before.2011.or.unkown';
-                                                     '2000'='before.2011.or.unkown';
-                                                     '2001'='before.2011.or.unkown';
-                                                     '2002'='before.2011.or.unkown';
-                                                     '2003'='before.2011.or.unkown';
-                                                     '2004'='before.2011.or.unkown';
-                                                     '2005'='before.2011.or.unkown';
-                                                     '2006'='before.2011.or.unkown';
-                                                     '2007'='before.2011.or.unkown';
-                                                     '2008'='before.2011.or.unkown';
-                                                     '2009'='before.2011.or.unkown';
-                                                     '2010'='before.2011.or.unkown';
-                                                     '2011'='2011';
+progres.case$YearArrivalCategory <- as.factor(recode(progres.case$YearArrival,"'1899'='2011.or.before.or.unkown';
+                                                     '1900'='2011.or.before.or.unkown';
+                                                     '1902'='2011.or.before.or.unkown';
+                                                     '1903'='2011.or.before.or.unkown';
+                                                     '1905'='2011.or.before.or.unkown';
+                                                     '1911'='2011.or.before.or.unkown';
+                                                     '1926'='2011.or.before.or.unkown';
+                                                     '1927'='2011.or.before.or.unkown';
+                                                     '1930'='2011.or.before.or.unkown';
+                                                     '1931'='2011.or.before.or.unkown';
+                                                     '1933'='2011.or.before.or.unkown';
+                                                     '1934'='2011.or.before.or.unkown';
+                                                     '1928'='2011.or.before.or.unkown';
+                                                     '1932'='2011.or.before.or.unkown';
+                                                     '1935'='2011.or.before.or.unkown';
+                                                     '1936'='2011.or.before.or.unkown';
+                                                     '1937'='2011.or.before.or.unkown';
+                                                     '1938'='2011.or.before.or.unkown';
+                                                     '1939'='2011.or.before.or.unkown';
+                                                     '1940'='2011.or.before.or.unkown';
+                                                     '1941'='2011.or.before.or.unkown';
+                                                     '1942'='2011.or.before.or.unkown';
+                                                     '1943'='2011.or.before.or.unkown';
+                                                     '1944'='2011.or.before.or.unkown';
+                                                     '1945'='2011.or.before.or.unkown';
+                                                     '1946'='2011.or.before.or.unkown';
+                                                     '1947'='2011.or.before.or.unkown';
+                                                     '1948'='2011.or.before.or.unkown';
+                                                     '1949'='2011.or.before.or.unkown';
+                                                     '1950'='2011.or.before.or.unkown';
+                                                     '1951'='2011.or.before.or.unkown';
+                                                     '1952'='2011.or.before.or.unkown';
+                                                     '1953'='2011.or.before.or.unkown';
+                                                     '1954'='2011.or.before.or.unkown';
+                                                     '1955'='2011.or.before.or.unkown';
+                                                     '1956'='2011.or.before.or.unkown';
+                                                     '1957'='2011.or.before.or.unkown';
+                                                     '1958'='2011.or.before.or.unkown';
+                                                     '1959'='2011.or.before.or.unkown';
+                                                     '1960'='2011.or.before.or.unkown';
+                                                     '1961'='2011.or.before.or.unkown';
+                                                     '1962'='2011.or.before.or.unkown';
+                                                     '1963'='2011.or.before.or.unkown';
+                                                     '1964'='2011.or.before.or.unkown';
+                                                     '1965'='2011.or.before.or.unkown';
+                                                     '1966'='2011.or.before.or.unkown';
+                                                     '1967'='2011.or.before.or.unkown';
+                                                     '1968'='2011.or.before.or.unkown';
+                                                     '1969'='2011.or.before.or.unkown';
+                                                     '1970'='2011.or.before.or.unkown';
+                                                     '1971'='2011.or.before.or.unkown';
+                                                     '1972'='2011.or.before.or.unkown';
+                                                     '1973'='2011.or.before.or.unkown';
+                                                     '1974'='2011.or.before.or.unkown';
+                                                     '1975'='2011.or.before.or.unkown';
+                                                     '1976'='2011.or.before.or.unkown';
+                                                     '1977'='2011.or.before.or.unkown';
+                                                     '1978'='2011.or.before.or.unkown';
+                                                     '1979'='2011.or.before.or.unkown';
+                                                     '1980'='2011.or.before.or.unkown';
+                                                     '1981'='2011.or.before.or.unkown';
+                                                     '1982'='2011.or.before.or.unkown';
+                                                     '1983'='2011.or.before.or.unkown';
+                                                     '1984'='2011.or.before.or.unkown';
+                                                     '1985'='2011.or.before.or.unkown';
+                                                     '1986'='2011.or.before.or.unkown';
+                                                     '1987'='2011.or.before.or.unkown';
+                                                     '1988'='2011.or.before.or.unkown';
+                                                     '1989'='2011.or.before.or.unkown';
+                                                     '1990'='2011.or.before.or.unkown';
+                                                     '1991'='2011.or.before.or.unkown';
+                                                     '1992'='2011.or.before.or.unkown';
+                                                     '1993'='2011.or.before.or.unkown';
+                                                     '1994'='2011.or.before.or.unkown';
+                                                     '1995'='2011.or.before.or.unkown';
+                                                     '1996'='2011.or.before.or.unkown';
+                                                     '1997'='2011.or.before.or.unkown';
+                                                     '1998'='2011.or.before.or.unkown';
+                                                     '1999'='2011.or.before.or.unkown';
+                                                     '2000'='2011.or.before.or.unkown';
+                                                     '2001'='2011.or.before.or.unkown';
+                                                     '2002'='2011.or.before.or.unkown';
+                                                     '2003'='2011.or.before.or.unkown';
+                                                     '2004'='2011.or.before.or.unkown';
+                                                     '2005'='2011.or.before.or.unkown';
+                                                     '2006'='2011.or.before.or.unkown';
+                                                     '2007'='2011.or.before.or.unkown';
+                                                     '2008'='2011.or.before.or.unkown';
+                                                     '2009'='2011.or.before.or.unkown';
+                                                     '2010'='2011.or.before.or.unkown';
+                                                     '2011'='2011.or.before.or.unkown';
                                                      '2012'='2012';
                                                      '2013'='2013';
                                                      '2014'='2014';
@@ -350,7 +371,7 @@ progres.case$YearArrivalCategory <- as.factor(recode(progres.case$YearArrival,"'
                                                      '2016'='2016.and.2017';
                                                      '2017'='2016.and.2017'"))
 
-progres.case$YearArrivalCategory[is.na(progres.case$YearArrivalCategory)] <- "before.2011.or.unkown"
+progres.case$YearArrivalCategory[is.na(progres.case$YearArrivalCategory)] <- "2011.or.before.or.unkown"
 
 prop.table(table(progres.case$YearArrivalCategory, useNA = "ifany"))
 
@@ -467,6 +488,26 @@ progres.case$CountryOriginCategory <- factor(progres.case$CountryOriginCategory,
 
 ######################################################################
 ## Generating frequency tables to be used for the recategorisation
+#freq1 <- as.data.frame(prop.table(table(progres.case$cool1,progres.case$coal1,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
+#freq1$key <- paste(freq1$Var1,freq1$Var2,freq1$Var3,freq1$Var4,sep="-")
+#freq1$cool1Cat <- as.character(freq1$Var1)
+#freq1$coal1Cat <- as.character(freq1$Var2)
+#freq1[freq1$Freq <= 0.01, c("cool1Cat")] <- "Other.or.Unknown"
+#freq1[freq1$Var1 =="", c("cool1Cat")] <- "Other.or.Unknown"
+
+#freq1[freq1$Freq <= 0.01, c("coal1Cat")] <- "Other.or.Unknown"
+#freq1[freq1$Var1 =="", c("coal1Cat")] <- "Other.or.Unknown"
+
+# levels(as.factor(freq1$cool1Cat))
+#freq1 <- freq1[ ,c("keycool1","cool1Cat")]
+
+freq1.coo <- as.data.frame(prop.table(table(progres.case$cool1,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
+freq1.coo$keycool1 <- paste(freq1.coo$Var1,freq1.coo$Var2,freq1.coo$Var3,sep="-")
+freq1.coo$cool1Cat <- as.character(freq1.coo$Var1)
+freq1.coo[freq1.coo$Freq <= 0.01, c("cool1Cat")] <- "Other.or.Unknown"
+freq1.coo[freq1.coo$Var1 =="", c("cool1Cat")] <- "Other.or.Unknown"
+# levels(as.factor(freq1.coo$cool1Cat))
+freq1.coo <- freq1.coo[ ,c("keycool1","cool1Cat")]
 
 #frequ.coo <- as.data.frame(table(progres.case$cool1,progres.case$CountryAsylum)) 
 freq1.coo <- as.data.frame(prop.table(table(progres.case$cool1,progres.case$CountryAsylum,progres.case$CountryOrigin),2)) 
@@ -524,14 +565,42 @@ progres.case <- join(x=progres.case, y=freq2.coo, by="keycool2", type="left")
 ##############################
 # Aggregating season according to month
 progres.case$season <- as.character(progres.case$Montharrival)
+prop.table(table(progres.case$Montharrival, useNA = "ifany"))
+
 #levels(progres.case$Montharrival)
-progres.case$season <- recode(progres.case$season,"'March'='Spring'; 'April'='Spring';    'May'='Spring';
-                              'June'='Summer'; 'July'='Summer';  'August'='Summer'; 
-                              'September'='Autumn'; 'October'='Autumn'; 'November'='Autumn'; 
-                              'January'='Winter';  'February'='Winter'; 'December'='Winter' ")
+#progres.case$season <- recode(progres.case$season," 'January'='Q1';  'February'='Q1'; 'March'='Q1';
+#                              'April'='Q2'; 'May'='Q2'; 'June'='Q2'; 
+#                              'July'='Q3';  'August'='Q3';  'September'='Q3'; 
+#                              'October'='Q4'; 'November'='Q4';  'December'='Q4' ")
+progres.case$season <- recode(progres.case$season," 'Jan'='Q1';  'Feb'='Q1'; 'Mar'='Q1';
+                              'Apr'='Q2'; 'May'='Q2'; 'Jun'='Q2'; 
+                              'Jul'='Q3';  'Aug'='Q3';  'Sept'='Q3'; 
+                              'Oct'='Q4'; 'Nov'='Q4';  'Dec'='Q4' ")
+
 progres.case$season <- as.factor(progres.case$season)
 
-progres.case$season <- factor(progres.case$season, levels = c("Spring", "Summer", "Autumn", "Winter"))
+prop.table(table(progres.case$season, useNA = "ifany"))
+levels(progres.case$season)
+
+progres.case$season <- factor(progres.case$season, levels = c("Q1", "Q2", "Q3", "Q4"))
+
+###
+progres.case$season1 <- as.character(progres.case$Montharrival)
+#levels(progres.case$Montharrival)
+progres.case$season1 <- recode(progres.case$season1,"'Mar'='Spring'; 'Apr'='Spring';    'May'='Spring';
+                               'Jun'='Summer'; 'Jul'='Summer';  'Aug'='Summer'; 
+                               'Sep'='Autumn'; 'Oct'='Autumn'; 'Nov'='Autumn'; 
+                               'Jan'='Winter';  'Feb'='Winter'; 'Dec'='Winter' ")
+#progres.case$season1 <- recode(progres.case$season1,"'March'='Spring'; 'April'='Spring';    'May'='Spring';
+#                              'June'='Summer'; 'July'='Summer';  'August'='Summer'; 
+#                              'September'='Autumn'; 'October'='Autumn'; 'November'='Autumn'; 
+#                              'January'='Winter';  'February'='Winter'; 'December'='Winter' ")
+progres.case$season1 <- as.factor(progres.case$season1)
+
+progres.case$season1 <- factor(progres.case$season1, levels = c("Spring", "Summer", "Autumn", "Winter"))
+
+prop.table(table(progres.case$season1, useNA = "ifany"))
+
 
 progres.case$Montharrival <- recode(progres.case$Montharrival,"'January'='Jan';  'February'='Febr';'March'='Mar';
                                'April'='Apr';  'May'='May'; 'June'='Jun'; 'July'='Jul';  'August'='Aug'; 
@@ -544,7 +613,7 @@ progres.case$edu_highest_t <- progres.case$edu_highest
 prop.table(table(progres.case$edu_highest, useNA = "ifany"))
 #table(progres.case$edu_highest, useNA="always")
 progres.case$edu_highest_t <- recode(progres.case$edu_highest_t,"'01' = 'Grade 1'; '02' = 'Grade 2';  
-                                     '03' = 'Grade 3';  '04' = '4 years (or Grade 4)';   '05' = 'Grade 5';  
+                                     '03' = 'Grade 3';  '04' = 'Grade 4';   '05' = 'Grade 5';  
                                      '06' = 'Grade 6';   '07' = 'Grade 7';  '08' = 'Grade 8';  
                                      '09' = 'Grade 9';    '10' = 'Grade 10';  '11' = 'Grade 11'; 
                                      '12' = 'Grade 12';    '13' = 'Grade 13';   '14' = 'Grade 14';  
@@ -799,94 +868,98 @@ rm(progres.specificneed.case)
 # "Medical"                               "Need.of.Care"                          "Problem.with.violence.law.recruitment"
 # "Separated.Child"                       "Single.Parent"                         "Unaccompanied"                        
 # "Victim.of.Violence"                    "Woman.at.Risk"  
+
+
+
+
 progres.specificneed.case2$At.Risk.count <- progres.specificneed.case2$At.Risk
-progres.specificneed.case2$At.Risk <- as.factor(ifelse(progres.specificneed.case2$At.Risk>=1, "yes", "no"))  
+progres.specificneed.case2$At.Risk <- as.factor(ifelse(progres.specificneed.case2$At.Risk>=1, "yes", NA))  
 progres.specificneed.case2$At.Risk <- as.character(progres.specificneed.case2$At.Risk)
-progres.specificneed.case2$At.Risk[is.na(progres.specificneed.case2$At.Risk)]<- "no"
+progres.specificneed.case2$At.Risk[is.na(progres.specificneed.case2$At.Risk)]<- NA
 progres.specificneed.case2$At.Risk <- as.factor(progres.specificneed.case2$At.Risk)
 
 progres.specificneed.case2$Child.Labour.count <- progres.specificneed.case2$Child.Labour
-progres.specificneed.case2$Child.Labour <- as.factor(ifelse(progres.specificneed.case2$Child.Labour>=1, "yes", "no"))  
+progres.specificneed.case2$Child.Labour <- as.factor(ifelse(progres.specificneed.case2$Child.Labour>=1, "yes", NA))  
 progres.specificneed.case2$Child.Labour <- as.character(progres.specificneed.case2$Child.Labour)
-progres.specificneed.case2$Child.Labour[is.na(progres.specificneed.case2$Child.Labour)]<- "no"
+progres.specificneed.case2$Child.Labour[is.na(progres.specificneed.case2$Child.Labour)]<- NA
 progres.specificneed.case2$Child.Labour <- as.factor(progres.specificneed.case2$Child.Labour)
 
 
 progres.specificneed.case2$Child.marriage..parent.or.pregnancy.count <- progres.specificneed.case2$Child.marriage..parent.or.pregnancy
-progres.specificneed.case2$Child.marriage..parent.or.pregnancy <- as.factor(ifelse(progres.specificneed.case2$Child.marriage..parent.or.pregnancy>=1, "yes", "no"))  
+progres.specificneed.case2$Child.marriage..parent.or.pregnancy <- as.factor(ifelse(progres.specificneed.case2$Child.marriage..parent.or.pregnancy>=1, "yes", NA))  
 progres.specificneed.case2$Child.marriage..parent.or.pregnancy <- as.character(progres.specificneed.case2$Child.marriage..parent.or.pregnancy)
-progres.specificneed.case2$Child.marriage..parent.or.pregnancy[is.na(progres.specificneed.case2$Child.marriage..parent.or.pregnancy)]<- "no"
+progres.specificneed.case2$Child.marriage..parent.or.pregnancy[is.na(progres.specificneed.case2$Child.marriage..parent.or.pregnancy)]<- NA
 progres.specificneed.case2$Child.marriage..parent.or.pregnancy <- as.factor(progres.specificneed.case2$Child.marriage..parent.or.pregnancy)
 
 
 progres.specificneed.case2$Family.Needs.count <- progres.specificneed.case2$Family.Needs
-progres.specificneed.case2$Family.Needs <- as.factor(ifelse(progres.specificneed.case2$Family.Needs>=1, "yes", "no"))  
+progres.specificneed.case2$Family.Needs <- as.factor(ifelse(progres.specificneed.case2$Family.Needs>=1, "yes", NA))  
 progres.specificneed.case2$Family.Needs <- as.character(progres.specificneed.case2$Family.Needs)
-progres.specificneed.case2$Family.Needs[is.na(progres.specificneed.case2$Family.Needs)]<- "no"
+progres.specificneed.case2$Family.Needs[is.na(progres.specificneed.case2$Family.Needs)]<- NA
 progres.specificneed.case2$Family.Needs <- as.factor(progres.specificneed.case2$Family.Needs)
 
 
 progres.specificneed.case2$Marginalised.count <- progres.specificneed.case2$Marginalised
-progres.specificneed.case2$Marginalised <- as.factor(ifelse(progres.specificneed.case2$Marginalised>=1, "yes", "no"))  
+progres.specificneed.case2$Marginalised <- as.factor(ifelse(progres.specificneed.case2$Marginalised>=1, "yes", NA))  
 progres.specificneed.case2$Marginalised <- as.character(progres.specificneed.case2$Marginalised)
-progres.specificneed.case2$Marginalised[is.na(progres.specificneed.case2$Marginalised)]<- "no"
+progres.specificneed.case2$Marginalised[is.na(progres.specificneed.case2$Marginalised)]<- NA
 progres.specificneed.case2$Marginalised <- as.factor(progres.specificneed.case2$Marginalised)
 
 
 progres.specificneed.case2$Medical.count <- progres.specificneed.case2$Medical
-progres.specificneed.case2$Medical <- as.factor(ifelse(progres.specificneed.case2$Medical>=1, "yes", "no"))  
+progres.specificneed.case2$Medical <- as.factor(ifelse(progres.specificneed.case2$Medical>=1, "yes", NA))  
 progres.specificneed.case2$Medical <- as.character(progres.specificneed.case2$Medical)
-progres.specificneed.case2$Medical[is.na(progres.specificneed.case2$Medical)]<- "no"
+progres.specificneed.case2$Medical[is.na(progres.specificneed.case2$Medical)]<- NA
 progres.specificneed.case2$Medical <- as.factor(progres.specificneed.case2$Medical)
 
 
 progres.specificneed.case2$Need.of.Care.count <- progres.specificneed.case2$Need.of.Care
-progres.specificneed.case2$Need.of.Care <- as.factor(ifelse(progres.specificneed.case2$Need.of.Care>=1, "yes", "no"))  
+progres.specificneed.case2$Need.of.Care <- as.factor(ifelse(progres.specificneed.case2$Need.of.Care>=1, "yes", NA))  
 progres.specificneed.case2$Need.of.Care <- as.character(progres.specificneed.case2$Need.of.Care)
-progres.specificneed.case2$Need.of.Care[is.na(progres.specificneed.case2$Need.of.Care)]<- "no"
+progres.specificneed.case2$Need.of.Care[is.na(progres.specificneed.case2$Need.of.Care)]<- NA
 progres.specificneed.case2$Need.of.Care <- as.factor(progres.specificneed.case2$Need.of.Care)
 
 
 progres.specificneed.case2$Problem.with.violence.law.recruitment.count <- progres.specificneed.case2$Problem.with.violence.law.recruitment
-progres.specificneed.case2$Problem.with.violence.law.recruitment <- as.factor(ifelse(progres.specificneed.case2$Problem.with.violence.law.recruitment>=1, "yes", "no"))  
+progres.specificneed.case2$Problem.with.violence.law.recruitment <- as.factor(ifelse(progres.specificneed.case2$Problem.with.violence.law.recruitment>=1, "yes", NA))  
 progres.specificneed.case2$Problem.with.violence.law.recruitment <- as.character(progres.specificneed.case2$Problem.with.violence.law.recruitment)
-progres.specificneed.case2$Problem.with.violence.law.recruitment[is.na(progres.specificneed.case2$Problem.with.violence.law.recruitment)]<- "no"
+progres.specificneed.case2$Problem.with.violence.law.recruitment[is.na(progres.specificneed.case2$Problem.with.violence.law.recruitment)]<- NA
 progres.specificneed.case2$Problem.with.violence.law.recruitment <- as.factor(progres.specificneed.case2$Problem.with.violence.law.recruitment)
 
 
 progres.specificneed.case2$Separated.Child.count <- progres.specificneed.case2$Separated.Child
-progres.specificneed.case2$Separated.Child <- as.factor(ifelse(progres.specificneed.case2$Separated.Child>=1, "yes", "no"))  
+progres.specificneed.case2$Separated.Child <- as.factor(ifelse(progres.specificneed.case2$Separated.Child>=1, "yes", NA))  
 progres.specificneed.case2$Separated.Child <- as.character(progres.specificneed.case2$Separated.Child)
-progres.specificneed.case2$Separated.Child[is.na(progres.specificneed.case2$Separated.Child)]<- "no"
+progres.specificneed.case2$Separated.Child[is.na(progres.specificneed.case2$Separated.Child)]<- NA
 progres.specificneed.case2$Separated.Child <- as.factor(progres.specificneed.case2$Separated.Child)
 
 
 progres.specificneed.case2$Single.Parent.count <- progres.specificneed.case2$Single.Parent
-progres.specificneed.case2$Single.Parent <- as.factor(ifelse(progres.specificneed.case2$Single.Parent>=1, "yes", "no"))  
+progres.specificneed.case2$Single.Parent <- as.factor(ifelse(progres.specificneed.case2$Single.Parent>=1, "yes", NA))  
 progres.specificneed.case2$Single.Parent <- as.character(progres.specificneed.case2$Single.Parent)
-progres.specificneed.case2$Single.Parent[is.na(progres.specificneed.case2$Single.Parent)]<- "no"
+progres.specificneed.case2$Single.Parent[is.na(progres.specificneed.case2$Single.Parent)]<- NA
 progres.specificneed.case2$Single.Parent <- as.factor(progres.specificneed.case2$Single.Parent)
 
 
 progres.specificneed.case2$Unaccompanied.count <- progres.specificneed.case2$Unaccompanied
-progres.specificneed.case2$Unaccompanied <- as.factor(ifelse(progres.specificneed.case2$Unaccompanied>=1, "yes", "no"))  
+progres.specificneed.case2$Unaccompanied <- as.factor(ifelse(progres.specificneed.case2$Unaccompanied>=1, "yes", NA))  
 progres.specificneed.case2$Unaccompanied <- as.character(progres.specificneed.case2$Unaccompanied)
-progres.specificneed.case2$Unaccompanied[is.na(progres.specificneed.case2$Unaccompanied)]<- "no"
+progres.specificneed.case2$Unaccompanied[is.na(progres.specificneed.case2$Unaccompanied)]<- NA
 progres.specificneed.case2$Unaccompanied <- as.factor(progres.specificneed.case2$Unaccompanied)
 
 
 progres.specificneed.case2$Victim.of.Violence.count <- progres.specificneed.case2$Victim.of.Violence
-progres.specificneed.case2$Victim.of.Violence <- as.factor(ifelse(progres.specificneed.case2$Victim.of.Violence>=1, "yes", "no"))  
+progres.specificneed.case2$Victim.of.Violence <- as.factor(ifelse(progres.specificneed.case2$Victim.of.Violence>=1, "yes", NA))  
 progres.specificneed.case2$Victim.of.Violence <- as.character(progres.specificneed.case2$Victim.of.Violence)
-progres.specificneed.case2$Victim.of.Violence[is.na(progres.specificneed.case2$Victim.of.Violence)]<- "no"
+progres.specificneed.case2$Victim.of.Violence[is.na(progres.specificneed.case2$Victim.of.Violence)]<- NA
 progres.specificneed.case2$Victim.of.Violence <- as.factor(progres.specificneed.case2$Victim.of.Violence)
 
 
 
 progres.specificneed.case2$Woman.at.Risk.count <- progres.specificneed.case2$Woman.at.Risk
-progres.specificneed.case2$Woman.at.Risk <- as.factor(ifelse(progres.specificneed.case2$Woman.at.Risk>=1, "yes", "no"))  
+progres.specificneed.case2$Woman.at.Risk <- as.factor(ifelse(progres.specificneed.case2$Woman.at.Risk>=1, "yes", NA))  
 progres.specificneed.case2$Woman.at.Risk <- as.character(progres.specificneed.case2$Woman.at.Risk)
-progres.specificneed.case2$Woman.at.Risk[is.na(progres.specificneed.case2$Woman.at.Risk)]<- "no"
+progres.specificneed.case2$Woman.at.Risk[is.na(progres.specificneed.case2$Woman.at.Risk)]<- NA
 progres.specificneed.case2$Woman.at.Risk <- as.factor(progres.specificneed.case2$Woman.at.Risk)
 
 
@@ -897,10 +970,29 @@ progres.specificneed.case2$Woman.at.Risk <- as.factor(progres.specificneed.case2
 ###################################################
 
 progres.case.sp <- merge(x=progres.case, y=progres.specificneed.case2, all.x=TRUE)
-rm(progres.specificneed.case2)
+progres.case.sp <- progres.case.sp[progres.case.sp$dem_sex %in% c("Male","Female"), ]
+progres.case.sp$dem_sex <- as.character(progres.case.sp$dem_sex)
+progres.case.sp$dem_sex <- as.factor(progres.case.sp$dem_sex)
 
+
+levels(progres.case.sp$season)
 #names(progres.case.sp)
 
+
+#### checking frequency for sp.needs
+
+prop.table(table(progres.case.sp$At.Risk, useNA = "ifany"))
+prop.table(table(progres.case.sp$Child.Labour, useNA = "ifany"))
+prop.table(table(progres.case.sp$Child.marriage..parent.or.pregnancy, useNA = "ifany"))
+prop.table(table(progres.case.sp$Family.Needs, useNA = "ifany"))
+prop.table(table(progres.case.sp$Marginalised, useNA = "ifany"))
+prop.table(table(progres.case.sp$Medical, useNA = "ifany"))
+prop.table(table(progres.case.sp$Need.of.Care, useNA = "ifany"))
+prop.table(table(progres.case.sp$Problem.with.violence.law.recruitment, useNA = "ifany"))
+prop.table(table(progres.case.sp$Separated.Child, useNA = "ifany"))
+prop.table(table(progres.case.sp$Single.Parent, useNA = "ifany"))
+prop.table(table(progres.case.sp$Victim.of.Violence, useNA = "ifany"))
+prop.table(table(progres.case.sp$Woman.at.Risk, useNA = "ifany"))
 
 ###################################################
 ######## Recode the address information 
@@ -928,12 +1020,12 @@ rm(progres.specificneed.case2)
 ###################################################
 ######## Saving reworked case information
 ###################################################
-
+#names(progres.case.sp)
 write.csv(progres.case.sp, file = "data/progrescase-1.csv",na="")
 
 
 rm(progres.case, freq1.coa,freq1.coo,freq2.coa,freq2.coo,SpecificNeedsCodesV2)  
-
+rm(progres.specificneed.case2)
 
 
 #data <- progres.case.sp
