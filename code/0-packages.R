@@ -52,6 +52,7 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
              "animation","spacetime",
              "gridExtra","directlabels",
               "prettyR","xtable","knitr","pander",
+             "files", #for creation of new folders
               "formatR" #, "gWidgetsRGtk2" # used to format the code
               #"XLConnect" ## Read and write excel files
               
@@ -82,7 +83,7 @@ library(ggplot2) ## The grammar of graphics!
 library(directlabels)
 library(extrafont) ## Additional fonts
 library(ggthemes) ## Additional themes for gplot2
-#library(gdata)
+library(gdata)
 library(gridExtra)
 #library(scales)
 
@@ -177,6 +178,10 @@ library(gridExtra)
 ## Color palette
 library(RColorBrewer) 
 library(viridis) 
+
+############################################
+## Folder creation
+library(files)
 
 #display.brewer.all()
 # Choose a qualitative color palette with blue and red
