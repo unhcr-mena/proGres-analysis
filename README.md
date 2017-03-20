@@ -12,16 +12,16 @@ Script for advanced statistical analysis of Refugee Registration database & assi
 
 
 
-## [Ten questions to ask when analyzing registration data](http://www.unhcr.org/47f0a6db2.pdf)
+## [10 questions to ask when analyzing registration data](http://www.unhcr.org/47f0a6db2.pdf)
 
 Determine the percentage of the population by sex, age group, andother factors, and consider:
 * Is it the same as the local population? Does it coincide with the data from the country of origin? 
 
 * Is there  a higher-than-average  percentage  of  women?  Children? Older persons? Persons with disabilities? 
 
-* If one group, such as adult men or young children, seems under- orover-represented, find out why. 
+* If one group, such as adult men or young children, seems under- or over-represented, find out why. 
 
-* Has the registration team been trained on how to identify and register groups with specific needs and persons at heightenedrisk? 
+* Has the registration team been trained on how to identify and register groups with specific needs and persons at heightened risk? 
 
 * Have groups with specific needs been registered in detail in coordination with community services? If not, why not and how will this be done?
 
@@ -29,7 +29,7 @@ Determine the percentage of the population by sex, age group, andother factors, 
 
 * Does the population profile indicate potential protection risks for any particular group? 
 
-* Who might beat heightened risk? Why? What immediate action isbeing taken toprotect these persons? Has a confidential, individual case-management system been established? 
+* Who might be at heightened risk? Why? What immediate action isbeing taken to protect these persons? Has a confidential, individual case-management system been established? 
 
 * Do you have data on the leadership structure? Are any groups,especially minorities, youth and women, not represented? If so, why? 
 
