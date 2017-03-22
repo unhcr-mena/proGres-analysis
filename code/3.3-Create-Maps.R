@@ -17,9 +17,9 @@ subDir <- "/maps/JOR/adm2"
 dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
 
 
+
 ##################################################################
 ## styling theme for maps
-
 ## theme for general text and borders which is the same in all maps
 theme.base <- function(...) {
   theme_minimal() +

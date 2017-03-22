@@ -5,7 +5,6 @@ rm(list = ls())
 ## Add iso3 countrycodes for merge with geojson later
 country.codes <- read.csv("data/countrycodes.csv")
 
-
 ## Function to summarize data, source (http://www.cookbook-r.com/Manipulating_data/Summarizing_data/):
 ## Gives count, mean, standard deviation, standard error of the mean, and confidence interval (default 95%).
 ##   data: a data frame.
