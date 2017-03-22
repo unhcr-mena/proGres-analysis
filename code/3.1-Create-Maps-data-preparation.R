@@ -4,7 +4,7 @@ source("code/0-packages.R")
 ###########################################
 ### Recoding the Case level Information
 ###########################################
- 
+
 original.progrescase <- read.csv("data/progrescase.csv")
 data.progrescase <- original.progrescase
 
@@ -25,48 +25,37 @@ incomplete.rows
 # data.progrescase.complete <- na.omit(data.progrescase) # would delete all incomplete rows
 
 
-##############################
-## Add iso3 countrycodes for merge with geojson later
-country.codes <- read.csv("data/countrycodes.csv")
-# data.progrescase <- merge(data.progrescase, country.codes, by.x = "CountryAsylum", by.y = "P_Code", all.x=TRUE)
-# data.progrescase$ISO_Alpha_3Code[data.progrescase$ISO_Alpha_3Code == NA] <- "GCC"
-# data.progrescase$ISO_Alpha_3Code <- factor(data.progrescase$ISO_Alpha_3Code, levels = c("DZA",  "EGY",  "GCC", "IRN",  "IRQ" , "ISR" , "JOR" , "LBY",  "LBN" , "MRT"  ,"MAR",  "SYR" , "TUN",  "TUR",  "YEM" ))
-
-# unique(data.progrescase.iso$CountryAsylum)
-# unique(data.progrescase.iso$ISO_Alpha_3Code)
-
-
 
 ### Recoding of categorical data with adding of category 'noData' for NA or empty cells
 ##############################
 ## Case size  as factor
 data.progrescase$Case.size <- as.factor(recode(data.progrescase$Num_Inds,"'-'='Unknown';
-                                 '1'='Case.size.1';
-                                 '2'='Case.size.2';
-                                 '3'='Case.size.3';
-                                 '4'='Case.size.4';
-                                 '5'='Case.size.5';
-                                 '6'='Case.size.6';
-                                 '7'='Case.size.7.and.more';
-                                 '8'='Case.size.7.and.more';
-                                 '9'='Case.size.7.and.more';
-                                 '10'='Case.size.7.and.more';
-                                 '11'='Case.size.7.and.more';
-                                 '12'='Case.size.7.and.more';
-                                 '13'='Case.size.7.and.more';
-                                 '14'='Case.size.7.and.more';
-                                 '15'='Case.size.7.and.more';
-                                 '16'='Case.size.7.and.more';
-                                 '17'='Case.size.7.and.more';
-                                 '18'='Case.size.7.and.more';
-                                 '19'='Case.size.7.and.more';
-                                 '20'='Case.size.7.and.more';
-                                 '21'='Case.size.7.and.more';
-                                 '22'='Case.size.7.and.more';
-                                 '23'='Case.size.7.and.more';
-                                 '24'='Case.size.7.and.more';
-                                  NA = 'noData';
-                                  ''='noData'"))
+                                               '1'='Case.size.1';
+                                               '2'='Case.size.2';
+                                               '3'='Case.size.3';
+                                               '4'='Case.size.4';
+                                               '5'='Case.size.5';
+                                               '6'='Case.size.6';
+                                               '7'='Case.size.7.and.more';
+                                               '8'='Case.size.7.and.more';
+                                               '9'='Case.size.7.and.more';
+                                               '10'='Case.size.7.and.more';
+                                               '11'='Case.size.7.and.more';
+                                               '12'='Case.size.7.and.more';
+                                               '13'='Case.size.7.and.more';
+                                               '14'='Case.size.7.and.more';
+                                               '15'='Case.size.7.and.more';
+                                               '16'='Case.size.7.and.more';
+                                               '17'='Case.size.7.and.more';
+                                               '18'='Case.size.7.and.more';
+                                               '19'='Case.size.7.and.more';
+                                               '20'='Case.size.7.and.more';
+                                               '21'='Case.size.7.and.more';
+                                               '22'='Case.size.7.and.more';
+                                               '23'='Case.size.7.and.more';
+                                               '24'='Case.size.7.and.more';
+                                               NA = 'noData';
+                                               ''='noData'"))
 data.progrescase$Case.size <- factor(data.progrescase$Case.size, levels = c("Case.size.1", "Case.size.2", "Case.size.3", "Case.size.4", "Case.size.5", "Case.size.6", "Case.size.7.and.more", "Unknown", "noData"))
 
 
@@ -75,200 +64,200 @@ data.progrescase$Case.size <- factor(data.progrescase$Case.size, levels = c("Cas
 ##############################
 # Aggregating year of Arrival
 data.progrescase$YearArrivalCategory <- as.factor(recode(data.progrescase$YearArrival,"'-'='Unknown';
-                                                     '1899'='1900-1980';
-                                                     '1928'='1900-1980';
-                                                     '1932'='1900-1980';
-                                                     '1935'='1900-1980';
-                                                     '1936'='1900-1980';
-                                                     '1937'='1900-1980';
-                                                     '1938'='1900-1980';
-                                                     '1939'='1900-1980';
-                                                     '1940'='1900-1980';
-                                                     '1941'='1900-1980';
-                                                     '1942'='1900-1980';
-                                                     '1943'='1900-1980';
-                                                     '1944'='1900-1980';
-                                                     '1945'='1900-1980';
-                                                     '1946'='1900-1980';
-                                                     '1947'='1900-1980';
-                                                     '1948'='1900-1980';
-                                                     '1949'='1900-1980';
-                                                     '1950'='1900-1980';
-                                                     '1951'='1900-1980';
-                                                     '1952'='1900-1980';
-                                                     '1953'='1900-1980';
-                                                     '1954'='1900-1980';
-                                                     '1955'='1900-1980';
-                                                     '1956'='1900-1980';
-                                                     '1957'='1900-1980';
-                                                     '1958'='1900-1980';
-                                                     '1959'='1900-1980';
-                                                     '1960'='1900-1980';
-                                                     '1961'='1900-1980';
-                                                     '1962'='1900-1980';
-                                                     '1963'='1900-1980';
-                                                     '1964'='1900-1980';
-                                                     '1965'='1900-1980';
-                                                     '1966'='1900-1980';
-                                                     '1967'='1900-1980';
-                                                     '1968'='1900-1980';
-                                                     '1969'='1900-1980';
-                                                     '1970'='1900-1980';
-                                                     '1971'='1900-1980';
-                                                     '1972'='1900-1980';
-                                                     '1973'='1900-1980';
-                                                     '1974'='1900-1980';
-                                                     '1975'='1900-1980';
-                                                     '1976'='1900-1980';
-                                                     '1977'='1900-1980';
-                                                     '1978'='1900-1980';
-                                                     '1979'='1900-1980';
-                                                     '1980'='1900-1980';
-                                                     '1981'='1981-1990';
-                                                     '1982'='1981-1990';
-                                                     '1983'='1981-1990';
-                                                     '1984'='1981-1990';
-                                                     '1985'='1981-1990';
-                                                     '1986'='1981-1990';
-                                                     '1987'='1981-1990';
-                                                     '1988'='1981-1990';
-                                                     '1989'='1981-1990';
-                                                     '1990'='1981-1990';
-                                                     '1991'='1991-2000';
-                                                     '1992'='1991-2000';
-                                                     '1993'='1991-2000';
-                                                     '1994'='1991-2000';
-                                                     '1995'='1991-2000';
-                                                     '1996'='1991-2000';
-                                                     '1997'='1991-2000';
-                                                     '1998'='1991-2000';
-                                                     '1999'='1991-2000';
-                                                     '2000'='1991-2000';
-                                                     '2001'='2001-2005';
-                                                     '2002'='2001-2005';
-                                                     '2003'='2001-2005';
-                                                     '2004'='2001-2005';
-                                                     '2005'='2001-2005';
-                                                     '2006'='2006-2010';
-                                                     '2007'='2006-2010';
-                                                     '2008'='2006-2010';
-                                                     '2009'='2006-2010';
-                                                     '2010'='2006-2010';
-                                                     '2011'='2011';
-                                                     '2012'='2012';
-                                                     '2013'='2013';
-                                                     '2014'='2014';
-                                                     '2015'='2015';
-                                                     '2016' = '2016';
-                                                     '2017' = '2017';
-                                                     '2018' = '2018';
-                                                     '2019' = '2019';
-                                                     '2020' = '2020';
+                                                         '1899'='1900-1980';
+                                                         '1928'='1900-1980';
+                                                         '1932'='1900-1980';
+                                                         '1935'='1900-1980';
+                                                         '1936'='1900-1980';
+                                                         '1937'='1900-1980';
+                                                         '1938'='1900-1980';
+                                                         '1939'='1900-1980';
+                                                         '1940'='1900-1980';
+                                                         '1941'='1900-1980';
+                                                         '1942'='1900-1980';
+                                                         '1943'='1900-1980';
+                                                         '1944'='1900-1980';
+                                                         '1945'='1900-1980';
+                                                         '1946'='1900-1980';
+                                                         '1947'='1900-1980';
+                                                         '1948'='1900-1980';
+                                                         '1949'='1900-1980';
+                                                         '1950'='1900-1980';
+                                                         '1951'='1900-1980';
+                                                         '1952'='1900-1980';
+                                                         '1953'='1900-1980';
+                                                         '1954'='1900-1980';
+                                                         '1955'='1900-1980';
+                                                         '1956'='1900-1980';
+                                                         '1957'='1900-1980';
+                                                         '1958'='1900-1980';
+                                                         '1959'='1900-1980';
+                                                         '1960'='1900-1980';
+                                                         '1961'='1900-1980';
+                                                         '1962'='1900-1980';
+                                                         '1963'='1900-1980';
+                                                         '1964'='1900-1980';
+                                                         '1965'='1900-1980';
+                                                         '1966'='1900-1980';
+                                                         '1967'='1900-1980';
+                                                         '1968'='1900-1980';
+                                                         '1969'='1900-1980';
+                                                         '1970'='1900-1980';
+                                                         '1971'='1900-1980';
+                                                         '1972'='1900-1980';
+                                                         '1973'='1900-1980';
+                                                         '1974'='1900-1980';
+                                                         '1975'='1900-1980';
+                                                         '1976'='1900-1980';
+                                                         '1977'='1900-1980';
+                                                         '1978'='1900-1980';
+                                                         '1979'='1900-1980';
+                                                         '1980'='1900-1980';
+                                                         '1981'='1981-1990';
+                                                         '1982'='1981-1990';
+                                                         '1983'='1981-1990';
+                                                         '1984'='1981-1990';
+                                                         '1985'='1981-1990';
+                                                         '1986'='1981-1990';
+                                                         '1987'='1981-1990';
+                                                         '1988'='1981-1990';
+                                                         '1989'='1981-1990';
+                                                         '1990'='1981-1990';
+                                                         '1991'='1991-2000';
+                                                         '1992'='1991-2000';
+                                                         '1993'='1991-2000';
+                                                         '1994'='1991-2000';
+                                                         '1995'='1991-2000';
+                                                         '1996'='1991-2000';
+                                                         '1997'='1991-2000';
+                                                         '1998'='1991-2000';
+                                                         '1999'='1991-2000';
+                                                         '2000'='1991-2000';
+                                                         '2001'='2001-2005';
+                                                         '2002'='2001-2005';
+                                                         '2003'='2001-2005';
+                                                         '2004'='2001-2005';
+                                                         '2005'='2001-2005';
+                                                         '2006'='2006-2010';
+                                                         '2007'='2006-2010';
+                                                         '2008'='2006-2010';
+                                                         '2009'='2006-2010';
+                                                         '2010'='2006-2010';
+                                                         '2011'='2011';
+                                                         '2012'='2012';
+                                                         '2013'='2013';
+                                                         '2014'='2014';
+                                                         '2015'='2015';
+                                                         '2016' = '2016';
+                                                         '2017' = '2017';
+                                                         '2018' = '2018';
+                                                         '2019' = '2019';
+                                                         '2020' = '2020';
                                                          NA = 'noData';
-                                                       ''='noData'"))
+                                                         ''='noData'"))
 data.progrescase$YearArrivalCategory <- factor(data.progrescase$YearArrivalCategory, levels = c("1900-1980", "1981-1990", "1991-2000", "2001-2005", "2006-2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "Unknown", "noData"))
 
 ##############################
 # Aggregating country of Origin
 data.progrescase$CountryOriginCategory <- as.factor(recode(data.progrescase$CountryOrigin,"'SYR'='SYR';
-                                             'IRQ'='IRQ';
-                                             'SOM'='HORN';
-                                             'AFG'='AFG';
-                                             'IRN'='IRN';
-                                             'SUD'='HORN';
-                                             'ETH'='HORN';
-                                             'ERT'='HORN';
-                                             'PAL'='MENA';
-                                             'TUR'='OTH';
-                                             'PAK'='ASIA';
-                                             'YEM'='MENA';
-                                             'SSD'='AFR';
-                                             'NIG'='AFR';
-                                             'ICO'='AFR';
-                                             'COD'='AFR';
-                                             'UGA'='AFR';
-                                             'BGD'='ASIA';
-                                             'ARE'='MENA';
-                                             'CMR'='AFR';
-                                             'UZB'='ASIA';
-                                             'COB'='AFR';
-                                             'TKM'='ASIA';
-                                             'MLI'='AFR';
-                                             'GUI'='AFR';
-                                             'CAR'='AFR';
-                                             'LBY'='MENA';
-                                             'KGZ'='ASIA';
-                                             'LEB'='MENA';
-                                             'CHD'='AFR';
-                                             'TJK'='ASIA';
-                                             'MOR'='AFR';
-                                             'JOR'='MENA';
-                                             'SEN'='AFR';
-                                             'KUW'='MENA';
-                                             'MNG'='OTH';
-                                             'ALG'='MENA';
-                                             'GHA'='AFR';
-                                             'TUN'='MENA';
-                                             'SLE'='AFR';
-                                             'LBR'='AFR';
-                                             'RUS'='OTH';
-                                             'KEN'='AFR';
-                                             'CHI'='ASIA';
-                                             'LKA'='ASIA';
-                                             'BDI'='AFR';
-                                             'KAZ'='ASIA';
-                                             'PHI'='ASIA';
-                                             'ZZZ'='OTH';
-                                             'MYA'='ASIA';
-                                             'SAU'='MENA';
-                                             'BAH'='MENA';
-                                             'RWA'='AFR';
-                                             'IND'='ASIA';
-                                             'TOG'='AFR';
-                                             'DJB'='AFR';
-                                             'GAM'='AFR';
-                                             'NGR'='AFR';
-                                             'ZIM'='AFR';
-                                             'ANG'='AFR';
-                                             'BKF'='AFR';
-                                             'NEP'='ASIA';
-                                             'SRV'='OTH';
-                                             'BEN'='AFR';
-                                             'TAN'='AFR';
-                                             'UKR'='OTH';
-                                             'MAD'='AFR';
-                                             'GAB'='AFR';
-                                             'INS'='ASIA';
-                                             'MAU'='AFR';
-                                             'TIB'='ASIA';
-                                             'UAE'='MENA';
-                                             'BSN'='OTH';
-                                             'COI'='AFR';
-                                             'OMN'='MENA';
-                                             'GNB'='AFR';
-                                             'DOM'='OTH';
-                                             'ISR'='MENA';
-                                             'ARM'='ASIA';
-                                             'AZE'='ASIA';
-                                             'BLR'='OTH';
-                                             'CUB'='OTH';
-                                             'FRA'='OTH';
-                                             'HAI'='OTH';
-                                             'RSA'='OTH';
-                                             'ARG'='OTH';
-                                             'GBR'='OTH';
-                                             'KRN'='OTH';
-                                             'MDA'='OTH';
-                                             'MTS'='OTH';
-                                             'PER'='OTH';
-                                             'SCG'='OTH';
-                                             'SOL'='OTH';
-                                             'SUR'='OTH';
-                                             'YUG'='OTH';
-                                             '-'='Unknown';
-                                             'U'='Unknown';
-                                             NA = 'noData';
-                                             ''= 'noData'"))
+                                                           'IRQ'='IRQ';
+                                                           'SOM'='HORN';
+                                                           'AFG'='AFG';
+                                                           'IRN'='IRN';
+                                                           'SUD'='HORN';
+                                                           'ETH'='HORN';
+                                                           'ERT'='HORN';
+                                                           'PAL'='MENA';
+                                                           'TUR'='OTH';
+                                                           'PAK'='ASIA';
+                                                           'YEM'='MENA';
+                                                           'SSD'='AFR';
+                                                           'NIG'='AFR';
+                                                           'ICO'='AFR';
+                                                           'COD'='AFR';
+                                                           'UGA'='AFR';
+                                                           'BGD'='ASIA';
+                                                           'ARE'='MENA';
+                                                           'CMR'='AFR';
+                                                           'UZB'='ASIA';
+                                                           'COB'='AFR';
+                                                           'TKM'='ASIA';
+                                                           'MLI'='AFR';
+                                                           'GUI'='AFR';
+                                                           'CAR'='AFR';
+                                                           'LBY'='MENA';
+                                                           'KGZ'='ASIA';
+                                                           'LEB'='MENA';
+                                                           'CHD'='AFR';
+                                                           'TJK'='ASIA';
+                                                           'MOR'='AFR';
+                                                           'JOR'='MENA';
+                                                           'SEN'='AFR';
+                                                           'KUW'='MENA';
+                                                           'MNG'='OTH';
+                                                           'ALG'='MENA';
+                                                           'GHA'='AFR';
+                                                           'TUN'='MENA';
+                                                           'SLE'='AFR';
+                                                           'LBR'='AFR';
+                                                           'RUS'='OTH';
+                                                           'KEN'='AFR';
+                                                           'CHI'='ASIA';
+                                                           'LKA'='ASIA';
+                                                           'BDI'='AFR';
+                                                           'KAZ'='ASIA';
+                                                           'PHI'='ASIA';
+                                                           'ZZZ'='OTH';
+                                                           'MYA'='ASIA';
+                                                           'SAU'='MENA';
+                                                           'BAH'='MENA';
+                                                           'RWA'='AFR';
+                                                           'IND'='ASIA';
+                                                           'TOG'='AFR';
+                                                           'DJB'='AFR';
+                                                           'GAM'='AFR';
+                                                           'NGR'='AFR';
+                                                           'ZIM'='AFR';
+                                                           'ANG'='AFR';
+                                                           'BKF'='AFR';
+                                                           'NEP'='ASIA';
+                                                           'SRV'='OTH';
+                                                           'BEN'='AFR';
+                                                           'TAN'='AFR';
+                                                           'UKR'='OTH';
+                                                           'MAD'='AFR';
+                                                           'GAB'='AFR';
+                                                           'INS'='ASIA';
+                                                           'MAU'='AFR';
+                                                           'TIB'='ASIA';
+                                                           'UAE'='MENA';
+                                                           'BSN'='OTH';
+                                                           'COI'='AFR';
+                                                           'OMN'='MENA';
+                                                           'GNB'='AFR';
+                                                           'DOM'='OTH';
+                                                           'ISR'='MENA';
+                                                           'ARM'='ASIA';
+                                                           'AZE'='ASIA';
+                                                           'BLR'='OTH';
+                                                           'CUB'='OTH';
+                                                           'FRA'='OTH';
+                                                           'HAI'='OTH';
+                                                           'RSA'='OTH';
+                                                           'ARG'='OTH';
+                                                           'GBR'='OTH';
+                                                           'KRN'='OTH';
+                                                           'MDA'='OTH';
+                                                           'MTS'='OTH';
+                                                           'PER'='OTH';
+                                                           'SCG'='OTH';
+                                                           'SOL'='OTH';
+                                                           'SUR'='OTH';
+                                                           'YUG'='OTH';
+                                                           '-'='Unknown';
+                                                           'U'='Unknown';
+                                                           NA = 'noData';
+                                                           ''= 'noData'"))
 data.progrescase$CountryOriginCategory <- factor(data.progrescase$CountryOriginCategory, levels = c("SYR","IRQ","AFG","IRN","HORN","AFR", "MENA", "ASIA", "OTH", "Unknown", "noData"))
 
 
@@ -283,14 +272,14 @@ data.progrescase$CountryOriginCategory <- factor(data.progrescase$CountryOriginC
 ##############################
 # Aggregating season according to month
 data.progrescase$season <- as.factor(recode(data.progrescase$Montharrival,"'March'='Spring'; 'April'='Spring';    'May'='Spring';
-                              'June'='Summer'; 'July'='Summer';  'August'='Summer'; 
-                              'September'='Autumn'; 'October'='Autumn'; 'November'='Autumn'; 
-                              'January'='Winter';  'February'='Winter'; 'December'='Winter'; '-'='Unknown'; NA='noData'; ''='noData'"))
+                                            'June'='Summer'; 'July'='Summer';  'August'='Summer'; 
+                                            'September'='Autumn'; 'October'='Autumn'; 'November'='Autumn'; 
+                                            'January'='Winter';  'February'='Winter'; 'December'='Winter'; '-'='Unknown'; NA='noData'; ''='noData'"))
 data.progrescase$season <- factor(data.progrescase$season, levels = c("Spring", "Summer", "Autumn", "Winter", "Unknown", "noData"))
 
 data.progrescase$Montharrival <- recode(data.progrescase$Montharrival,"'January'='Jan';  'February'='Febr';'March'='Mar';
-                                    'April'='Apr';  'May'='May'; 'June'='Jun'; 'July'='Jul';  'August'='Aug'; 
-                                    'September'='Sept'; 'October'='Oct'; 'November'='Nov'; 'December'='Dec'; '-'='Unknown'; NA='noData'; ''='noData'")
+                                        'April'='Apr';  'May'='May'; 'June'='Jun'; 'July'='Jul';  'August'='Aug'; 
+                                        'September'='Sept'; 'October'='Oct'; 'November'='Nov'; 'December'='Dec'; '-'='Unknown'; NA='noData'; ''='noData'")
 data.progrescase$Montharrival <- factor(data.progrescase$Montharrival, levels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec", "Unknown", "noData"))
 
 
@@ -299,52 +288,52 @@ data.progrescase$Montharrival <- factor(data.progrescase$Montharrival, levels = 
 ##############################
 # Recoding Education
 data.progrescase$edu_highest_t <- as.factor(recode(data.progrescase$edu_highest,"
-                                     '1 year (or Grade 1)' = 'Grade 1'; 
-                                     '2 year (or Grade 2)' = 'Grade 2';  
-                                     '3 year (or Grade 3)' = 'Grade 3';  
-                                     '4 year (or Grade 4)' = 'Grade 4';
-                                     '5 year (or Grade 5)' = 'Grade 5';  
-                                     '6 year (or Grade 6)' = 'Grade 6';
-                                     '7 year (or Grade 7)' = 'Grade 7';  
-                                     '8 year (or Grade 8)' = 'Grade 8';  
-                                     '9 year (or Grade 9)' = 'Grade 9';
-                                     '10 year (or Grade 10)' = 'Grade 10';  '11 year (or Grade 11)' = 'Grade 11'; 
-                                     '12 year (or Grade 12)' = 'Grade 12';    '13 year (or Grade 13)' = 'Grade 13';
-                                     '14 year (or Grade 14)' = 'Grade 14';  
-                                     'IN' = 'Informal Education'; 'Informal Educaiton' = 'Informal Education';
-                                     'NE' = 'No education';
-                                     'U' = 'Unknown'; 
-                                     '-' = 'Unknown'; 
-                                     'TC' = 'Techn Vocational';     'UG' = 'University level'; 'PG' = 'Post university level';
-                                     'KG' = 'Kindergarten'; NA='noData'; ''='noData'"))
+                                                   '1 year (or Grade 1)' = 'Grade 1'; 
+                                                   '2 year (or Grade 2)' = 'Grade 2';  
+                                                   '3 year (or Grade 3)' = 'Grade 3';  
+                                                   '4 year (or Grade 4)' = 'Grade 4';
+                                                   '5 year (or Grade 5)' = 'Grade 5';  
+                                                   '6 year (or Grade 6)' = 'Grade 6';
+                                                   '7 year (or Grade 7)' = 'Grade 7';  
+                                                   '8 year (or Grade 8)' = 'Grade 8';  
+                                                   '9 year (or Grade 9)' = 'Grade 9';
+                                                   '10 year (or Grade 10)' = 'Grade 10';  '11 year (or Grade 11)' = 'Grade 11'; 
+                                                   '12 year (or Grade 12)' = 'Grade 12';    '13 year (or Grade 13)' = 'Grade 13';
+                                                   '14 year (or Grade 14)' = 'Grade 14';  
+                                                   'IN' = 'Informal Education'; 'Informal Educaiton' = 'Informal Education';
+                                                   'NE' = 'No education';
+                                                   'U' = 'Unknown'; 
+                                                   '-' = 'Unknown'; 
+                                                   'TC' = 'Techn Vocational';     'UG' = 'University level'; 'PG' = 'Post university level';
+                                                   'KG' = 'Kindergarten'; NA='noData'; ''='noData'"))
 data.progrescase$edu_highest_t <- factor(data.progrescase$edu_highest_t, levels = c("No education", "Informal Education","Kindergarten",
-                                                                            "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
-                                                                            "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
-                                                                            "Grade 11", "Grade 12", "Grade 13", "Grade 14",
-                                                                            "Techn Vocational", "University level", "Post university level", "Unknown", "noData"))
+                                                                                    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
+                                                                                    "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10",
+                                                                                    "Grade 11", "Grade 12", "Grade 13", "Grade 14",
+                                                                                    "Techn Vocational", "University level", "Post university level", "Unknown", "noData"))
 
 data.progrescase$edu_highestcat <- as.factor(recode(data.progrescase$edu_highest_t,"'-'='Unknown'; ''='noData'; NA='noData';
-                                      'Unknown'='Unknown';
-                                      'Informal Educaton'='Other';
-                                      'Techn Vocational'='Other';
-                                      'No education'='No education';
-                                      'Kindergarten'='Up to Grade 5';
-                                      'Grade 1'='Up to Grade 5';
-                                      'Grade 2'='Up to Grade 5';
-                                      'Grade 3'='Up to Grade 5';
-                                      'Grade 4'='Up to Grade 5';
-                                      'Grade 5'='Up to Grade 5';
-                                      'Grade 6'='Grade 6-8';
-                                      'Grade 7'='Grade 6-8';
-                                      'Grade 8'='Grade 6-8';
-                                      'Grade 9'='Grade 9-11';
-                                      'Grade 10'='Grade 9-11';
-                                      'Grade 11'='Grade 9-11';
-                                      'Grade 12'='Grade 12-14';
-                                      'Grade 13'='Grade 12-14';
-                                      'Grade 14'='Grade 12-14';
-                                      'University level'='Higher Education';
-                                      'Post university level'='Higher Education'"))
+                                                    'Unknown'='Unknown';
+                                                    'Informal Educaton'='Other';
+                                                    'Techn Vocational'='Other';
+                                                    'No education'='No education';
+                                                    'Kindergarten'='Up to Grade 5';
+                                                    'Grade 1'='Up to Grade 5';
+                                                    'Grade 2'='Up to Grade 5';
+                                                    'Grade 3'='Up to Grade 5';
+                                                    'Grade 4'='Up to Grade 5';
+                                                    'Grade 5'='Up to Grade 5';
+                                                    'Grade 6'='Grade 6-8';
+                                                    'Grade 7'='Grade 6-8';
+                                                    'Grade 8'='Grade 6-8';
+                                                    'Grade 9'='Grade 9-11';
+                                                    'Grade 10'='Grade 9-11';
+                                                    'Grade 11'='Grade 9-11';
+                                                    'Grade 12'='Grade 12-14';
+                                                    'Grade 13'='Grade 12-14';
+                                                    'Grade 14'='Grade 12-14';
+                                                    'University level'='Higher Education';
+                                                    'Post university level'='Higher Education'"))
 data.progrescase$edu_highestcat <- factor(data.progrescase$edu_highestcat, levels = c("No education", "Up to Grade 5", "Grade 6-8", "Grade 9-11", "Grade 12-14", "Higher Education", "Other", "Unknown", "noData"))
 
 
@@ -367,7 +356,7 @@ data.progrescase$occupationcat[substr(data.progrescase$occupationcode, 1,1 )== "
 data.progrescase$occupationcat[substr(data.progrescase$occupationcode, 1,1 )== "-"] <- "Unknown"
 
 data.progrescase$occupationcat <- factor(data.progrescase$occupationcat, levels = c("Manager-Professional-Technician-Clerk", "ServiceMarket",
-                                                                            "Agricultural", "Craft-Machine", "Elementary", "Military", "NoOccup", "Student", "Unknown", "noData"))
+                                                                                    "Agricultural", "Craft-Machine", "Elementary", "Military", "NoOccup", "Student", "Unknown", "noData"))
 ##############################
 # Marital status
 data.progrescase$dem_marriagecat <- as.factor(recode(data.progrescase$dem_marriage,"'WD'='Widowed'; 'SN'='Single';'DV'='Divorced';'MA'='Married'; 'EG'='Engaged'; 'SR'='Separated'; 'CL'='Married'; '-' = 'Unknown'; NA='noData'; ''='noData'"))

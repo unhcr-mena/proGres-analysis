@@ -1,5 +1,9 @@
-## clear workspace except necessary aggregation function
-keep(country.codes, sure = TRUE)
+## clear workspace
+rm(list = ls())
+
+##############################
+## Add iso3 countrycodes for merge with geojson later
+country.codes <- read.csv("data/countrycodes.csv")
 
 
 ## Function to summarize data, source (http://www.cookbook-r.com/Manipulating_data/Summarizing_data/):
@@ -52,182 +56,226 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
 progrescase.processed <- read.csv("data/progrescase_maps.csv")
 data.progrescase.specificneed <- progrescase.processed
 
-## dataframe of all countrycodes that are existent in data
+##############################
+## create country code conversion table only for existent countries
 all.countries <- data.frame(unique(data.progrescase.specificneed$CountryAsylum))
 colnames(all.countries) <- "P_Code"
 country <- merge(all.countries, country.codes, all.x=TRUE)
 country$ISO_Alpha_3Code <- as.factor(country$ISO_Alpha_3Code)
 country$ISO_Alpha_3Code <- factor(country$ISO_Alpha_3Code)
-country<- country[!country$P_Code == "GCC", ]
-country<- country[!country$P_Code == "ISR", ] #remove as long as there is no geojson
-country<- country[!country$P_Code == "LEB", ] #remove as long as geojson has different columnnames
-# country$ISO_Alpha_3Code <- factor(country$ISO_Alpha_3Code, levels = c("DZA",  "EGY",  "GCC", "IRN",  "IRQ" , "ISR" , "JOR" , "LBY",  "LBN" , "MRT"  ,"MAR",  "SYR" , "TUN",  "TUR",  "YEM" ))
-# country$ISO_Alpha_3Code[country$ISO_Alpha_3Code == "NA"] <- "GCC"
 
+## needs to be entire dataframe not only Jordan when looping through countries
+country<- country[country$P_Code == "JOR", ]
+# country<- country[!country$P_Code == "GCC", ]
+# country<- country[!country$P_Code == "ISR", ] #remove as long as there is no geojson
+# country<- country[!country$P_Code == "LEB", ] #remove as long as geojson has different columnnames
 
-## create list for mapping data that will be filled in the loop by joining countrydata and geojson
+##############################
+## create lists and dataframes that will be filled in the loop by joining data and geojson
+## consistency table will show percentage of consistent data for each country and each admin level
 adm1.list <- list()
 adm2.list <- list()
-mapdata.list <- list()
+mapdata.list.adm1 <- list()
+mapdata.list.adm2 <- list()
+rm(consistency.table)
 consistency.table <- NULL
 
+
+##############################
 ## looping spatial data aggregation through all countries
-for (i in 1:nrow(all.countries)) {
-##############################
-pcode <- country[i,1]
-iso3 <- country[i,2]
-## subset for different admin levels
+## steps in loop: 
+## 1) country subset of data for adm1 & adm2
+## 2) calculate percentage of consistent data within each country & admin level and write values in consistency table
+## 3) adjust keycolumn names in data for coming join with geojson
+## 4) creation of geojson folder and loading/saving of geojson adm1 & adm2
+## 5) apply function to all data variables to calculate mean values and margin of error
+## 6) check if dataframe has data and join with geojson adm1 & adm2
+i=1
 
-df_CountryAsylum <- data.progrescase.specificneed[grep(pcode, data.progrescase.specificneed$CountryAsylum), ]
-adm1 <- df_CountryAsylum[grep(pcode, df_CountryAsylum$coal1id), ] #only rows where adm0 and adm1 are consistent
-adm2 <- adm1[grep(pcode, adm1$coal2id), ] #only rows where adm1 and adm2 are consistent
-
-
-## let's check how much percent of data is consistent within each country and adminlevel
-## rows where CountryAsylum has countrycode is considered as total
-## create empty consistency table and fill with accuracy percentage data
-
-total <- nrow(df_CountryAsylum)
-pct.adm1 <- round((nrow(adm1)/total), digits = 2) # if nrow country codes is considered as total 
-pct.adm2 <- round((nrow(adm2)/total), digits = 2) # if nrow country codes is considered as total 
-
-consistency.table <- rbind(consistency.table, data.frame(iso3, total, pct.adm1, pct.adm2))
-
-
-## change column names of key columns for successful join with geojson
-names(adm1)[names(adm1) == 'coal1id'] <- 'idprogres'
-names(adm2)[names(adm2) == 'coal2id'] <- 'idadm2'
-
-
-##############################
-# data processing steps on country level (e.g. ratio where 100% should be total within country not of all data)
-##############################
-
-##############################
-## Calculating dependency percentage within country (100% should be current country subset not adm. unit or all countries)
-# child+elderly, # child, # elderly #single female already existent
-# adm1
-adm1$dependency <- (adm1$Child_0_14+adm1$Eldern_65) / (adm1$Work_15_64+adm1$Child_0_14+adm1$Eldern_65)
-adm1$youthdependency <- adm1$Child_0_14 / (adm1$Work_15_64+adm1$Child_0_14+adm1$Eldern_65)
-adm1$elederndependency <- adm1$Eldern_65 / (adm1$Work_15_64+adm1$Child_0_14+adm1$Eldern_65)
-# adm2
-adm2$dependency <- (adm2$Child_0_14+adm2$Eldern_65) / (adm2$Work_15_64+adm2$Child_0_14+adm2$Eldern_65)
-adm2$youthdependency <- adm2$Child_0_14 / (adm2$Work_15_64+adm2$Child_0_14+adm2$Eldern_65)
-adm2$elederndependency <- adm2$Eldern_65 / (adm2$Work_15_64+adm2$Child_0_14+adm2$Eldern_65)
-
-
-##############################
-## Individual subsets for some variables to loose as less data as possible
-## remove observation where we do not have gender data
-adm1.sex <- adm1[adm1$dem_sex !=c("Unknown","U","f","m","-"), ]
-adm2.sex <- adm2[adm2$dem_sex !=c("Unknown","U","f","m","-"), ]
-
-
-
-
-##############################
-## store data of adm1 and adm2 together in one list
-data.country.list <- list(adm1, adm2)
-
-
-## aggregation by admin level 1 code of asylum ################
-adm1.Num_Inds <- summarySE(data.country.list[[1]], measurevar="Num_Inds", groupvars=c("idprogres"), na.rm=TRUE)
-adm1.Child_0_14 <- summarySE(data.country.list[[1]], measurevar="Child_0_14", groupvars=c("idprogres"), na.rm=TRUE)
-adm1.Youth_15_17 <- summarySE(data.country.list[[1]], measurevar="Youth_15_17", groupvars=c("idprogres"), na.rm=TRUE)
-adm1.Work_15_64 <- summarySE(data.country.list[[1]], measurevar="Work_15_64", groupvars=c("idprogres"), na.rm=TRUE)
-adm1.Eldern_65 <- summarySE(data.country.list[[1]], measurevar="Eldern_65", groupvars=c("idprogres"), na.rm=TRUE)
-adm1.case.STDEV_Age <- summarySE(data.country.list[[1]], measurevar="STDEV_Age", groupvars=c("idprogres"), na.rm=TRUE)
-adm1.head.dem_age <- summarySE(data.country.list[[1]], measurevar="dem_age", groupvars=c("idprogres"), na.rm=TRUE)
-adm1.case.female <- summarySE(data.country.list[[1]], measurevar="Female", groupvars=c("idprogres"), na.rm=TRUE)
-adm1.case.male <- summarySE(data.country.list[[1]], measurevar="Male", groupvars=c("idprogres"), na.rm=TRUE)
-adm1.case.only.female <- summarySE(data.country.list[[1]], measurevar="only.female.case", groupvars=c("idprogres"), na.rm=TRUE) 
-adm1.case.only.male <- summarySE(data.country.list[[1]], measurevar="only.male.case", groupvars=c("idprogres"), na.rm=TRUE) 
-adm1.case.dependency <- summarySE(data.country.list[[1]], measurevar="dependency", groupvars=c("idprogres"), na.rm=TRUE)
-adm1.case.youthdependency <- summarySE(data.country.list[[1]], measurevar="youthdependency", groupvars=c("idprogres"), na.rm=TRUE)
-adm1.case.elederndependency <- summarySE(data.country.list[[1]], measurevar="elederndependency", groupvars=c("idprogres"), na.rm=TRUE)
-# special case where other data is used: column 'female.headed' is based on column 'dem_sex' which contains invalid values
-# therefore it is for this particular case necessary to use a special cleaned data 
-adm1.case.female.headed <- summarySE(adm1.sex, measurevar="female.headed", groupvars=c("idprogres"), na.rm=TRUE) 
-
-#join all processed variables to one list for mapping purpose and delete variables for better variable management
-list.adm1 <- list(adm1.Num_Inds, adm1.Child_0_14, adm1.Youth_15_17, adm1.Work_15_64, adm1.Eldern_65, adm1.case.STDEV_Age, adm1.head.dem_age, adm1.case.female, adm1.case.male, adm1.case.only.female, adm1.case.only.male, adm1.case.female.headed, adm1.case.dependency, adm1.case.youthdependency, adm1.case.elederndependency)
-adm1.list[[iso3]] <- list(list.adm1)
-rm(adm1.Num_Inds, adm1.Child_0_14, adm1.Youth_15_17, adm1.Work_15_64, adm1.Eldern_65, adm1.case.STDEV_Age, adm1.head.dem_age, adm1.case.female, adm1.case.male, adm1.case.only.female, adm1.case.only.male, adm1.case.female.headed, adm1.case.dependency, adm1.case.youthdependency, adm1.case.elederndependency)
-
-
-
-### aggregation by admin level 2 code of asylum ################
-adm2.Num_Inds <- summarySE(data.country.list[[2]], measurevar="Num_Inds", groupvars=c("idadm2"), na.rm=TRUE)
-adm2.Child_0_14 <- summarySE(data.country.list[[2]], measurevar="Child_0_14", groupvars=c("idadm2"), na.rm=TRUE)
-adm2.Youth_15_17 <- summarySE(data.country.list[[2]], measurevar="Youth_15_17", groupvars=c("idadm2"), na.rm=TRUE)
-adm2.Work_15_64 <- summarySE(data.country.list[[2]], measurevar="Work_15_64", groupvars=c("idadm2"), na.rm=TRUE)
-adm2.Eldern_65 <- summarySE(data.country.list[[2]], measurevar="Eldern_65", groupvars=c("idadm2"), na.rm=TRUE)
-adm2.case.STDEV_Age <- summarySE(data.country.list[[2]], measurevar="STDEV_Age", groupvars=c("idadm2"), na.rm=TRUE)
-adm2.head.dem_age <- summarySE(data.country.list[[2]], measurevar="dem_age", groupvars=c("idadm2"), na.rm=TRUE)
-adm2.case.female <- summarySE(data.country.list[[2]], measurevar="Female", groupvars=c("idadm2"), na.rm=TRUE)
-adm2.case.male <- summarySE(data.country.list[[2]], measurevar="Male", groupvars=c("idadm2"), na.rm=TRUE)
-adm2.case.only.female <- summarySE(data.country.list[[2]], measurevar="only.female.case", groupvars=c("idadm2"), na.rm=TRUE) 
-adm2.case.only.male <- summarySE(data.country.list[[2]], measurevar="only.male.case", groupvars=c("idadm2"), na.rm=TRUE) 
-adm2.case.dependency <- summarySE(data.country.list[[2]], measurevar="dependency", groupvars=c("idadm2"), na.rm=TRUE)
-adm2.case.youthdependency <- summarySE(data.country.list[[2]], measurevar="youthdependency", groupvars=c("idadm2"), na.rm=TRUE)
-adm2.case.elederndependency <- summarySE(data.country.list[[2]], measurevar="elederndependency", groupvars=c("idadm2"), na.rm=TRUE)
-# special case where other data is used: column 'female.headed' is based on column 'dem_sex' which contains invalid values
-# therefore it is for this particular case necessary to use a special cleaned data 
-adm2.case.female.headed <- summarySE(adm2.sex, measurevar="female.headed", groupvars=c("idadm2"), na.rm=TRUE) 
-
-#join all processed variables to one list for mapping purpose and delete variables for better variable management
-list.adm2 <- list(adm2.Num_Inds, adm2.Child_0_14, adm2.Youth_15_17, adm2.Work_15_64, adm2.Eldern_65, adm2.case.STDEV_Age, adm2.head.dem_age, adm2.case.female, adm2.case.male, adm2.case.only.female, adm2.case.only.male, adm2.case.female.headed, adm2.case.dependency, adm2.case.youthdependency, adm2.case.elederndependency)
-adm2.list[[iso3]] <- list(list.adm2)
-rm(adm2.Num_Inds, adm2.Child_0_14, adm2.Youth_15_17, adm2.Work_15_64, adm2.Eldern_65, adm2.case.STDEV_Age, adm2.head.dem_age, adm2.case.female, adm2.case.male, adm2.case.only.female, adm2.case.only.male, adm2.case.female.headed, adm2.case.dependency, adm2.case.youthdependency, adm2.case.elederndependency)
-
-
-###### LOAD GEOJSON AND PREPARE FOR JOIN WITH THEMATIC DATA #################
-#rm(geojson)
-
-
-##take geojson from p-code repository
-geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM1.geojson")
-
-
-# create output folder
-mainDir <- "data"
-subDir <- "/mapping/geojson"
-dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-filename <- paste0(iso3,"_ADM1.geojson")
-destfilepath <- paste0("data/mapping/geojson/", filename )
-download.file( geojsonurl, destfile=destfilepath )
-json.raw <- geojson_read( destfilepath, method="local", what="sp" )
-
-proj4string(json.raw) # describes current coordinate reference system: here "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
-json.raw <- spTransform(json.raw,
-                       CRS("+proj=longlat +datum=WGS84")) # change in this system to match with basemap later
-
-# this is a well known R / GEOS hack (usually combined with the above) to 
-# deal with "bad" polygons
-json.raw <- gBuffer(json.raw, byid=TRUE, width=0)
-# plot(json.raw)
-
-# fortify, i.e., make ggplot2-compatible
-json.raw@data$id = rownames(json.raw@data)
-map.data.fortified <- fortify(json.raw, region = "id")
-map.data <- plyr::join(map.data.fortified, json.raw@data, by="id") #joining dataframe with geojson-data
-map.data <- map.data[, c("long", "lat", "order", "id", "group", "gid", "name", "iso3", "idprogres")] # subset with only needed columns to accelerate performance
-name <- paste0(iso3,"_adm1",sep='')
-
-## write data in list instead of saving to save time
-mapdata.list[[name]] <- map.data
-rm(map.data.fortified, destfilepath, json.raw, geojsonurl)
-
-## creation of folders for map output
-mainDir <- "out"
-subDir <- paste0("/maps/",iso3,"/adm1")
-dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-
-mainDir <- "out"
-subDir <- paste0("/maps/",iso3,"/adm2")
-dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-
-
+for (i in 1:nrow(country)) {
+  pcode <- country[i,1]
+  iso3 <- country[i,2]
+  
+  ## 1) country subset for different admin levels
+  df_CountryAsylum <- data.progrescase.specificneed[grep(pcode, data.progrescase.specificneed$CountryAsylum), ]
+  adm1 <- df_CountryAsylum[grep(pcode, df_CountryAsylum$coal1id), ] #only rows where adm0 and adm1 are consistent
+  adm2 <- adm1[grep(pcode, adm1$coal2id), ] #only rows where adm1 and adm2 are consistent
+  
+  
+  ## 2) let's check how much percent of data is consistent within each country and adminlevel
+  ## rows where CountryAsylum has countrycode is considered as total
+  ## create empty consistency table and fill with accuracy percentage data
+  total <- nrow(df_CountryAsylum)
+  pct.adm1 <- round((nrow(adm1)/total), digits = 2) # if nrow country codes is considered as total 
+  pct.adm2 <- round((nrow(adm2)/total), digits = 2) # if nrow country codes is considered as total 
+  consistency.table <- rbind(consistency.table, data.frame(iso3, total, pct.adm1, pct.adm2))
+  
+  
+  ## 3) adjust column names of key columns for successful join with geojson
+  names(adm1)[names(adm1) == 'coal1id'] <- 'idprogres'
+  names(adm2)[names(adm2) == 'coal2id'] <- 'idadm2'
+  
+  
+  ## 4) loading geojson
+  ## admin level 1
+  
+  geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM1.geojson")
+  
+  # create output folder
+  mainDir <- "data"
+  subDir <- "/mapping/geojson"
+  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+  filename <- paste0(iso3,"_ADM1.geojson")
+  destfilepath <- paste0("data/mapping/geojson/", filename )
+  download.file( geojsonurl, destfile=destfilepath )
+  json.raw <- geojson_read( destfilepath, method="local", what="sp" )
+  
+  proj4string(json.raw) # describes current coordinate reference system: here "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
+  json.raw <- spTransform(json.raw,
+                          CRS("+proj=longlat +datum=WGS84")) # change in this system to match with basemap later
+  
+  # this is a well known R / GEOS hack (usually combined with the above) to 
+  # deal with "bad" polygons
+  json.raw <- gBuffer(json.raw, byid=TRUE, width=0)
+  # plot(json.raw)
+  
+  # fortify, i.e., make ggplot2-compatible
+  json.raw@data$id = rownames(json.raw@data)
+  map.data.fortified <- fortify(json.raw, region = "id")
+  map.data <- plyr::join(map.data.fortified, json.raw@data, by="id") #joining dataframe with geojson-data
+  map.data.adm1 <- map.data[, c("long", "lat", "order", "id", "group", "gid", "name", "iso3", "idprogres")] # subset with only needed columns to accelerate performance
+  
+  
+  ## p-code repository needs to be consistent in case of id's (sometimes idprogres is used sometimes idadm2)
+  ## admin level 2
+  geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM2.geojson")
+  
+  # use already created output folder and existent variables
+  filename <- paste0(iso3,"_ADM2.geojson")
+  destfilepath <- paste0("data/mapping/geojson/", filename)
+  download.file( geojsonurl, destfile=destfilepath)
+  json.raw <- geojson_read( destfilepath, method="local", what="sp")
+  
+  proj4string(json.raw) # describes current coordinate reference system: here "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
+  json.raw <- spTransform(json.raw,
+                          CRS("+proj=longlat +datum=WGS84")) # change in this system to match with basemap later
+  json.raw <- gBuffer(json.raw, byid=TRUE, width=0)
+  
+  json.raw@data$id = rownames(json.raw@data)
+  map.data.fortified <- fortify(json.raw, region = "id")
+  map.data <- plyr::join(map.data.fortified, json.raw@data, by="id") #joining dataframe with geojson-data
+  map.data.adm2 <- map.data[, c("long", "lat", "order", "id", "group", "idcountry", "idadm2", "adm2name")] # subset with only needed columns to accelerate performance
+  
+  
+  
+  ## 5) data processing steps on country level
+  
+  ## Calculating dependency percentage within country (100% should be current country subset not adm. unit or all countries)
+  # child+elderly, # child, # elderly #single female already existent
+  # adm1
+  adm1$dependency <- (adm1$Child_0_14+adm1$Eldern_65) / (adm1$Work_15_64+adm1$Child_0_14+adm1$Eldern_65)
+  adm1$youthdependency <- adm1$Child_0_14 / (adm1$Work_15_64+adm1$Child_0_14+adm1$Eldern_65)
+  adm1$elederndependency <- adm1$Eldern_65 / (adm1$Work_15_64+adm1$Child_0_14+adm1$Eldern_65)
+  # adm2
+  adm2$dependency <- (adm2$Child_0_14+adm2$Eldern_65) / (adm2$Work_15_64+adm2$Child_0_14+adm2$Eldern_65)
+  adm2$youthdependency <- adm2$Child_0_14 / (adm2$Work_15_64+adm2$Child_0_14+adm2$Eldern_65)
+  adm2$elederndependency <- adm2$Eldern_65 / (adm2$Work_15_64+adm2$Child_0_14+adm2$Eldern_65)
+  
+  ## Individual subsets for some variables to loose as less data as possible
+  ## remove observation where we do not have gender data
+  adm1.sex <- adm1[adm1$dem_sex !=c("Unknown","U","f","m","-"), ]
+  adm2.sex <- adm2[adm2$dem_sex !=c("Unknown","U","f","m","-"), ]
+  
+  ## store data of adm1 and adm2 together in one list
+  data.country.list <- list(adm1, adm2)
+  
+  ## data aggregation by admin level 1 code of asylum
+  adm1.Num_Inds <- summarySE(data.country.list[[1]], measurevar="Num_Inds", groupvars=c("idprogres"), na.rm=TRUE)
+  adm1.Child_0_14 <- summarySE(data.country.list[[1]], measurevar="Child_0_14", groupvars=c("idprogres"), na.rm=TRUE)
+  adm1.Youth_15_17 <- summarySE(data.country.list[[1]], measurevar="Youth_15_17", groupvars=c("idprogres"), na.rm=TRUE)
+  adm1.Work_15_64 <- summarySE(data.country.list[[1]], measurevar="Work_15_64", groupvars=c("idprogres"), na.rm=TRUE)
+  adm1.Eldern_65 <- summarySE(data.country.list[[1]], measurevar="Eldern_65", groupvars=c("idprogres"), na.rm=TRUE)
+  adm1.case.STDEV_Age <- summarySE(data.country.list[[1]], measurevar="STDEV_Age", groupvars=c("idprogres"), na.rm=TRUE)
+  adm1.head.dem_age <- summarySE(data.country.list[[1]], measurevar="dem_age", groupvars=c("idprogres"), na.rm=TRUE)
+  adm1.case.female <- summarySE(data.country.list[[1]], measurevar="Female", groupvars=c("idprogres"), na.rm=TRUE)
+  adm1.case.male <- summarySE(data.country.list[[1]], measurevar="Male", groupvars=c("idprogres"), na.rm=TRUE)
+  adm1.case.only.female <- summarySE(data.country.list[[1]], measurevar="only.female.case", groupvars=c("idprogres"), na.rm=TRUE) 
+  adm1.case.only.male <- summarySE(data.country.list[[1]], measurevar="only.male.case", groupvars=c("idprogres"), na.rm=TRUE) 
+  adm1.case.dependency <- summarySE(data.country.list[[1]], measurevar="dependency", groupvars=c("idprogres"), na.rm=TRUE)
+  adm1.case.youthdependency <- summarySE(data.country.list[[1]], measurevar="youthdependency", groupvars=c("idprogres"), na.rm=TRUE)
+  adm1.case.elederndependency <- summarySE(data.country.list[[1]], measurevar="elederndependency", groupvars=c("idprogres"), na.rm=TRUE)
+  # special case where other data is used: column 'female.headed' is based on column 'dem_sex' which contains invalid values
+  # therefore it is for this particular case necessary to use a special cleaned data 
+  adm1.case.female.headed <- summarySE(adm1.sex, measurevar="female.headed", groupvars=c("idprogres"), na.rm=TRUE) 
+  
+  
+  
+  ## data aggregation by admin level 2 
+  adm2.Num_Inds <- summarySE(data.country.list[[2]], measurevar="Num_Inds", groupvars=c("idadm2"), na.rm=TRUE)
+  adm2.Child_0_14 <- summarySE(data.country.list[[2]], measurevar="Child_0_14", groupvars=c("idadm2"), na.rm=TRUE)
+  adm2.Youth_15_17 <- summarySE(data.country.list[[2]], measurevar="Youth_15_17", groupvars=c("idadm2"), na.rm=TRUE)
+  adm2.Work_15_64 <- summarySE(data.country.list[[2]], measurevar="Work_15_64", groupvars=c("idadm2"), na.rm=TRUE)
+  adm2.Eldern_65 <- summarySE(data.country.list[[2]], measurevar="Eldern_65", groupvars=c("idadm2"), na.rm=TRUE)
+  adm2.case.STDEV_Age <- summarySE(data.country.list[[2]], measurevar="STDEV_Age", groupvars=c("idadm2"), na.rm=TRUE)
+  adm2.head.dem_age <- summarySE(data.country.list[[2]], measurevar="dem_age", groupvars=c("idadm2"), na.rm=TRUE)
+  adm2.case.female <- summarySE(data.country.list[[2]], measurevar="Female", groupvars=c("idadm2"), na.rm=TRUE)
+  adm2.case.male <- summarySE(data.country.list[[2]], measurevar="Male", groupvars=c("idadm2"), na.rm=TRUE)
+  adm2.case.only.female <- summarySE(data.country.list[[2]], measurevar="only.female.case", groupvars=c("idadm2"), na.rm=TRUE) 
+  adm2.case.only.male <- summarySE(data.country.list[[2]], measurevar="only.male.case", groupvars=c("idadm2"), na.rm=TRUE) 
+  adm2.case.dependency <- summarySE(data.country.list[[2]], measurevar="dependency", groupvars=c("idadm2"), na.rm=TRUE)
+  adm2.case.youthdependency <- summarySE(data.country.list[[2]], measurevar="youthdependency", groupvars=c("idadm2"), na.rm=TRUE)
+  adm2.case.elederndependency <- summarySE(data.country.list[[2]], measurevar="elederndependency", groupvars=c("idadm2"), na.rm=TRUE)
+  # special case where other data is used: column 'female.headed' is based on column 'dem_sex' which contains invalid values
+  # therefore it is for this particular case necessary to use a special cleaned data 
+  adm2.case.female.headed <- summarySE(adm2.sex, measurevar="female.headed", groupvars=c("idadm2"), na.rm=TRUE) 
+  
+  
+  
+  ## 6) check if dataframe has data and join with geojson
+  ## adm1
+  ## loop for listing of all dataframes with consistent data
+  if (nrow(adm1.Num_Inds) >= 1){
+    #list all processed variables to one list for mapping purpose and delete variables for better variable management
+    list.adm1 <- list(adm1.Num_Inds, adm1.Child_0_14, adm1.Youth_15_17, adm1.Work_15_64, adm1.Eldern_65, adm1.case.STDEV_Age, adm1.head.dem_age, adm1.case.female, adm1.case.male, adm1.case.only.female, adm1.case.only.male, adm1.case.female.headed, adm1.case.dependency, adm1.case.youthdependency, adm1.case.elederndependency)
+    #adm1.list[[i]] <- list(list.adm1)
+    
+    ## loop for joining each variable within all dataframes with geojson
+    for (n in 1:length(list.adm1)) {
+      map.data <- plyr::join(x=map.data.adm1, y=list.adm1[[n]], by="idprogres")
+      map.data$brks <- 0
+      map.data <- map.data[,c(which(colnames(map.data)=="brks"),which(colnames(map.data)!="brks"))] #reorder data so that column 'brks' is at 1, first comma means keep all the rows
+      mapdata.list.adm1[[n]] <- list(map.data)
+    }
+    rm(adm1.Num_Inds, adm1.Child_0_14, adm1.Youth_15_17, adm1.Work_15_64, adm1.Eldern_65, adm1.case.STDEV_Age, adm1.head.dem_age, adm1.case.female, adm1.case.male, adm1.case.only.female, adm1.case.only.male, adm1.case.female.headed, adm1.case.dependency, adm1.case.youthdependency, adm1.case.elederndependency)
+    
+  } else { 
+    rm(adm1.Num_Inds, adm1.Child_0_14, adm1.Youth_15_17, adm1.Work_15_64, adm1.Eldern_65, adm1.case.STDEV_Age, adm1.head.dem_age, adm1.case.female, adm1.case.male, adm1.case.only.female, adm1.case.only.male, adm1.case.female.headed, adm1.case.dependency, adm1.case.youthdependency, adm1.case.elederndependency)
+  } 
+  
+  ## may be needed later when looping through all countries
+  # adm1.list[[i]] <- list(map.data.list)
+  
+  
+  ## adm2
+  if (nrow(adm2.Num_Inds) >= 1){
+    #list all processed variables to one list for mapping purpose and delete variables for better variable management
+    list.adm2 <- list(adm2.Num_Inds, adm2.Child_0_14, adm2.Youth_15_17, adm2.Work_15_64, adm2.Eldern_65, adm2.case.STDEV_Age, adm2.head.dem_age, adm2.case.female, adm2.case.male, adm2.case.only.female, adm2.case.only.male, adm2.case.female.headed, adm2.case.dependency, adm2.case.youthdependency, adm2.case.elederndependency)
+    #adm2.list[[i]] <- list(list.adm2)
+    
+    for (n in 1:length(list.adm2)) {
+      map.data <- plyr::join(x=map.data.adm2, y=list.adm2[[n]], by="idadm2")
+      ##adjust length of data for loop in '3-Create-Map'
+      map.data$brks <- 0
+      map.data <- map.data[,c(which(colnames(map.data)=="brks"),which(colnames(map.data)!="brks"))] #reorder data so that column 'brks' is at 1, first comma means keep all the rows
+      mapdata.list.adm2[[n]] <- list(map.data)
+    }
+    rm(adm2.Num_Inds, adm2.Child_0_14, adm2.Youth_15_17, adm2.Work_15_64, adm2.Eldern_65, adm2.case.STDEV_Age, adm2.head.dem_age, adm2.case.female, adm2.case.male, adm2.case.only.female, adm2.case.only.male, adm2.case.female.headed, adm2.case.dependency, adm2.case.youthdependency, adm2.case.elederndependency)
+    
+  } else {
+    rm(adm2.Num_Inds, adm2.Child_0_14, adm2.Youth_15_17, adm2.Work_15_64, adm2.Eldern_65, adm2.case.STDEV_Age, adm2.head.dem_age, adm2.case.female, adm2.case.male, adm2.case.only.female, adm2.case.only.male, adm2.case.female.headed, adm2.case.dependency, adm2.case.youthdependency, adm2.case.elederndependency)
+    rm(map.data)
+  }
+  
 }
 
 
@@ -239,33 +287,6 @@ dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
 
 
 
-# #######
-# # ADM2
-# 
-# 
-# geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/JOR/ADM2.geojson")
-# 
-# 
-# filename <- "JOR_ADM2.geojson"
-# destfilepath <- paste0("out/geo/geojson/", filename )
-# 
-# download.file( geojsonurl, destfile=destfilepath )
-# json.raw <- geojson_read( destfilepath, method="local", what="sp" )
-# #plot(json.raw)
-# 
-# proj4string(json.raw) # describes current coordinate reference system: here "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
-# json.raw <- spTransform(json.raw,
-#                          CRS("+proj=longlat +datum=WGS84")) # change in this system to match with basemap later
-# 
-# # fortify, i.e., make ggplot2-compatible
-# json.raw@data$id = rownames(json.raw@data)
-# map.data.fortified <- fortify(json.raw, region = "id")
-# map.data <- plyr::join(map.data.fortified, json.raw@data, by="id") #joining dataframe with geojson-data
-# map.data2 <- map.data[, c("long", "lat", "order", "id", "group", "admin_unhcr2_fid", "adm2name", "idcountry", "idadm2")] # subset with only needed columns to accelerate performance
-# rm(map.data.fortified, destfilepath, json.raw, geojsonurl)
-# 
-# ####################
-# ####################
 
 
 
@@ -277,7 +298,8 @@ dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
 
 
 
-
+## NEEDS TO BE CHECKED
+#
 # # average by admin level
 # #total <- sum(data.country.list[[1]]['Num_Inds'])
 # myfun1 <- function(x){c(pct=sum(x)/length(x))}
@@ -455,7 +477,7 @@ dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
 # #woman at risk            
 # adm1.woman.at.risk <- dcast(melt(subset.progrescase.percentage, id=c('coal1id'), measure=c(31)), coal1id ~ value  )
 # adm1.woman.at.risk$Woman.at.percent <- (data.asylum.Torture$yes/(data.asylum.Torture$yes+data.asylum.Torture$no))*100
-                      
+
 
 
 
