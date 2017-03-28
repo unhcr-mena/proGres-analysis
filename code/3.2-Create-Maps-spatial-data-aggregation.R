@@ -63,11 +63,14 @@ country <- merge(all.countries, country.codes, all.x=TRUE)
 country$ISO_Alpha_3Code <- as.factor(country$ISO_Alpha_3Code)
 country$ISO_Alpha_3Code <- factor(country$ISO_Alpha_3Code)
 
-## needs to be entire dataframe not only Jordan when looping through countries
-country<- country[country$P_Code == "JOR", ]
-# country<- country[!country$P_Code == "GCC", ]
-# country<- country[!country$P_Code == "ISR", ] #remove as long as there is no geojson
-# country<- country[!country$P_Code == "LEB", ] #remove as long as geojson has different columnnames
+## exceptions in dataframe "country" which would lead to breakup in loop
+country<- country[!country$P_Code == "ALG", ] #no idprogres in geojson
+country<- country[!country$P_Code == "GCC", ] #
+country<- country[!country$P_Code == "ISR", ] #remove as long as geojson has different columnnames
+country<- country[!country$P_Code == "LBY", ] #no geojson adm2
+country<- country[!country$P_Code == "MOR", ] #no geojson adm2
+country<- country[!country$P_Code == "TUN", ] #no geojson adm2
+
 
 ##############################
 ## create lists and dataframes that will be filled in the loop by joining data and geojson
@@ -99,7 +102,7 @@ for (i in 1:nrow(country)) {
   df_CountryAsylum <- data.progrescase.specificneed[grep(pcode, data.progrescase.specificneed$CountryAsylum), ]
   adm1 <- df_CountryAsylum[grep(pcode, df_CountryAsylum$coal1id), ] #only rows where adm0 and adm1 are consistent
   adm2 <- adm1[grep(pcode, adm1$coal2id), ] #only rows where adm1 and adm2 are consistent
-  
+
   
   ## 2) let's check how much percent of data is consistent within each country and adminlevel
   ## rows where CountryAsylum has countrycode is considered as total
@@ -112,7 +115,7 @@ for (i in 1:nrow(country)) {
   
   ## 3) adjust column names of key columns for successful join with geojson
   names(adm1)[names(adm1) == 'coal1id'] <- 'idprogres'
-  names(adm2)[names(adm2) == 'coal2id'] <- 'idadm2'
+  names(adm2)[names(adm2) == 'coal2id'] <- 'idprogres'
   
   
   ## 4) loading geojson
@@ -132,7 +135,7 @@ for (i in 1:nrow(country)) {
   proj4string(json.raw) # describes current coordinate reference system: here "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
   json.raw <- spTransform(json.raw,
                           CRS("+proj=longlat +datum=WGS84")) # change in this system to match with basemap later
-  
+
   # this is a well known R / GEOS hack (usually combined with the above) to 
   # deal with "bad" polygons
   json.raw <- gBuffer(json.raw, byid=TRUE, width=0)
@@ -142,10 +145,10 @@ for (i in 1:nrow(country)) {
   json.raw@data$id = rownames(json.raw@data)
   map.data.fortified <- fortify(json.raw, region = "id")
   map.data <- plyr::join(map.data.fortified, json.raw@data, by="id") #joining dataframe with geojson-data
-  map.data.adm1 <- map.data[, c("long", "lat", "order", "id", "group", "gid", "name", "iso3", "idprogres")] # subset with only needed columns to accelerate performance
+  map.data.adm1 <- map.data[, c("long", "lat", "group", "hole", "admname", "iso3", "idprogres")] # subset with only needed columns to accelerate performance
   
   
-  ## p-code repository needs to be consistent in case of id's (sometimes idprogres is used sometimes idadm2)
+  ## p-code repository needs to be consistent in case of id's (sometimes idadm1 is used sometimes idadm2)
   ## admin level 2
   geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM2.geojson")
   
@@ -163,7 +166,7 @@ for (i in 1:nrow(country)) {
   json.raw@data$id = rownames(json.raw@data)
   map.data.fortified <- fortify(json.raw, region = "id")
   map.data <- plyr::join(map.data.fortified, json.raw@data, by="id") #joining dataframe with geojson-data
-  map.data.adm2 <- map.data[, c("long", "lat", "order", "id", "group", "idcountry", "idadm2", "adm2name")] # subset with only needed columns to accelerate performance
+  map.data.adm2 <- map.data[, c("long", "lat", "group", "hole", "admname", "iso3", "idprogres")] # subset with only needed columns to accelerate performance
   
   
   
@@ -187,7 +190,9 @@ for (i in 1:nrow(country)) {
   
   ## store data of adm1 and adm2 together in one list
   data.country.list <- list(adm1, adm2)
+  adm.sex.list <- list(adm1.sex, adm2.sex)
   
+
   ## data aggregation by admin level 1 code of asylum
   adm1.Num_Inds <- summarySE(data.country.list[[1]], measurevar="Num_Inds", groupvars=c("idprogres"), na.rm=TRUE)
   adm1.Child_0_14 <- summarySE(data.country.list[[1]], measurevar="Child_0_14", groupvars=c("idprogres"), na.rm=TRUE)
@@ -205,28 +210,28 @@ for (i in 1:nrow(country)) {
   adm1.case.elederndependency <- summarySE(data.country.list[[1]], measurevar="elederndependency", groupvars=c("idprogres"), na.rm=TRUE)
   # special case where other data is used: column 'female.headed' is based on column 'dem_sex' which contains invalid values
   # therefore it is for this particular case necessary to use a special cleaned data 
-  adm1.case.female.headed <- summarySE(adm1.sex, measurevar="female.headed", groupvars=c("idprogres"), na.rm=TRUE) 
+  adm1.case.female.headed <- summarySE(adm.sex.list[[1]], measurevar="female.headed", groupvars=c("idprogres"), na.rm=TRUE) 
   
-  
+
   
   ## data aggregation by admin level 2 
-  adm2.Num_Inds <- summarySE(data.country.list[[2]], measurevar="Num_Inds", groupvars=c("idadm2"), na.rm=TRUE)
-  adm2.Child_0_14 <- summarySE(data.country.list[[2]], measurevar="Child_0_14", groupvars=c("idadm2"), na.rm=TRUE)
-  adm2.Youth_15_17 <- summarySE(data.country.list[[2]], measurevar="Youth_15_17", groupvars=c("idadm2"), na.rm=TRUE)
-  adm2.Work_15_64 <- summarySE(data.country.list[[2]], measurevar="Work_15_64", groupvars=c("idadm2"), na.rm=TRUE)
-  adm2.Eldern_65 <- summarySE(data.country.list[[2]], measurevar="Eldern_65", groupvars=c("idadm2"), na.rm=TRUE)
-  adm2.case.STDEV_Age <- summarySE(data.country.list[[2]], measurevar="STDEV_Age", groupvars=c("idadm2"), na.rm=TRUE)
-  adm2.head.dem_age <- summarySE(data.country.list[[2]], measurevar="dem_age", groupvars=c("idadm2"), na.rm=TRUE)
-  adm2.case.female <- summarySE(data.country.list[[2]], measurevar="Female", groupvars=c("idadm2"), na.rm=TRUE)
-  adm2.case.male <- summarySE(data.country.list[[2]], measurevar="Male", groupvars=c("idadm2"), na.rm=TRUE)
-  adm2.case.only.female <- summarySE(data.country.list[[2]], measurevar="only.female.case", groupvars=c("idadm2"), na.rm=TRUE) 
-  adm2.case.only.male <- summarySE(data.country.list[[2]], measurevar="only.male.case", groupvars=c("idadm2"), na.rm=TRUE) 
-  adm2.case.dependency <- summarySE(data.country.list[[2]], measurevar="dependency", groupvars=c("idadm2"), na.rm=TRUE)
-  adm2.case.youthdependency <- summarySE(data.country.list[[2]], measurevar="youthdependency", groupvars=c("idadm2"), na.rm=TRUE)
-  adm2.case.elederndependency <- summarySE(data.country.list[[2]], measurevar="elederndependency", groupvars=c("idadm2"), na.rm=TRUE)
+  adm2.Num_Inds <- summarySE(data.country.list[[2]], measurevar="Num_Inds", groupvars=c("idprogres"), na.rm=TRUE)
+  adm2.Child_0_14 <- summarySE(data.country.list[[2]], measurevar="Child_0_14", groupvars=c("idprogres"), na.rm=TRUE)
+  adm2.Youth_15_17 <- summarySE(data.country.list[[2]], measurevar="Youth_15_17", groupvars=c("idprogres"), na.rm=TRUE)
+  adm2.Work_15_64 <- summarySE(data.country.list[[2]], measurevar="Work_15_64", groupvars=c("idprogres"), na.rm=TRUE)
+  adm2.Eldern_65 <- summarySE(data.country.list[[2]], measurevar="Eldern_65", groupvars=c("idprogres"), na.rm=TRUE)
+  adm2.case.STDEV_Age <- summarySE(data.country.list[[2]], measurevar="STDEV_Age", groupvars=c("idprogres"), na.rm=TRUE)
+  adm2.head.dem_age <- summarySE(data.country.list[[2]], measurevar="dem_age", groupvars=c("idprogres"), na.rm=TRUE)
+  adm2.case.female <- summarySE(data.country.list[[2]], measurevar="Female", groupvars=c("idprogres"), na.rm=TRUE)
+  adm2.case.male <- summarySE(data.country.list[[2]], measurevar="Male", groupvars=c("idprogres"), na.rm=TRUE)
+  adm2.case.only.female <- summarySE(data.country.list[[2]], measurevar="only.female.case", groupvars=c("idprogres"), na.rm=TRUE) 
+  adm2.case.only.male <- summarySE(data.country.list[[2]], measurevar="only.male.case", groupvars=c("idprogres"), na.rm=TRUE) 
+  adm2.case.dependency <- summarySE(data.country.list[[2]], measurevar="dependency", groupvars=c("idprogres"), na.rm=TRUE)
+  adm2.case.youthdependency <- summarySE(data.country.list[[2]], measurevar="youthdependency", groupvars=c("idprogres"), na.rm=TRUE)
+  adm2.case.elederndependency <- summarySE(data.country.list[[2]], measurevar="elederndependency", groupvars=c("idprogres"), na.rm=TRUE)
   # special case where other data is used: column 'female.headed' is based on column 'dem_sex' which contains invalid values
   # therefore it is for this particular case necessary to use a special cleaned data 
-  adm2.case.female.headed <- summarySE(adm2.sex, measurevar="female.headed", groupvars=c("idadm2"), na.rm=TRUE) 
+  adm2.case.female.headed <- summarySE(adm.sex.list[[2]], measurevar="female.headed", groupvars=c("idprogres"), na.rm=TRUE) 
   
   
   
@@ -252,7 +257,7 @@ for (i in 1:nrow(country)) {
   } 
   
   ## may be needed later when looping through all countries
-  # adm1.list[[i]] <- list(map.data.list)
+  adm1.list[[i]] <- list(mapdata.list.adm1)
   
   
   ## adm2
@@ -262,7 +267,7 @@ for (i in 1:nrow(country)) {
     #adm2.list[[i]] <- list(list.adm2)
     
     for (n in 1:length(list.adm2)) {
-      map.data <- plyr::join(x=map.data.adm2, y=list.adm2[[n]], by="idadm2")
+      map.data <- plyr::join(x=map.data.adm2, y=list.adm2[[n]], by="idprogres")
       ##adjust length of data for loop in '3-Create-Map'
       map.data$brks <- 0
       map.data <- map.data[,c(which(colnames(map.data)=="brks"),which(colnames(map.data)!="brks"))] #reorder data so that column 'brks' is at 1, first comma means keep all the rows
@@ -274,7 +279,7 @@ for (i in 1:nrow(country)) {
     rm(adm2.Num_Inds, adm2.Child_0_14, adm2.Youth_15_17, adm2.Work_15_64, adm2.Eldern_65, adm2.case.STDEV_Age, adm2.head.dem_age, adm2.case.female, adm2.case.male, adm2.case.only.female, adm2.case.only.male, adm2.case.female.headed, adm2.case.dependency, adm2.case.youthdependency, adm2.case.elederndependency)
     rm(map.data)
   }
-  
+  adm2.list[[i]] <- list(mapdata.list.adm2)
 }
 
 
@@ -332,7 +337,7 @@ for (i in 1:nrow(country)) {
 # 
 # #join all avergages to one list for mapping purpose and delete variables don't needed
 # adm1.asylum.averages <- plyr::join_all(list(adm1.Num_Inds, adm1.Child_0_14, adm1.Youth_15_17, adm1.Work_15_64, adm1.Eldern_65, adm1.AVG_Age, adm1.STDEV_Age, adm1.dependency, adm1.youthdependency, adm1.elederndependency, adm1.Torture, adm1.prot_needs, adm1.single_parent, adm1.SGBV, adm1.ser.medical.condition, adm1.pregnant.lactating, adm1.Older.risk, adm1.family.unity, adm1.disability, adm1.child.risk, adm1.unaccomp.children, adm1.woman.at.risk), by = 'coal1id', type = 'full')
-# colnames(adm1.asylum.averages)[1] <- "idprogres"
+# colnames(adm1.asylum.averages)[1] <- "idadm1"
 # rm(adm1.Num_Inds, adm1.Child_0_14, adm1.Youth_15_17, adm1.Work_15_64, adm1.Eldern_65, adm1.AVG_Age, adm1.STDEV_Age, adm1.dependency, adm1.youthdependency, adm1.elederndependency, adm1.Torture, adm1.prot_needs, adm1.single_parent, adm1.SGBV, adm1.ser.medical.condition, adm1.pregnant.lactating, adm1.Older.risk, adm1.family.unity, adm1.disability, adm1.child.risk, adm1.unaccomp.children, adm1.woman.at.risk)
 # 
 # 
@@ -353,7 +358,7 @@ for (i in 1:nrow(country)) {
 # 
 # #join all avergages to one list for mapping purpose and delete variables don't needed
 # adm2.asylum.frequency <- plyr::join_all(list(adm2.Num_Inds.count, adm2.Child_0_14.count, adm2.Youth_15_17.count, adm2.Work_15_64.count, adm2.Eldern_65.count, adm2.AVG_Age.count, adm2.STDEV_Age.count, adm2.dependency.count, adm2.youthdependency.count, adm2.elederndependency.count), by = 'coal2id', type = 'full')
-# colnames(adm2.asylum.frequency)[1] <- "idprogres"
+# colnames(adm2.asylum.frequency)[1] <- "idadm1"
 # rm(adm2.Num_Inds.count, adm2.Child_0_14.count, adm2.Youth_15_17.count, adm2.Work_15_64.count, adm2.Eldern_65.count, adm2.AVG_Age.count, adm2.STDEV_Age.count, adm2.dependency.count, adm2.youthdependency.count, adm2.elederndependency.count)
 # 
 # 
