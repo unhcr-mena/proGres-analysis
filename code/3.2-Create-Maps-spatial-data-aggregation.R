@@ -1,9 +1,10 @@
-## clear workspace
-rm(list = ls())
 
-##############################
-## Add iso3 countrycodes for merge with geojson later
-country.codes <- read.csv("data/countrycodes.csv")
+## clear workspace except necessary data frame function
+#keep(data.progrescase, sure = TRUE)
+
+original.progrescase <- read.csv("data/progrescase_maps.csv")
+data.progrescase <- original.progrescase
+
 
 ## Function to summarize data, source (http://www.cookbook-r.com/Manipulating_data/Summarizing_data/):
 ## Gives count, mean, standard deviation, standard error of the mean, and confidence interval (default 95%).
@@ -50,14 +51,14 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
   return(datac)
 }
 
+
 ##############################
-## load prepared data
-progrescase.processed <- read.csv("data/progrescase_maps.csv")
-data.progrescase.specificneed <- progrescase.processed
+## add iso3 countrycodes for merge with geojson later
+country.codes <- read.csv("data/countrycodes.csv")
 
 ##############################
 ## create country code conversion table only for existent countries
-all.countries <- data.frame(unique(data.progrescase.specificneed$CountryAsylum))
+all.countries <- data.frame(unique(data.progrescase$CountryAsylum))
 colnames(all.countries) <- "P_Code"
 country <- merge(all.countries, country.codes, all.x=TRUE)
 country$ISO_Alpha_3Code <- as.factor(country$ISO_Alpha_3Code)
@@ -66,6 +67,7 @@ country$ISO_Alpha_3Code <- factor(country$ISO_Alpha_3Code)
 ## exceptions in dataframe "country" which would lead to breakup in loop
 country<- country[!country$P_Code == "ALG", ] #no idprogres in geojson
 country<- country[!country$P_Code == "GCC", ] #
+country<- country[!country$P_Code == "MAU", ] #needs to be checked in adm2
 country<- country[!country$P_Code == "ISR", ] #remove as long as geojson has different columnnames
 country<- country[!country$P_Code == "LBY", ] #no geojson adm2
 country<- country[!country$P_Code == "MOR", ] #no geojson adm2
@@ -91,25 +93,23 @@ consistency.table <- NULL
 ## 3) adjust keycolumn names in data for coming join with geojson
 ## 4) creation of geojson folder and loading/saving of geojson adm1 & adm2
 ## 5) apply function to all data variables to calculate mean values and margin of error
-## 6) check if dataframe has data and join with geojson adm1 & adm2
-i=1
 
 for (i in 1:nrow(country)) {
   pcode <- country[i,1]
   iso3 <- country[i,2]
   
   ## 1) country subset for different admin levels
-  df_CountryAsylum <- data.progrescase.specificneed[grep(pcode, data.progrescase.specificneed$CountryAsylum), ]
+  df_CountryAsylum <- data.progrescase[grep(pcode, data.progrescase$CountryAsylum), ]
   adm1 <- df_CountryAsylum[grep(pcode, df_CountryAsylum$coal1id), ] #only rows where adm0 and adm1 are consistent
   adm2 <- adm1[grep(pcode, adm1$coal2id), ] #only rows where adm1 and adm2 are consistent
 
-  
+
   ## 2) let's check how much percent of data is consistent within each country and adminlevel
   ## rows where CountryAsylum has countrycode is considered as total
   ## create empty consistency table and fill with accuracy percentage data
   total <- nrow(df_CountryAsylum)
-  pct.adm1 <- round((nrow(adm1)/total), digits = 2) # if nrow country codes is considered as total 
-  pct.adm2 <- round((nrow(adm2)/total), digits = 2) # if nrow country codes is considered as total 
+  pct.adm1 <- round((nrow(adm1)/total)*100, digits = 1) # if nrow country codes is considered as total 
+  pct.adm2 <- round((nrow(adm2)/total)*100, digits = 1) # if nrow country codes is considered as total 
   consistency.table <- rbind(consistency.table, data.frame(iso3, total, pct.adm1, pct.adm2))
   
   
@@ -121,21 +121,26 @@ for (i in 1:nrow(country)) {
   ## 4) loading geojson
   ## admin level 1
   
-  geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM1.geojson")
-  
-  # create output folder
+  ## create output folder & file path
   mainDir <- "data"
   subDir <- "/mapping/geojson"
   dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+  
   filename <- paste0(iso3,"_ADM1.geojson")
   destfilepath <- paste0("data/mapping/geojson/", filename )
-  download.file( geojsonurl, destfile=destfilepath )
+  geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM1.geojson")
+  
+  ## only download geojson if not existing for better performance
+  if(!file.exists(destfilepath)){
+    res <- tryCatch(download.file(geojsonurl, destfile=destfilepath ),
+                    error=function(e) 1)
+  }
+  
   json.raw <- geojson_read( destfilepath, method="local", what="sp" )
   
   proj4string(json.raw) # describes current coordinate reference system: here "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
-  json.raw <- spTransform(json.raw,
-                          CRS("+proj=longlat +datum=WGS84")) # change in this system to match with basemap later
-
+  json.raw <- spTransform(json.raw, CRS("+proj=longlat +datum=WGS84")) # change in this system to match with basemap later
+  
   # this is a well known R / GEOS hack (usually combined with the above) to 
   # deal with "bad" polygons
   json.raw <- gBuffer(json.raw, byid=TRUE, width=0)
@@ -150,17 +155,20 @@ for (i in 1:nrow(country)) {
   
   ## p-code repository needs to be consistent in case of id's (sometimes idadm1 is used sometimes idadm2)
   ## admin level 2
+  filename <- paste0(iso3,"_ADM2.geojson")
+  destfilepath <- paste0("data/mapping/geojson/", filename )
   geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM2.geojson")
   
-  # use already created output folder and existent variables
-  filename <- paste0(iso3,"_ADM2.geojson")
-  destfilepath <- paste0("data/mapping/geojson/", filename)
-  download.file( geojsonurl, destfile=destfilepath)
+  if(!file.exists(destfilepath)){
+    res <- tryCatch(download.file(geojsonurl, destfile=destfilepath ),
+                    error=function(e) 1)
+  }
+  
   json.raw <- geojson_read( destfilepath, method="local", what="sp")
   
   proj4string(json.raw) # describes current coordinate reference system: here "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
-  json.raw <- spTransform(json.raw,
-                          CRS("+proj=longlat +datum=WGS84")) # change in this system to match with basemap later
+  json.raw <- spTransform(json.raw, CRS("+proj=longlat +datum=WGS84")) # change in this system to match with basemap later
+  
   json.raw <- gBuffer(json.raw, byid=TRUE, width=0)
   
   json.raw@data$id = rownames(json.raw@data)
@@ -266,6 +274,7 @@ for (i in 1:nrow(country)) {
     list.adm2 <- list(adm2.Num_Inds, adm2.Child_0_14, adm2.Youth_15_17, adm2.Work_15_64, adm2.Eldern_65, adm2.case.STDEV_Age, adm2.head.dem_age, adm2.case.female, adm2.case.male, adm2.case.only.female, adm2.case.only.male, adm2.case.female.headed, adm2.case.dependency, adm2.case.youthdependency, adm2.case.elederndependency)
     #adm2.list[[i]] <- list(list.adm2)
     
+    n=1
     for (n in 1:length(list.adm2)) {
       map.data <- plyr::join(x=map.data.adm2, y=list.adm2[[n]], by="idprogres")
       ##adjust length of data for loop in '3-Create-Map'
@@ -363,16 +372,16 @@ for (i in 1:nrow(country)) {
 # 
 # 
 # # average by admin level
-# adm2.Num_Inds <- summaryBy(cbind(Num_Inds) ~ coal2id, data=data.progrescase.specificneed, FUN=c(function(x)mean(x, na.rm=TRUE)))
-# adm2.Child_0_14 <- summaryBy(cbind(Child_0_14) ~ coal2id, data=data.progrescase.specificneed, FUN=c(function(x)mean(x, na.rm=TRUE)))
-# adm2.Youth_15_17 <- summaryBy(cbind(Youth_15_17) ~ coal2id, data=data.progrescase.specificneed, FUN=c(function(x)mean(x, na.rm=TRUE)))
-# adm2.Work_15_64 <- summaryBy(cbind(Work_15_64) ~ coal2id, data=data.progrescase.specificneed, FUN=c(function(x)mean(x, na.rm=TRUE)))
-# adm2.Eldern_65 <- summaryBy(cbind(Eldern_65) ~ coal2id, data=data.progrescase.specificneed, FUN=c(function(x)mean(x, na.rm=TRUE)))
-# adm2.AVG_Age <- summaryBy(cbind(AVG_Age) ~ coal2id, data=data.progrescase.specificneed, FUN=c(function(x)mean(x, na.rm=TRUE)))
-# adm2.STDEV_Age <- summaryBy(cbind(STDEV_Age) ~ coal2id, data=data.progrescase.specificneed, FUN=c(function(x)mean(x, na.rm=TRUE)))
-# adm2.dependency <- summaryBy(cbind(dependency) ~ coal2id, data=data.progrescase.specificneed, FUN=c(function(x)mean(x, na.rm=TRUE)))
-# adm2.youthdependency <- summaryBy(cbind(youthdependency) ~ coal2id, data=data.progrescase.specificneed, FUN=c(function(x)mean(x, na.rm=TRUE)))
-# adm2.elederndependency <- summaryBy(cbind(elederndependency) ~ coal2id, data=data.progrescase.specificneed, FUN=c(function(x)mean(x, na.rm=TRUE)))
+# adm2.Num_Inds <- summaryBy(cbind(Num_Inds) ~ coal2id, data=data.progrescase, FUN=c(function(x)mean(x, na.rm=TRUE)))
+# adm2.Child_0_14 <- summaryBy(cbind(Child_0_14) ~ coal2id, data=data.progrescase, FUN=c(function(x)mean(x, na.rm=TRUE)))
+# adm2.Youth_15_17 <- summaryBy(cbind(Youth_15_17) ~ coal2id, data=data.progrescase, FUN=c(function(x)mean(x, na.rm=TRUE)))
+# adm2.Work_15_64 <- summaryBy(cbind(Work_15_64) ~ coal2id, data=data.progrescase, FUN=c(function(x)mean(x, na.rm=TRUE)))
+# adm2.Eldern_65 <- summaryBy(cbind(Eldern_65) ~ coal2id, data=data.progrescase, FUN=c(function(x)mean(x, na.rm=TRUE)))
+# adm2.AVG_Age <- summaryBy(cbind(AVG_Age) ~ coal2id, data=data.progrescase, FUN=c(function(x)mean(x, na.rm=TRUE)))
+# adm2.STDEV_Age <- summaryBy(cbind(STDEV_Age) ~ coal2id, data=data.progrescase, FUN=c(function(x)mean(x, na.rm=TRUE)))
+# adm2.dependency <- summaryBy(cbind(dependency) ~ coal2id, data=data.progrescase, FUN=c(function(x)mean(x, na.rm=TRUE)))
+# adm2.youthdependency <- summaryBy(cbind(youthdependency) ~ coal2id, data=data.progrescase, FUN=c(function(x)mean(x, na.rm=TRUE)))
+# adm2.elederndependency <- summaryBy(cbind(elederndependency) ~ coal2id, data=data.progrescase, FUN=c(function(x)mean(x, na.rm=TRUE)))
 # 
 # #join all avergages to one list for mapping purpose and delete variables don't needed
 # adm2.asylum.averages <- plyr::join_all(list(adm2.Num_Inds, adm2.Child_0_14, adm2.Youth_15_17, adm2.Work_15_64, adm2.Eldern_65, adm2.AVG_Age, adm2.STDEV_Age, adm2.dependency, adm2.youthdependency, adm2.elederndependency), by = 'coal2id', type = 'full')
