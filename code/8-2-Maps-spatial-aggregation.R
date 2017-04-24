@@ -133,7 +133,7 @@ for (i in 1:nrow(country)) {
   
   filename <- paste0(iso3,"_ADM1.geojson")
   destfilepath <- paste0("data/mapping/geojson/", filename )
-  geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM1.geojson")
+  geojsonurl <- paste0("http://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM1.geojson")
   
   ## only download geojson if not existing for better performance
   if(!file.exists(destfilepath)){
@@ -162,7 +162,7 @@ for (i in 1:nrow(country)) {
   ## admin level 2
   filename <- paste0(iso3,"_ADM2.geojson")
   destfilepath <- paste0("data/mapping/geojson/", filename )
-  geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM2.geojson")
+  geojsonurl <- paste0("http://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM2.geojson")
   
   if(!file.exists(destfilepath)){
     res <- tryCatch(download.file(geojsonurl, destfile=destfilepath ),
