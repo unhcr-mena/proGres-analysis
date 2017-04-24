@@ -1,8 +1,11 @@
 ---
-title: "Statistical Analysis of Refugee Profiles: Jordan"
+title: 'Statistical Analysis of Refugee Profiles: Jordan'
 author: "UNHCR MENA Regional Protection Service - Information Management"
-date: "`r Sys.Date()`"
+date: '`r Sys.Date()`'
 output:
+  word_document:
+    toc: yes
+    toc_depth: '3'
   pdf_document:
     fig_caption: yes
     number_sections: yes
@@ -61,7 +64,7 @@ source("D:/R-project/proGres-analysis/code/0-packages.R")
 # Introduction
 
 
-Many reports are already produced from proGres but they mostly look at univariate analysis, i.e esch variable within the dataset is displayed one by one. The present document is an attempt to explore various dimensions interact between each others. Data are extracted from the regional datawarehouse maintained by the Regional Operation Data Managers..
+Many reports are already produced from proGres but they mostly look at univariate analysis, i.e each variable within the dataset is displayed one by one. The present document is an attempt to explore various dimensions interact between each others. Data are extracted from the regional datawarehouse maintained by the Regional Operation Data Managers..
 
 This analysis covers two set of information:
  * data aggregated at the refugee refugee household level and is based on the information that is consolidated 
@@ -110,7 +113,7 @@ dem_birth_country | Birth Country of the head of Household.
 occupation        | Occupation type  of the head of Household according to
 -                 | [International Standard Classification of Occupations](http://www.ilo.org/public/english/bureau/stat/isco/isco08/) 
 occupationcat     | Recategorisation of the *occupation* variable
-edu_highest       | Highest edcuation level of the head of Household 
+edu_highest       | Highest educuation level of the head of Household 
 edu_highestcat    | Recategorisation of the *edu_highest* variable
 
 ### Geographic Information

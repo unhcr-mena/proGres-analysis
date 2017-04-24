@@ -2,7 +2,7 @@
 # source("code/3-Create-Maps-data-preparation.R")
 
 ## clear workspace except necessary aggregation function
-keep(country, list.adm1, list.adm2, adm1.list, adm2.list, mapdata.list.adm1, mapdata.list.adm2, map.data.adm1, map.data.adm2, consistency.table, sure = TRUE)
+#keep(country, list.adm1, list.adm2, adm1.list, adm2.list, mapdata.list.adm1, mapdata.list.adm2, map.data.adm1, map.data.adm2, consistency.table, sure = TRUE)
 
 devtools::install_github("wilkelab/cowplot", force=TRUE)
 library(cowplot)
@@ -14,21 +14,17 @@ library(cowplot)
 theme.base <- function(...) {
   theme_minimal() +
     theme(
-      text = element_text(family = "Ubuntu Regular", color = "#22211d"),
+      text = element_text(family = "Calibri", color = "#22211d"),
       axis.line = element_blank(),
       axis.text.x = element_blank(),
       axis.text.y = element_blank(),
       axis.ticks = element_blank(),
       axis.title.x = element_blank(),
       axis.title.y = element_blank(),
-      
-      # panel.grid.minor = element_line(color = "#ebebe5", size = 0.2),
-      panel.spacing = unit(c(-.1,0.2,0.02,0.2), "cm"),
-      
-      plot.caption = element_text(size = 9, hjust = 1, color = "#595851"),
+      panel.spacing = unit(c(-.1,1,0.02,1), "cm"),
+      plot.caption = element_text(size = 9, hjust = 0, color = "#595851"),
       panel.grid.minor = element_blank(),
       panel.border = element_blank(),
-      
       ...
     )
 }
@@ -36,14 +32,14 @@ theme.base <- function(...) {
 ## theme for main choropleth map
 theme.choropleth <- function(...) {
   theme(
-    plot.title = element_text(hjust = 0, color = "#4e4d47", size = 15),
-    plot.subtitle = element_text(hjust = 0, color = "#4e4d47", size = 10, debug = F),
+    plot.title = element_text(hjust = 0, color = "black", size = 19, face="bold"),
+    plot.subtitle = element_text(hjust = 0, color = "black", size = 13, debug = F),
     
     legend.direction = "horizontal",
     legend.position = "bottom", #c(0.5, 0.01),
     legend.text.align = 1,                                                #postition of label: 0=left, 1=right
     legend.background = element_rect(fill = "#f5f5f2", color = NA),
-    legend.text = element_text(size = 10, hjust = 0, color = "#4e4d47"),
+    legend.text = element_text(size = 12, hjust = 0, color = "black"),
     legend.margin = unit(c(1,.5,0.2,.5), "cm"),
     legend.key.height = unit(4, units = "mm"),                             #height of legend
     legend.key.width = unit(100/length(labels), units = "mm"),             #width of legend
@@ -52,7 +48,7 @@ theme.choropleth <- function(...) {
     panel.grid.major = element_line(color = "#f5f5f2", size = 0.2),
     panel.background = element_rect(fill = "#f5f5f2", color = NA),
     plot.background = element_rect(fill = "#f5f5f2", color = NA),
-    plot.margin = unit(c(.5,.5,1,.5), "cm"),
+    plot.margin = unit(c(.5,2,1,1.5), "cm"),
     
     ...
   )
@@ -61,11 +57,13 @@ theme.choropleth <- function(...) {
 ## theme for bubble map absolute number of datarows
 theme.symbol <-  function(...) {
   theme(
-    legend.title = element_text(size=10, face="bold"),   
+    legend.title = element_text(size=12, face="bold", color = "black", hjust = 1),  
+    plot.title = element_text(size=12, face="bold", color = "black", hjust = 1), 
+    plot.subtitle = element_text(size=17, face="bold", color = "black", hjust = 1),  
     legend.direction = "vertical",
     legend.position = "right", #c(0.5, 0.01),
     legend.background = element_rect(fill = "white", color = NA),
-    legend.text = element_text(size = 10, color = "#4e4d47"),
+    legend.text = element_text(size = 12, color = "black"),
     legend.margin = unit(c(1,.5,0.2,.5), "cm"),
     panel.background = element_rect(fill = "white", color = NA), 
     plot.background = element_rect(fill = "white", color = NA), 
@@ -79,17 +77,15 @@ theme.symbol <-  function(...) {
 ## theme for choropleth map margin of error
 theme.confidence <- function(...) {
   theme(
-    legend.title = element_text(size=10, face="bold"), 
+    legend.title = element_text(size=12, face="bold", color = "black"), 
     legend.direction = "vertical",
-    legend.position = "right", #c(0.15, 1),
-    legend.text.align = 1,                                #postition of label: 0=left, 1=right
+    legend.position = "right", #c(0.15, 1),                              
     legend.background = element_rect(fill = "white", color = NA),
-    legend.text = element_text(size = 10, color = "#4e4d47"),
+    legend.text = element_text(size = 12, color = "black"),
     legend.margin = unit(c(1,.5,0.2,.5), "cm"),
-    legend.key.height = unit(5, units = "mm"),            #height of legend
+    legend.key.height = unit(7, units = "mm"),            #height of legend
     legend.key.width = unit(6, units = "mm"),             #width of legend
     legend.key.size = unit(1.5, 'lines'),
-    
     
     panel.background = element_rect(fill = "white", color = NA), 
     plot.background = element_rect(fill = "white", color = NA), 
@@ -100,31 +96,17 @@ theme.confidence <- function(...) {
   )
 }
 
-
 titles <- c("number of individuals per case", 
             "number of children in the age of 0-14", "number of adolescent in the age of 15-17", 
             "number of persons in working age (15-65)", "number of elderly in the age of 65+",
             "standard deviation of age within cases", "age of principal applicant", 
-            "number of females", "number of males", "number of cases with only female members", 
-            "number of cases with only male members", "number of cases with female principal applicants",
+            "number of females", "number of males", "proportion of cases with only female members", 
+            "proportion of cases with only male members", "proportion of cases with female principal applicants",
             "proportion of dependent persons (children < 14 & elderly 65+) / total", 
             "proportion of dependent children < 14 / total", "proportion of dependent elderly 65 + / total")
 
-
-## creation of output folders for maps 
-for (i in 1:nrow(country)) {
-  ## create output folder for maps
-  mainDir <- "out"
-  subDir <- paste0("/maps/",country[i,2],"/adm1")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  subDir <- paste0("/maps/",country[i,2],"/adm2")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-}
-
-
-
-
+map.list <- list()
+final.maps.adm1 <- list()
 
 
 #### SINGLE CHOROPLETH MAP LOOP AVERAGE ###############################################################################
@@ -147,18 +129,18 @@ for (n in 1:length(adm1.list)) {
   dy <- (max(data$lat))-(min(data$lat))
   
   if( dx <= 20 && dy <= 20) {
-        basemap <- get_map(location = this.country.name, zoom = 5, maptype="satellite")
+        basemap <- get_map(location = this.country.name, zoom = 5, maptype="terrain")
 
     if ( dx <= 13 && dy <= 13) {
-            basemap <- get_map(location = this.country.name, zoom = 6, maptype="satellite")
+            basemap <- get_map(location = this.country.name, zoom = 6, maptype="terrain")
     }
 
     if ( dx <= 5 && dy <= 5) {
-            basemap <- get_map(location = this.country.name, zoom = 7, maptype="satellite")
+            basemap <- get_map(location = this.country.name, zoom = 7, maptype="terrain")
     }
 
     if ( dx <= 2 && dy <= 2) {
-            basemap <- get_map(location = this.country.name, zoom = 8, maptype="satellite")
+            basemap <- get_map(location = this.country.name, zoom = 8, maptype="terrain")
     }
   }
   
@@ -201,9 +183,9 @@ for (n in 1:length(adm1.list)) {
     theme.base() +
     theme.choropleth() +     # map text and styling
     labs(x = NULL, y = NULL, 
-         title = paste0("Average ",titles[i],"\nby Governorate of ", this.country.name," as place of asylum"),
-         subtitle =  paste0("Absolute number of registered cases in this country: ",consistency.table[n,2]," cases\nPercentage of mapped cases: ",consistency.table[n,3],"% rounded to one decimal place\n(shows consistent data rows as percent of absolute number of registered cases in this country)"),
-         caption = "Datasource:\nData: UNHCR proGres\nShapefiles: UNHCR Github repository 'p-codes'") + 
+         title = paste0(this.country.name," as country of Asylum by Governorate\nAverage ",titles[i]),
+         subtitle =  paste0("Percentage of mapped cases: ",consistency.table[n,3],"% rounded to one decimal place\n(consistent data rows as percent of absolute number of registered cases in ",this.country.name,")"),
+         caption = "Source:\nData: UNHCR proGres\nShapefiles: UNHCR Github repository 'p-codes'\nBasemap: Google") + 
     scale_fill_manual( values = rev(magma(8, alpha = 0.8)[2:7]), breaks = rev(brks.scale),
                        drop = FALSE,
                        labels = labels.scale,
@@ -225,7 +207,8 @@ for (n in 1:length(adm1.list)) {
     theme.base() +
     theme.symbol() +
     labs(x = NULL, y = NULL, 
-         title = "") +
+         title = paste0("Total number of registered cases in ",this.country.name,":"),
+         subtitle = paste0(consistency.table[n,2]," cases")) +
     coord_equal()
   p.number
   
@@ -253,7 +236,7 @@ for (n in 1:length(adm1.list)) {
     geom_polygon(colour = "#707272", aes(fill = error.breaks)) +
     geom_polygon(data=n.is.one,  aes(x = long, y = lat, group = group, fill= "#D7DBDD")) +
 
-    scale_fill_manual(values = c("#D7DBDD","#696969", color), guide = guide_legend(title = "Margin of Error"), labels = c('  No data', "N* = 1", labels)) +
+    scale_fill_manual(values = c("#D7DBDD","#696969", color), guide = guide_legend(title = "Margin of Error"), labels = c('No data', "N* = 1", labels)) +
     #scale_color_manual(values = "#696969", name = 'the fill', guide_legend(order = 2, title = "gg"),labels = c('m1')) +
       coord_equal() +
     theme.base() + # map text and styling
@@ -280,17 +263,17 @@ for (n in 1:length(adm1.list)) {
   ## put all three maps on one (cow-)plot
   p <- ggdraw() +
     draw_plot(p.map, 0, 0, 0.5, 1) +
-    draw_plot(p.number, 0.5, 0.5, 0.5, 0.5) +
-    draw_plot(p.confidence, 0.5, 0, 0.5, 0.5) +
+    draw_plot(p.number, 0.5, 0.5, 0.4, 0.5) +
+    draw_plot(p.confidence, 0.5, 0, 0.4, 0.5) +
     draw_plot_label(c("", "", ""), c(0, 0.5, 0.5), c(0.5, 1, 0.5), size = 15)
-  p
+ 
+  map.list[[i]] <- p
   
-  ## safe final plot
-  path <- paste0("out/maps/",this.country.code,"/adm1/",this.country.code,"_ADM1_",colname,".png")
-  ggsave(path, p, width=15, height=8,units="in", dpi=300)
+  # ## safe final plot
+  # path <- paste0("out/maps/",this.country.code,"/adm1/data_viz/",this.country.code,"_ADM1_",colname,".png")
+  # ggsave(path, p, width=15, height=8,units="in", dpi=300)
   
+  }
+  final.maps.adm1[[n]] <- map.list
 }
-}
-
-
 

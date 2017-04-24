@@ -1,0 +1,1774 @@
+---
+title: "Spatial visualization of basic demographic characteristics in countries of Middle East and North Africa on Case Level Information"
+author: "Elena Seydel"
+date: "2 April 2017"
+output:
+  word_document:
+    toc: TRUE
+  classoption: landscape
+  fig_width: 15
+  fig_height: 8
+---
+
+
+<!-- install.packages("rmarkdown", repos="http://cran.us.r-project.org") -->
+<!-- library(rmarkdown) -->
+<!-- rmarkdown::render('code/8-5-Report-Maps.Rmd')  -->
+
+
+# 1. INTRODUCTION
+
+This report highlights the spatial distribution of basic demographic characteristics of refugees as they are recorded in the Refugee Registration Database. At this stage an univariate analysis is presented, each map shows one variable as it is recorded in proGres.
+
+## 1.1 Case Level Information
+
+The following maps correspond to the analysis of all cases (i.e. group of individuals registered together that often correspond to a family unit or household) whose status is **active** within the database. Some of the indivdual information is kept for the Principal Applicant.
+
+## 1.2 Geographic Information
+
+### 1.2.1 Country of Asylum
+
+The information here is mapped for 4 countries as place of Asylum, for each country in  administrative level 1 (Governorates) and administrative level 2 (Provinces):
+
+* Egypt + Detailmaps for Egypt-Delta
+* Iraq
+* Jordan
+* Lebanon
+
+
+### 1.2.2 Country of Origin
+
+All maps in Chapter 2 visualize case information of all registered refugees within the country regardless of their place of Origin. 
+Chapter 3 contains information for cases where country of Origin is Syria.
+
+
+
+## 1.3 Classification algorithm used in the variable-map
+
+The main maps present the spatial distrubution of each variable. Here, the 'Fisher’s Natural Breaks Classification' is used for an automated classification of each data. This classification algorithm is know as an improvement of the better know 'Jenks’ Natural Breaks Classification Method' which seeks to reduce the variance within each class and to maximize the variance between classes. This is a well known approach to eliminate the creation of classes with single outliers.
+http://www.csiss.org/SPACE/workshops/2005/UCSB/docs/data_classification.pdf
+
+
+## 1.4 Data Quality
+
+On the top of each variable-map the percentage of containing data is given.  It is calculated as total number of cases within the mapped administrative unit devided by all registered cases within the mapped country. These two numbers differ from each other because of a reduction of data in each administrative level (caused by missing or wrong administrative codes) and is therefore one parameter to give information about the data quality.
+
+## 1.5 Description of Maps
+### 1.5.1 Map of absolute number of cases by administrative unit
+
+Additionally, the absolute number of cases within each administrative unit is presented on a map. Here, also the absolute total number of cases within the country is given on the top of the map. This information is also included in the calculation of the Margin of Error and can be seen as doubled information. As the calculation of the Margin of Error contains several parameter, the distribution of total numbers is mapped extra.
+
+### 1.5.2 Map of Margin of Error 
+
+The third map highlights the Margin of Error for each administrative level and gives information about the data quality in detail. As the data accuracy varies among administrative units it is nessecary to show this information in an additional map. 
+
+---
+
+Included parameter:
+
+* Sample size - which is the total number of cases within each administrative unit
+* Mean
+* Standard error of the mean
+* 95%-confidence interval
+
+---
+
+The Margin of Error is the radius of the confidence interval. It shows the range +/- which the data has with a probability of (here) 95%. This means, when the Marin of Error is e.g. <0.3, the variable value within that administrative unit is, with a probability of 95%, +/- 0.3 correct. Therefore, the accuracy is the better the smaller the Margin of Error is.
+
+
+
+***
+
+# 2. MAPS: BASIC DEMOGRAPHIC INFORMATION IN COUNTRIES OF ASYLUM
+## 2.1 Egypt
+
+### 2.1.1 Administrative Level 1: Governorates/Districts
+
+```{r egy_adm1_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[1]])
+```
+
+```{r egy_adm1_number_individuals_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[1]])
+```
+***
+
+### Age distribution
+
+```{r egy_adm1_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[2]])
+```
+```{r egy_adm1_children_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[2]])
+```
+
+
+```{r egy_adm1_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[3]])
+```
+```{r egy_adm1_adolescent_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[3]])
+```
+
+
+```{r egy_adm1_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[4]])
+```
+```{r egy_adm1_working_age_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[4]])
+```
+
+```{r egy_adm1_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[5]])
+```
+```{r egy_adm1_elderly_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[5]])
+```
+
+
+
+```{r egy_adm1_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[6]])
+```
+```{r egy_adm1_sd_age_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[6]])
+```
+
+
+
+```{r egy_adm1_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[7]])
+```
+```{r egy_adm1_age_pa_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r egy_adm1_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[8]])
+```
+```{r egy_adm1_females_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[8]])
+```
+
+
+
+```{r egy_adm1_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[9]])
+```
+```{r egy_adm1_males_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[9]])
+```
+
+
+
+```{r egy_adm1_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[10]])
+```
+```{r egy_adm1_only_females_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[10]])
+```
+
+
+
+```{r egy_adm1_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[11]])
+```
+```{r egy_adm1_only_males_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[11]])
+```
+
+
+
+```{r egy_adm1_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[12]])
+```
+```{r egy_adm1_female_pa_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[12]])
+```
+***
+
+### Dependency
+
+```{r egy_adm1_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[13]])
+```
+```{r egy_adm1_dependency_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[13]])
+```
+
+
+
+```{r egy_adm1_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[14]])
+```
+```{r egy_adm1_child_dependency_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[14]])
+```
+
+
+
+```{r egy_adm1_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[1]][[15]])
+```
+```{r egy_adm1_elderly_dependency_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.egypt[[1]][[15]])
+```
+
+***
+
+
+### 2.1.2 Administrative Level 2: Provinces
+
+```{r egy_adm2_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[1]])
+```
+```{r egy_adm2_number_individuals_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[1]])
+```
+***
+
+### Age distribution
+
+```{r egy_adm2_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[2]])
+```
+```{r egy_adm2_children_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[2]])
+```
+
+
+```{r egy_adm2_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[3]])
+```
+```{r egy_adm2_adolescent_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[3]])
+```
+
+
+```{r egy_adm2_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[4]])
+```
+```{r egy_adm2_working_age_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[4]])
+```
+
+
+```{r egy_adm2_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[5]])
+```
+```{r egy_adm2_elderly_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[5]])
+```
+
+
+```{r egy_adm2_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[6]])
+```
+```{r egy_adm2_sd_age_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[6]])
+```
+
+
+
+```{r egy_adm2_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[7]])
+```
+```{r egy_adm2_age_pa_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[7]])
+```
+***
+
+### Sex distribution
+
+```{r egy_adm2_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[8]])
+```
+```{r egy_adm2_females_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[8]])
+```
+
+
+```{r egy_adm2_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[9]])
+```
+```{r egy_adm2_males_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[9]])
+```
+
+
+```{r egy_adm2_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[10]])
+```
+```{r egy_adm2_only_females_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[10]])
+```
+
+
+```{r egy_adm2_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[11]])
+```
+```{r egy_adm2_only_males_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[11]])
+```
+
+
+```{r egy_adm2_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[12]])
+```
+```{r egy_adm2_female_pa_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r egy_adm2_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[13]])
+```
+```{r egy_adm2_dependency_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[13]])
+```
+
+
+```{r egy_adm2_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[14]])
+```
+```{r egy_adm2_child_dependency_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[14]])
+```
+
+
+```{r egy_adm2_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[1]][[15]])
+```
+```{r egy_adm2_elderly_dependency_detail, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.egypt[[1]][[15]])
+```
+
+
+
+
+***
+
+***
+
+
+## 2.2 Iraq
+
+### 2.2.1 Administrative Level 1: Governorates/Districts
+
+```{r irq_adm1_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[1]])
+```
+
+***
+
+### Age distribution
+
+```{r irq_adm1_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[2]])
+```
+
+
+
+```{r irq_adm1_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[3]])
+```
+
+
+
+```{r irq_adm1_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[4]])
+```
+
+
+
+```{r irq_adm1_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[5]])
+```
+
+
+
+```{r irq_adm1_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[6]])
+```
+
+
+
+```{r irq_adm1_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r irq_adm1_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[8]])
+```
+
+
+
+```{r irq_adm1_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[9]])
+```
+
+
+
+```{r irq_adm1_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[10]])
+```
+
+
+
+```{r irq_adm1_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[11]])
+```
+
+
+
+```{r irq_adm1_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r irq_adm1_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[13]])
+```
+
+
+
+```{r irq_adm1_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[14]])
+```
+
+
+
+```{r irq_adm1_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[2]][[15]])
+```
+
+
+***
+
+### 2.2.2 Administrative Level 2: Provinces
+
+```{r irq_adm2_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[1]])
+```
+
+***
+
+### Age distribution
+
+```{r irq_adm2_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[2]])
+```
+
+
+
+```{r irq_adm2_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[3]])
+```
+
+
+
+```{r irq_adm2_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[4]])
+```
+
+
+
+```{r irq_adm2_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[5]])
+```
+
+
+
+```{r irq_adm2_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[6]])
+```
+
+
+
+```{r irq_adm2_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r irq_adm2_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[8]])
+```
+
+
+
+```{r irq_adm2_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[9]])
+```
+
+
+```{r irq_adm2_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[10]])
+```
+
+
+
+```{r irq_adm2_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[11]])
+```
+
+
+
+```{r irq_adm2_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r irq_adm2_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[13]])
+```
+
+
+
+```{r irq_adm2_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[14]])
+```
+
+
+
+```{r irq_adm2_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[2]][[15]])
+```
+
+
+***
+
+***
+
+
+## 2.3 Jordan
+
+### 2.3.1 Administrative Level 1: Governorates/Districts
+
+```{r jor_adm1_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[1]])
+```
+
+***
+
+### Age distribution
+
+```{r jor_adm1_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[2]])
+```
+
+
+```{r jor_adm1_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[3]])
+```
+
+
+
+```{r jor_adm1_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[4]])
+```
+
+
+
+```{r jor_adm1_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[5]])
+```
+
+
+
+```{r jor_adm1_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[6]])
+```
+
+
+
+```{r jor_adm1_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r jor_adm1_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[8]])
+```
+
+
+
+```{r jor_adm1_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[9]])
+```
+
+
+
+```{r jor_adm1_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[10]])
+```
+
+
+
+```{r jor_adm1_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[11]])
+```
+
+
+
+```{r jor_adm1_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r jor_adm1_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[13]])
+```
+
+
+
+```{r jor_adm1_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[14]])
+```
+
+
+
+```{r jor_adm1_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[3]][[15]])
+```
+
+***
+
+### 2.3.2 Administrative Level 2: Provinces
+
+```{r jor_adm2_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[1]])
+```
+
+***
+
+### Age distribution
+
+```{r jor_adm2_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[2]])
+```
+
+
+```{r jor_adm2_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[3]])
+```
+
+
+
+```{r jor_adm2_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[4]])
+```
+
+
+
+```{r jor_adm2_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[5]])
+```
+
+
+
+```{r jor_adm2_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[6]])
+```
+
+
+
+```{r jor_adm2_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r jor_adm2_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[8]])
+```
+
+
+
+```{r jor_adm2_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[9]])
+```
+
+
+
+```{r jor_adm2_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[10]])
+```
+
+
+
+```{r jor_adm2_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[11]])
+```
+
+
+
+```{r jor_adm2_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r jor_adm2_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[13]])
+```
+
+
+
+```{r jor_adm2_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[14]])
+```
+
+
+
+```{r jor_adm2_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[3]][[15]])
+```
+
+
+
+***
+
+## 2.4 Lebanon
+
+### 2.4.1 Administrative Level 1: Governorates/Districts
+
+```{r lbn_adm1_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[1]])
+```
+
+***
+
+### Age distribution
+
+```{r lbn_adm1_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[2]])
+```
+
+
+
+```{r lbn_adm1_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[3]])
+```
+
+
+
+```{r lbn_adm1_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[4]])
+```
+
+
+
+```{r lbn_adm1_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[5]])
+```
+
+
+
+```{r lbn_adm1_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[6]])
+```
+
+
+
+```{r lbn_adm1_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r lbn_adm1_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[8]])
+```
+
+
+
+```{r lbn_adm1_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[9]])
+```
+
+
+
+```{r lbn_adm1_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[10]])
+```
+
+
+
+```{r lbn_adm1_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[11]])
+```
+
+
+
+```{r lbn_adm1_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r lbn_adm1_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[13]])
+```
+
+
+
+```{r lbn_adm1_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[14]])
+```
+
+
+
+```{r lbn_adm1_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1[[4]][[15]])
+```
+
+***
+
+### 2.4.2 Administrative Level 2: Provinces
+
+```{r lbn_adm2_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[1]])
+```
+
+***
+
+### Age distribution
+
+```{r lbn_adm2_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[2]])
+```
+
+
+
+```{r lbn_adm2_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[3]])
+```
+
+
+
+```{r lbn_adm2_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[4]])
+```
+
+
+
+```{r lbn_adm2_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[5]])
+```
+
+
+
+```{r lbn_adm2_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[6]])
+```
+
+
+
+
+```{r lbn_adm2_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r lbn_adm2_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[8]])
+```
+
+
+
+```{r lbn_adm2_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[9]])
+```
+
+
+
+```{r lbn_adm2_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[10]])
+```
+
+
+
+```{r lbn_adm2_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[11]])
+```
+
+
+
+```{r lbn_adm2_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r lbn_adm2_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[13]])
+```
+
+
+
+```{r lbn_adm2_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[14]])
+```
+
+
+
+```{r lbn_adm2_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2[[4]][[15]])
+```
+
+
+
+
+# 3. MAPS: BASIC DEMOGRAPHIC INFORMATION OF ONLY SYRIAN REFUGEES
+## 3.1 Egypt
+
+### 3.1.1 Administrative Level 1: Governorates/Districts
+
+```{r egy_adm1.syrians_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[1]])
+```
+
+
+***
+
+### Age distribution
+
+```{r egy_adm1.syrians_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[2]])
+```
+
+
+
+```{r egy_adm1.syrians_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[3]])
+```
+
+
+
+```{r egy_adm1.syrians_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[4]])
+```
+
+
+```{r egy_adm1.syrians_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[5]])
+```
+
+
+
+
+```{r egy_adm1.syrians_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[6]])
+```
+
+
+
+
+```{r egy_adm1.syrians_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[7]])
+```
+
+
+***
+
+### Sex distribution
+
+```{r egy_adm1.syrians_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[8]])
+```
+
+
+
+
+```{r egy_adm1.syrians_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[9]])
+```
+
+
+
+
+```{r egy_adm1.syrians_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[10]])
+```
+
+
+
+
+```{r egy_adm1.syrians_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[11]])
+```
+
+
+
+
+```{r egy_adm1.syrians_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r egy_adm1.syrians_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[13]])
+```
+
+
+
+
+```{r egy_adm1.syrians_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[14]])
+```
+
+
+
+
+```{r egy_adm1.syrians_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[1]][[15]])
+```
+
+
+***
+
+
+### 3.1.2 Administrative Level 2: Provinces
+
+```{r egy_adm2.syrians_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[1]])
+```
+
+***
+
+### Age distribution
+
+```{r egy_adm2.syrians_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[2]])
+```
+
+
+
+```{r egy_adm2.syrians_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[3]])
+```
+
+
+
+```{r egy_adm2.syrians_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[4]])
+```
+
+
+
+```{r egy_adm2.syrians_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[5]])
+```
+
+
+
+```{r egy_adm2.syrians_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[6]])
+```
+
+
+
+
+```{r egy_adm2.syrians_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r egy_adm2.syrians_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[8]])
+```
+
+
+
+```{r egy_adm2.syrians_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[9]])
+```
+
+
+
+```{r egy_adm2.syrians_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[10]])
+```
+
+
+
+```{r egy_adm2.syrians_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[11]])
+```
+
+
+
+```{r egy_adm2.syrians_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[12]])
+```
+
+
+***
+
+### Dependency
+
+```{r egy_adm2.syrians_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[13]])
+```
+
+
+```{r egy_adm2.syrians_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[14]])
+```
+
+
+
+```{r egy_adm2.syrians_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[1]][[15]])
+```
+
+
+
+
+
+***
+
+***
+
+
+## 3.2 Iraq
+
+### 3.3.1 Administrative Level 1: Governorates/Districts
+
+```{r irq_adm1.syrians_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[1]])
+```
+
+***
+
+### Age distribution
+
+```{r irq_adm1.syrians_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[2]])
+```
+
+
+
+```{r irq_adm1.syrians_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[3]])
+```
+
+
+
+```{r irq_adm1.syrians_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[4]])
+```
+
+
+
+```{r irq_adm1.syrians_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[5]])
+```
+
+
+
+```{r irq_adm1.syrians_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[6]])
+```
+
+
+
+```{r irq_adm1.syrians_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r irq_adm1.syrians_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[8]])
+```
+
+
+
+```{r irq_adm1.syrians_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[9]])
+```
+
+
+
+```{r irq_adm1.syrians_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[10]])
+```
+
+
+
+```{r irq_adm1.syrians_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[11]])
+```
+
+
+
+```{r irq_adm1.syrians_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r irq_adm1.syrians_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[13]])
+```
+
+
+
+```{r irq_adm1.syrians_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[14]])
+```
+
+
+
+```{r irq_adm1.syrians_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[2]][[15]])
+```
+
+
+***
+
+### 3.3.2 Administrative Level 2: Provinces
+
+```{r irq_adm2.syrians_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[1]])
+```
+
+***
+
+### Age distribution
+
+```{r irq_adm2.syrians_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[2]])
+```
+
+
+
+```{r irq_adm2.syrians_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[3]])
+```
+
+
+
+```{r irq_adm2.syrians_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[4]])
+```
+
+
+
+```{r irq_adm2.syrians_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[5]])
+```
+
+
+
+```{r irq_adm2.syrians_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[6]])
+```
+
+
+
+```{r irq_adm2.syrians_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r irq_adm2.syrians_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[8]])
+```
+
+
+
+```{r irq_adm2.syrians_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[9]])
+```
+
+
+```{r irq_adm2.syrians_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[10]])
+```
+
+
+
+```{r irq_adm2.syrians_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[11]])
+```
+
+
+
+```{r irq_adm2.syrians_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r irq_adm2.syrians_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[13]])
+```
+
+
+
+```{r irq_adm2.syrians_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[14]])
+```
+
+
+
+```{r irq_adm2.syrians_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[2]][[15]])
+```
+
+
+***
+
+***
+
+
+## 3.3 Jordan
+
+### 3.3.1 Administrative Level 1: Governorates/Districts
+
+```{r jor_adm1.syrians_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[1]])
+```
+
+***
+
+### Age distribution
+
+```{r jor_adm1.syrians_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[2]])
+```
+
+
+```{r jor_adm1.syrians_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[3]])
+```
+
+
+
+```{r jor_adm1.syrians_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[4]])
+```
+
+
+
+```{r jor_adm1.syrians_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[5]])
+```
+
+
+
+```{r jor_adm1.syrians_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[6]])
+```
+
+
+
+```{r jor_adm1.syrians_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r jor_adm1.syrians_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[8]])
+```
+
+
+
+```{r jor_adm1.syrians_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[9]])
+```
+
+
+
+```{r jor_adm1.syrians_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[10]])
+```
+
+
+
+```{r jor_adm1.syrians_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[11]])
+```
+
+
+
+```{r jor_adm1.syrians_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r jor_adm1.syrians_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[13]])
+```
+
+
+
+```{r jor_adm1.syrians_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[14]])
+```
+
+
+
+```{r jor_adm1.syrians_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[3]][[15]])
+```
+
+***
+
+### 3.3.2 Administrative Level 2: Provinces
+
+```{r jor_adm2.syrians_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[1]])
+```
+
+***
+
+### Age distribution
+
+```{r jor_adm2.syrians_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[2]])
+```
+
+
+```{r jor_adm2.syrians_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[3]])
+```
+
+
+
+```{r jor_adm2.syrians_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[4]])
+```
+
+
+
+```{r jor_adm2.syrians_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[5]])
+```
+
+
+
+```{r jor_adm2.syrians_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[6]])
+```
+
+
+
+```{r jor_adm2.syrians_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r jor_adm2.syrians_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[8]])
+```
+
+
+
+```{r jor_adm2.syrians_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[9]])
+```
+
+
+
+```{r jor_adm2.syrians_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[10]])
+```
+
+
+
+```{r jor_adm2.syrians_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[11]])
+```
+
+
+
+```{r jor_adm2.syrians_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r jor_adm2.syrians_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[13]])
+```
+
+
+
+```{r jor_adm2.syrians_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[14]])
+```
+
+
+
+```{r jor_adm2.syrians_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[3]][[15]])
+```
+
+
+
+***
+
+## 3.4 Lebanon
+
+### 3.4.1 Administrative Level 1: Governorates/Districts
+
+```{r lbn_adm1.syrians_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[1]])
+```
+
+***
+
+### Age distribution
+
+```{r lbn_adm1.syrians_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[2]])
+```
+
+
+
+```{r lbn_adm1.syrians_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[3]])
+```
+
+
+
+```{r lbn_adm1.syrians_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[4]])
+```
+
+
+
+```{r lbn_adm1.syrians_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[5]])
+```
+
+
+
+```{r lbn_adm1.syrians_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[6]])
+```
+
+
+
+```{r lbn_adm1.syrians_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r lbn_adm1.syrians_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[8]])
+```
+
+
+
+```{r lbn_adm1.syrians_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[9]])
+```
+
+
+
+```{r lbn_adm1.syrians_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[10]])
+```
+
+
+
+```{r lbn_adm1.syrians_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[11]])
+```
+
+
+
+```{r lbn_adm1.syrians_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r lbn_adm1.syrians_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[13]])
+```
+
+
+
+```{r lbn_adm1.syrians_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[14]])
+```
+
+
+
+```{r lbn_adm1.syrians_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm1.syrians[[4]][[15]])
+```
+
+***
+
+### 3.4.2 Administrative Level 2: Provinces
+
+```{r lbn_adm2.syrians_number_individuals, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[1]])
+```
+
+***
+
+### Age distribution
+
+```{r lbn_adm2.syrians_children, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[2]])
+```
+
+
+
+```{r lbn_adm2.syrians_adolescent, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[3]])
+```
+
+
+
+```{r lbn_adm2.syrians_working_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[4]])
+```
+
+
+
+```{r lbn_adm2.syrians_elderly, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[5]])
+```
+
+
+
+```{r lbn_adm2.syrians_sd_age, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[6]])
+```
+
+
+
+
+```{r lbn_adm2.syrians_age_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[7]])
+```
+
+***
+
+### Sex distribution
+
+```{r lbn_adm2.syrians_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[8]])
+```
+
+
+
+```{r lbn_adm2.syrians_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[9]])
+```
+
+
+
+```{r lbn_adm2.syrians_only_females, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[10]])
+```
+
+
+
+```{r lbn_adm2.syrians_only_males, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[11]])
+```
+
+
+
+```{r lbn_adm2.syrians_female_pa, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[12]])
+```
+
+***
+
+### Dependency
+
+```{r lbn_adm2.syrians_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[13]])
+```
+
+
+
+```{r lbn_adm2.syrians_child_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[14]])
+```
+
+
+
+```{r lbn_adm2.syrians_elderly_dependency, echo=FALSE, fig.height=8, fig.width=15}
+plot (final.maps.adm2.syrians[[4]][[15]])
+```
