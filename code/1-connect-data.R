@@ -12,6 +12,8 @@ user <- readline("Give the username:")
 passw <- readline("Give the password:")
 dbhandleprogres <- odbcConnect(progres, uid=user, pwd=passw)
 
+## source("perso/password.R")
+
 ## fetching the view containing information aggregated at the case level and the event
 progres.case <-  sqlFetch(dbhandleprogres, "caseprofile")
 

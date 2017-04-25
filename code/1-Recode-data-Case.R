@@ -9,6 +9,33 @@ source("code/0-packages.R")
 progres.case <- read.csv("data/progrescase.csv")
 #str(progres.case)
 
+#################################
+# Recoding ethnicity & religion
+
+prop.table(table(progres.case$dem_ethn, useNA = "ifany"))
+
+progres.case$dem_ethnCat <- as.character(progres.case$dem_ethn)
+progres.case$dem_ethnCat[progres.case$dem_ethn=="Armenian"] <- "Other/noData"
+progres.case$dem_ethnCat[progres.case$dem_ethn=="Assyrian"] <- "Other/noData"
+progres.case$dem_ethnCat[progres.case$dem_ethn=="Chaldean"] <- "Other/noData"
+progres.case$dem_ethnCat[progres.case$dem_ethn=="Cirassain"] <- "Other/noData"
+progres.case$dem_ethnCat[progres.case$dem_ethn=="Turkmen"] <- "Other/noData"
+progres.case$dem_ethnCat <- as.factor(progres.case$dem_ethnCat)
+prop.table(table(progres.case$dem_ethnCat, useNA = "ifany"))  
+  
+freq.rel <- as.data.frame(prop.table(table(progres.case$dem_religion, useNA = "ifany")))
+freq.rel$dem_religion <- freq.rel$Var1
+freq.rel$dem_religionCat <- as.character(freq.rel$dem_religion)
+#str(freq.rel)
+freq.rel[freq.rel$Freq < 0.05, c("dem_religionCat")] <-  "Other.or.noData"
+freq.rel$dem_religionCat[freq.rel$dem_religion=="CHR"] <-  "Christian"
+freq.rel$dem_religionCat[freq.rel$dem_religion=="MUS"] <-  "Muslim"
+freq.rel$dem_religionCat[freq.rel$dem_religion=="SIT"] <-  "Shia"
+freq.rel$dem_religionCat[freq.rel$dem_religion=="SUN"] <-  "Sunni"
+
+progres.case <- join(x=progres.case, y=freq.rel, by="dem_religion", type="left")
+prop.table(table(progres.case$dem_religionCat, useNA = "ifany"))
+
 ##############################
 ## Case size  as factor
 progres.case$Case.size <- as.factor(progres.case$Num_Inds)

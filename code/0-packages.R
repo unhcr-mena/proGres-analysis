@@ -24,7 +24,8 @@ packages <- c("ggplot2", # package for elegant data visualization using the Gram
               "RColorBrewer", # a package offering color palette from 
               "viridis", # another color palette,
               "extrafont", ##" load additional font
-              "sp","maptools","rgdal","rgeos","ggmap","cartography", "sqldf", "geojsonio",  #PBSmapping", ## packages used for the maps --
+              "sp","maptools","rgdal","rgeos","ggmap","cartography", "SpatialPosition",
+             "sqldf", "geojsonio",  #PBSmapping", ## packages used for the maps --
               ## install gdal and geos separately before  http://robinlovelace.net/r/2013/11/26/installing-rgdal-on-ubuntu.html
               "raster","classInt","lubridate","date","gdata","gridExtra","scales",
               "ggthemes", ## load different custmised theme: excel, stata, economist, tufte, wall street journal...
@@ -101,7 +102,7 @@ library(classInt) ## Classififcation
 library(hexbin) ## Hexa binning
 library(geojsonio)
 library(cartography)
-
+library(SpatialPosition)
 
 ############################################
 ## Code reformatting
@@ -235,7 +236,7 @@ theme_edouard <- function(base_size = 12) {
 
 
 
-########### Likert Analyisis
+########### Likert Analysis
 ## http://jason.bryer.org/likert/
 #library(devtools)
 #install_github('jbryer/likert')
