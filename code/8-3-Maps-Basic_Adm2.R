@@ -80,8 +80,8 @@ for (n in 1:length(adm2.list)) {
     labels <- c()
     brks <- natural.breaks
     for(idx in 1:length(brks)){
-      labels <- c(labels,round(brks[idx + 1], 2))
-    }
+        labels <- c(labels,round(brks[idx + 1], 2))
+      }
     labels <- labels[1:length(labels)-1]
     
     # prepare legend of map based on breaks and define classes

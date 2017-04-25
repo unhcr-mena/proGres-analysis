@@ -1,7 +1,19 @@
 
 #### Create spatial aggregation
 
-source("code/o-packages.R")
+source("code/0-packages.R")
+
+
+#############################################################################
+## Create folders
+
+## create output folder & file path
+mainDir <- "data"
+subDir <- "/mapping/geojson"
+dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+
+
+
 
 ## clear workspace except necessary data frame function
 #keep(data.progrescase, sure = TRUE)
@@ -36,6 +48,66 @@ country<- country[!country$P_Code == "SYR", ] #no geojson adm2
 country<- country[!country$P_Code == "TUR", ] #no geojson adm2
 country<- country[!country$P_Code == "YEM", ] #no geojson adm2
 
+
+#############################################################################################
+## Donwload geojson from Repo
+
+for (i in 1:nrow(country)) {
+  iso3 <- country[i,2]
+  filename <- paste0(iso3,"_ADM1.geojson")
+  destfilepath <- paste0("data/mapping/geojson/", filename )
+  geojsonurl <- paste0("http://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM1.geojson")
+  ## only download geojson if not existing for better performance
+  if(!file.exists(destfilepath)){
+    res <- tryCatch(download.file(geojsonurl, destfile=destfilepath ),
+                    error=function(e) 1)
+  }
+  
+  filename <- paste0(iso3,"_ADM2.geojson")
+  destfilepath <- paste0("data/mapping/geojson/", filename )
+  geojsonurl <- paste0("http://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM2.geojson")
+  
+  if(!file.exists(destfilepath)){
+    res <- tryCatch(download.file(geojsonurl, destfile=destfilepath ),
+                    error=function(e) 1)
+  }
+  
+}
+
+##################################################################################
+## create output folder for maps
+for (i in 1:nrow(country)) {
+  mainDir <- "out"
+  subDir <- paste0("/maps/",country[i,2],"/adm1/data_viz")
+  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+  
+  subDir <- paste0("/maps/",country[i,2],"/adm2/data_viz")
+  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+  
+  ## create output folder for maps with only Syrians
+  subDir <- paste0("/maps/",country[i,2],"/adm1/only_syrian")
+  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+  
+  subDir <- paste0("/maps/",country[i,2],"/adm2/only_syrian")
+  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+  
+  ## create output folder for detail maps
+  subDir <- paste0("/maps/",country[i,2],"/adm1/detail_maps")
+  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+  
+  subDir <- paste0("/maps/",country[i,2],"/adm2/detail_maps")
+  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+  
+  ## create output folder for further analysis
+  subDir <- paste0("/maps/",country[i,2],"/adm1/analysis")
+  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+  
+  subDir <- paste0("/maps/",country[i,2],"/adm2/analysis")
+  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+}
+
+
+#############################################################################################
 ##############################
 ## create lists and dataframes that will be filled in the loop by joining data and geojson
 ## consistency table will show percentage of consistent data for each country and each admin level
@@ -60,12 +132,18 @@ for (i in 1:nrow(country)) {
   pcode <- country[i,1]
   iso3 <- country[i,2]
   
+  ############################################################################
+  cat(paste("Loading country", iso3,"\n"))
+  
+  ############################################################################
+  cat("Subset and looking at consistency \n")
+  #############################################################################################  
   ## 1) country subset for different admin levels
   df_CountryAsylum <- data.progrescase[grep(pcode, data.progrescase$CountryAsylum), ]
   adm1 <- df_CountryAsylum[grep(pcode, df_CountryAsylum$coal1id), ] #only rows where adm0 and adm1 are consistent
   adm2 <- adm1[grep(pcode, adm1$coal2id), ] #only rows where adm1 and adm2 are consistent
 
-
+  #############################################################################################
   ## 2) let's check how much percent of data is consistent within each country and adminlevel
   ## rows where CountryAsylum has countrycode is considered as total
   ## create empty consistency table and fill with accuracy percentage data
@@ -74,30 +152,19 @@ for (i in 1:nrow(country)) {
   pct.adm2 <- round((nrow(adm2)/total)*100, digits = 1) # if nrow country codes is considered as total 
   consistency.table <- rbind(consistency.table, data.frame(iso3, total, pct.adm1, pct.adm2))
   
-  
+  #############################################################################################
   ## 3) adjust column names of key columns for successful join with geojson
   names(adm1)[names(adm1) == 'coal1id'] <- 'idprogres'
   names(adm2)[names(adm2) == 'coal2id'] <- 'idprogres'
   
-  
+  #############################################################################################
   ## 4) loading geojson
+  
+  ############################################################################
+  cat("Fortifying level 1 \n")
   ## admin level 1
-  
-  ## create output folder & file path
-  mainDir <- "data"
-  subDir <- "/mapping/geojson"
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
   filename <- paste0(iso3,"_ADM1.geojson")
   destfilepath <- paste0("data/mapping/geojson/", filename )
-  geojsonurl <- paste0("http://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM1.geojson")
-  
-  ## only download geojson if not existing for better performance
-  if(!file.exists(destfilepath)){
-    res <- tryCatch(download.file(geojsonurl, destfile=destfilepath ),
-                    error=function(e) 1)
-  }
-  
   json.raw <- geojson_read( destfilepath, method="local", what="sp" )
   
   proj4string(json.raw) # describes current coordinate reference system: here "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
@@ -115,17 +182,13 @@ for (i in 1:nrow(country)) {
   map.data.adm1 <- map.data[, c("long", "lat", "group", "hole", "admname", "iso3", "idprogres")] # subset with only needed columns to accelerate performance
   
   
+  
+  ############################################################################
+  cat("Fortifying level 2 \n")
   ## p-code repository needs to be consistent in case of id's (sometimes idadm1 is used sometimes idadm2)
   ## admin level 2
   filename <- paste0(iso3,"_ADM2.geojson")
   destfilepath <- paste0("data/mapping/geojson/", filename )
-  geojsonurl <- paste0("http://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM2.geojson")
-  
-  if(!file.exists(destfilepath)){
-    res <- tryCatch(download.file(geojsonurl, destfile=destfilepath ),
-                    error=function(e) 1)
-  }
-  
   json.raw <- geojson_read( destfilepath, method="local", what="sp")
   
   proj4string(json.raw) # describes current coordinate reference system: here "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
@@ -139,7 +202,7 @@ for (i in 1:nrow(country)) {
   map.data.adm2 <- map.data[, c("long", "lat", "group", "hole", "admname", "iso3", "idprogres")] # subset with only needed columns to accelerate performance
   
   
-  
+  ####################################################################################
   ## 5) data processing steps on country level
   
   ## Calculating dependency percentage within country (100% should be current country subset not adm. unit or all countries)
@@ -162,7 +225,10 @@ for (i in 1:nrow(country)) {
   data.country.list <- list(adm1, adm2)
   adm.sex.list <- list(adm1.sex, adm2.sex)
   
-
+  
+  
+  ############################################################################
+  cat("data aggregation by admin level 1 \n")
   ## data aggregation by admin level 1 code of asylum
   adm1.Num_Inds <- summarySE(data.country.list[[1]], measurevar="Num_Inds", groupvars=c("idprogres"), na.rm=TRUE)
   adm1.Child_0_14 <- summarySE(data.country.list[[1]], measurevar="Child_0_14", groupvars=c("idprogres"), na.rm=TRUE)
@@ -184,6 +250,8 @@ for (i in 1:nrow(country)) {
   
 
   
+  ############################################################################
+  cat("data aggregation by admin level 2 \n")
   ## data aggregation by admin level 2 
   adm2.Num_Inds <- summarySE(data.country.list[[2]], measurevar="Num_Inds", groupvars=c("idprogres"), na.rm=TRUE)
   adm2.Child_0_14 <- summarySE(data.country.list[[2]], measurevar="Child_0_14", groupvars=c("idprogres"), na.rm=TRUE)
@@ -204,8 +272,8 @@ for (i in 1:nrow(country)) {
   adm2.case.female.headed <- summarySE(adm.sex.list[[2]], measurevar="female.headed", groupvars=c("idprogres"), na.rm=TRUE) 
   
   
-  
-  ## 6) check if dataframe has data and join with geojson
+  ############################################################################
+  cat("check if dataframe has data and join with geojson\n")
   ## adm1
   ## loop for listing of all dataframes with consistent data
   if (nrow(adm1.Num_Inds) >= 1){
@@ -252,123 +320,6 @@ for (i in 1:nrow(country)) {
   }
   adm2.list[[i]] <- list(mapdata.list.adm2)
   
-  
-  ## create output folder for maps
-  mainDir <- "out"
-  subDir <- paste0("/maps/",country[i,2],"/adm1/data_viz")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  subDir <- paste0("/maps/",country[i,2],"/adm2/data_viz")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  ## create output folder for maps with only Syrians
-  subDir <- paste0("/maps/",country[i,2],"/adm1/only_syrian")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  subDir <- paste0("/maps/",country[i,2],"/adm2/only_syrian")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  ## create output folder for detail maps
-  subDir <- paste0("/maps/",country[i,2],"/adm1/detail_maps")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  subDir <- paste0("/maps/",country[i,2],"/adm2/detail_maps")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  ## create output folder for further analysis
-  subDir <- paste0("/maps/",country[i,2],"/adm1/analysis")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  subDir <- paste0("/maps/",country[i,2],"/adm2/analysis")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
+
 }
   
-
-
-##################################################################
-## styling theme for maps
-## theme for general text and borders which is the same in all maps
-theme.base <- function(...) {
-  theme_minimal() +
-    theme(
-      text = element_text(family = "Calibri", color = "#22211d"),
-      axis.line = element_blank(),
-      axis.text.x = element_blank(),
-      axis.text.y = element_blank(),
-      axis.ticks = element_blank(),
-      axis.title.x = element_blank(),
-      axis.title.y = element_blank(),
-      panel.spacing = unit(c(-.1,1,0.02,1), "cm"),
-      plot.caption = element_text(size = 9, hjust = 0, color = "#595851"),
-      panel.grid.minor = element_blank(),
-      panel.border = element_blank(),
-      ...
-    )
-}
-
-## theme for main choropleth map
-theme.choropleth <- function(...) {
-  theme(
-    plot.title = element_text(hjust = 0, color = "black", size = 19, face="bold"),
-    plot.subtitle = element_text(hjust = 0, color = "black", size = 13, debug = F),
-    
-    legend.direction = "horizontal",
-    legend.position = "bottom", #c(0.5, 0.01),
-    legend.text.align = 1,                                                #postition of label: 0=left, 1=right
-    legend.background = element_rect(fill = "#f5f5f2", color = NA),
-    legend.text = element_text(size = 12, hjust = 0, color = "black"),
-    legend.margin = unit(c(1,.5,0.2,.5), "cm"),
-    legend.key.height = unit(4, units = "mm"),                             #height of legend
-    legend.key.width = unit(100/length(labels), units = "mm"),             #width of legend
-    legend.title = element_text(size = 0),           #put to 0 to remove title but keep space
-    
-    panel.grid.major = element_line(color = "#f5f5f2", size = 0.2),
-    panel.background = element_rect(fill = "#f5f5f2", color = NA),
-    plot.background = element_rect(fill = "#f5f5f2", color = NA),
-    plot.margin = unit(c(.5,2,1,1.5), "cm"),
-    
-    ...
-  )
-}
-
-## theme for bubble map absolute number of datarows
-theme.symbol <-  function(...) {
-  theme(
-    legend.title = element_text(size=12, face="bold", color = "black", hjust = 1),  
-    plot.title = element_text(size=12, face="bold", color = "black", hjust = 1), 
-    plot.subtitle = element_text(size=17, face="bold", color = "black", hjust = 1),  
-    legend.direction = "vertical",
-    legend.position = "right", #c(0.5, 0.01),
-    legend.background = element_rect(fill = "white", color = NA),
-    legend.text = element_text(size = 12, color = "black"),
-    legend.margin = unit(c(1,.5,0.2,.5), "cm"),
-    panel.background = element_rect(fill = "white", color = NA), 
-    plot.background = element_rect(fill = "white", color = NA), 
-    panel.grid.major = element_line(color = "white", size = 0.2),
-    plot.margin = unit(c(0.3,0.3,0.3,0,3), "cm"),
-    
-    ...
-  )
-}
-
-## theme for choropleth map margin of error
-theme.confidence <- function(...) {
-  theme(
-    legend.title = element_text(size=12, face="bold", color = "black"), 
-    legend.direction = "vertical",
-    legend.position = "right", #c(0.15, 1),                              
-    legend.background = element_rect(fill = "white", color = NA),
-    legend.text = element_text(size = 12, color = "black"),
-    legend.margin = unit(c(1,.5,0.2,.5), "cm"),
-    legend.key.height = unit(7, units = "mm"),            #height of legend
-    legend.key.width = unit(6, units = "mm"),             #width of legend
-    legend.key.size = unit(1.5, 'lines'),
-    
-    panel.background = element_rect(fill = "white", color = NA), 
-    plot.background = element_rect(fill = "white", color = NA), 
-    panel.grid.major = element_line(color = "white", size = 0.2),
-    plot.margin = unit(c(0.3,1.05,0.3,0,3), "cm"),
-    
-    ...
-  )
-}
