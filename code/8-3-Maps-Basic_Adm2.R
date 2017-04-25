@@ -47,24 +47,21 @@ for (n in 1:length(adm2.list)) {
   
   ## Not loading base map
   cat (" Now loading base map \n")
-  if( dx <= 20 && dy <= 20) {
+  if( dx <= 20 && dy <= 20 && dx > 13 && dy > 13) {
     basemap <- get_map(location = this.country.name, zoom = 5, maptype="satellite")
-    
-  if ( dx <= 13 && dy <= 13) {
+    } 
+  if ( dx <= 13 && dy <= 13 && dx > 5 && dy > 5) {
       basemap <- get_map(location = this.country.name, zoom = 6, maptype="satellite")
     }
     
-  if ( dx <= 5 && dy <= 5) {
+  if ( dx <= 5 && dy <= 5 && dx > 2 && dy > 2) {
       basemap <- get_map(location = this.country.name, zoom = 7, maptype="satellite")
     }
     
   if ( dx <= 2 && dy <= 2) {
       basemap <- get_map(location = this.country.name, zoom = 8, maptype="satellite")
     }
-  }
-  
-  
-  
+
   ## inner loop goes through all variables in each country
   
   cat (" Starting generating thematic maps \n")

@@ -32,6 +32,8 @@ final.maps.adm1 <- list()
 ## ADMINLEVEL1
 ## outer loop goes through every country
 for (n in 1:length(adm1.list)) {
+  
+  # n <- 1
   data <- adm1.list[[n]][[1]][[1]][[1]]
   
   ## compute centers of polygons as position of circles in symbol map
@@ -53,21 +55,22 @@ for (n in 1:length(adm1.list)) {
   ## Not loading base map
   cat (" Now loading base map \n")
   
-  if( dx <= 20 && dx >= 13 && dy >= 13 && dy <= 20) {
+  if( dx <= 20 && dx > 13 && dy > 13 && dy <= 20) {
         basemap <- get_map(location = this.country.name, zoom = 5, maptype="terrain")
+    }
 
-    if ( dx <= 13 && dy <= 13 && dx >= 5 && dy >= 5) {
+  if ( dx <= 13 && dy <= 13 && dx > 5 && dy > 5) {
             basemap <- get_map(location = this.country.name, zoom = 6, maptype="terrain")
     }
 
-    if ( dx <= 5 && dy <= 5 && dx >= 2 && dy >= 2) {
+  if ( dx <= 5 && dy <= 5 && dx > 2 && dy > 2) {
             basemap <- get_map(location = this.country.name, zoom = 7, maptype="terrain")
     }
 
-    if ( dx <= 2 && dy <= 2) {
+  if ( dx <= 2 && dy <= 2) {
             basemap <- get_map(location = this.country.name, zoom = 8, maptype="terrain")
     }
-  }
+
   
 
   
