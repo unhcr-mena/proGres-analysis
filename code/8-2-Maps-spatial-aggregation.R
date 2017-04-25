@@ -133,7 +133,7 @@ for (i in 1:nrow(country)) {
   
   filename <- paste0(iso3,"_ADM1.geojson")
   destfilepath <- paste0("data/mapping/geojson/", filename )
-  geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM1.geojson")
+  geojsonurl <- paste0("http://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM1.geojson")
   
   ## only download geojson if not existing for better performance
   if(!file.exists(destfilepath)){
@@ -162,7 +162,7 @@ for (i in 1:nrow(country)) {
   ## admin level 2
   filename <- paste0(iso3,"_ADM2.geojson")
   destfilepath <- paste0("data/mapping/geojson/", filename )
-  geojsonurl <- paste0("https://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM2.geojson")
+  geojsonurl <- paste0("http://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM2.geojson")
   
   if(!file.exists(destfilepath)){
     res <- tryCatch(download.file(geojsonurl, destfile=destfilepath ),
@@ -326,3 +326,92 @@ for (i in 1:nrow(country)) {
   dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
 }
   
+
+
+##################################################################
+## styling theme for maps
+## theme for general text and borders which is the same in all maps
+theme.base <- function(...) {
+  theme_minimal() +
+    theme(
+      text = element_text(family = "Calibri", color = "#22211d"),
+      axis.line = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks = element_blank(),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      panel.spacing = unit(c(-.1,1,0.02,1), "cm"),
+      plot.caption = element_text(size = 9, hjust = 0, color = "#595851"),
+      panel.grid.minor = element_blank(),
+      panel.border = element_blank(),
+      ...
+    )
+}
+
+## theme for main choropleth map
+theme.choropleth <- function(...) {
+  theme(
+    plot.title = element_text(hjust = 0, color = "black", size = 19, face="bold"),
+    plot.subtitle = element_text(hjust = 0, color = "black", size = 13, debug = F),
+    
+    legend.direction = "horizontal",
+    legend.position = "bottom", #c(0.5, 0.01),
+    legend.text.align = 1,                                                #postition of label: 0=left, 1=right
+    legend.background = element_rect(fill = "#f5f5f2", color = NA),
+    legend.text = element_text(size = 12, hjust = 0, color = "black"),
+    legend.margin = unit(c(1,.5,0.2,.5), "cm"),
+    legend.key.height = unit(4, units = "mm"),                             #height of legend
+    legend.key.width = unit(100/length(labels), units = "mm"),             #width of legend
+    legend.title = element_text(size = 0),           #put to 0 to remove title but keep space
+    
+    panel.grid.major = element_line(color = "#f5f5f2", size = 0.2),
+    panel.background = element_rect(fill = "#f5f5f2", color = NA),
+    plot.background = element_rect(fill = "#f5f5f2", color = NA),
+    plot.margin = unit(c(.5,2,1,1.5), "cm"),
+    
+    ...
+  )
+}
+
+## theme for bubble map absolute number of datarows
+theme.symbol <-  function(...) {
+  theme(
+    legend.title = element_text(size=12, face="bold", color = "black", hjust = 1),  
+    plot.title = element_text(size=12, face="bold", color = "black", hjust = 1), 
+    plot.subtitle = element_text(size=17, face="bold", color = "black", hjust = 1),  
+    legend.direction = "vertical",
+    legend.position = "right", #c(0.5, 0.01),
+    legend.background = element_rect(fill = "white", color = NA),
+    legend.text = element_text(size = 12, color = "black"),
+    legend.margin = unit(c(1,.5,0.2,.5), "cm"),
+    panel.background = element_rect(fill = "white", color = NA), 
+    plot.background = element_rect(fill = "white", color = NA), 
+    panel.grid.major = element_line(color = "white", size = 0.2),
+    plot.margin = unit(c(0.3,0.3,0.3,0,3), "cm"),
+    
+    ...
+  )
+}
+
+## theme for choropleth map margin of error
+theme.confidence <- function(...) {
+  theme(
+    legend.title = element_text(size=12, face="bold", color = "black"), 
+    legend.direction = "vertical",
+    legend.position = "right", #c(0.15, 1),                              
+    legend.background = element_rect(fill = "white", color = NA),
+    legend.text = element_text(size = 12, color = "black"),
+    legend.margin = unit(c(1,.5,0.2,.5), "cm"),
+    legend.key.height = unit(7, units = "mm"),            #height of legend
+    legend.key.width = unit(6, units = "mm"),             #width of legend
+    legend.key.size = unit(1.5, 'lines'),
+    
+    panel.background = element_rect(fill = "white", color = NA), 
+    plot.background = element_rect(fill = "white", color = NA), 
+    panel.grid.major = element_line(color = "white", size = 0.2),
+    plot.margin = unit(c(0.3,1.05,0.3,0,3), "cm"),
+    
+    ...
+  )
+}
