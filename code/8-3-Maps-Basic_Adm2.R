@@ -19,23 +19,27 @@ for (n in 1:length(adm2.list)) {
   this.country.code <- data[1,7]
   this.country.name <- toString(country[n,3])
   
+  cat(paste("Now creating maps for country ", this.country.name, "\n"))
   
   ## calculate max x- and y-distance in geojson to select optimal zoom level of basemap
   dx <- (max(data$long))-(min(data$long))
   dy <- (max(data$lat))-(min(data$lat))
   
+  
+  ## Not loading base map
+  cat (" Now loading base map \n")
   if( dx <= 20 && dy <= 20) {
     basemap <- get_map(location = this.country.name, zoom = 5, maptype="satellite")
     
-    if ( dx <= 13 && dy <= 13) {
+  if ( dx <= 13 && dy <= 13) {
       basemap <- get_map(location = this.country.name, zoom = 6, maptype="satellite")
     }
     
-    if ( dx <= 5 && dy <= 5) {
+  if ( dx <= 5 && dy <= 5) {
       basemap <- get_map(location = this.country.name, zoom = 7, maptype="satellite")
     }
     
-    if ( dx <= 2 && dy <= 2) {
+  if ( dx <= 2 && dy <= 2) {
       basemap <- get_map(location = this.country.name, zoom = 8, maptype="satellite")
     }
   }
@@ -43,6 +47,8 @@ for (n in 1:length(adm2.list)) {
   
   
   ## inner loop goes through all variables in each country
+  
+  cat (" Starting generating thematic maps \n")
   for (i in 1:length(list.adm2)) {
     data.map <-   fortify(adm2.list[[n]][[1]][[i]][[1]])
     
@@ -68,6 +74,7 @@ for (n in 1:length(adm2.list)) {
     labels.scale <- rev(brks.scale)
     
     
+    cat(paste("now creating themtic map",titles[i] , "for country ", this.country.name, "\n"))
     
     # creating choropleth map of variable
     p.map <- ggmap(basemap) +
@@ -79,9 +86,12 @@ for (n in 1:length(adm2.list)) {
       theme.base() +
       theme.choropleth() +     # map text and styling
       labs(x = NULL, y = NULL, 
-           title = paste0("Average ",titles[i],"\nby Governorate of ", this.country.name," as place of asylum"),
-           subtitle =  paste0("Absolute number of registered cases in this country: ",consistency.table[n,2]," cases\nPercentage of mapped cases: ",consistency.table[n,3],"% rounded to one decimal place\n(shows consistent data rows as percent of absolute number of registered cases in this country)"),
-           caption = "Datasource:\nData: UNHCR proGres\nShapefiles: UNHCR Github repository 'p-codes'") + 
+           title = paste0(titles[i],"\nby Governorate of ", this.country.name," as place of asylum"),
+           subtitle =  paste0("Absolute number of registered cases in this country: ",consistency.table[n,2],
+                              " cases\nPercentage of mapped cases: ",consistency.table[n,3],
+                              "% \n"),
+           # rounded to one decimal place (shows consistent data rows as percent of absolute number of registered cases in this country)
+           caption = "Source: UNHCR proGres Registration") + 
       scale_fill_manual( values = rev(magma(8, alpha = 0.8)[2:7]), breaks = rev(brks.scale),
                          drop = FALSE,
                          labels = labels.scale,
@@ -166,8 +176,8 @@ for (n in 1:length(adm2.list)) {
     map.list[[i]] <- p
     
     # ## safe final plot
-    # path <- paste0("out/maps/",this.country.code,"/adm2/",this.country.code,"_adm2_",colname,".png")
-    # ggsave(path, p, width=15, height=8,units="in", dpi=300)
+    path <- paste0("out/maps/",this.country.code,"/adm2/",this.country.code,"_adm2_",colname,".png")
+    ggsave(path, p, width=15, height=8,units="in", dpi=300)
     
   }
   

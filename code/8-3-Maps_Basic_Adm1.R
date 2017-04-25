@@ -4,19 +4,25 @@
 ## clear workspace except necessary aggregation function
 #keep(country, list.adm1, list.adm2, adm1.list, adm2.list, mapdata.list.adm1, mapdata.list.adm2, map.data.adm1, map.data.adm2, consistency.table, sure = TRUE)
 
-devtools::install_github("wilkelab/cowplot", force=TRUE)
-library(cowplot)
 
 
 
-titles <- c("number of individuals per case", 
-            "number of children in the age of 0-14", "number of adolescent in the age of 15-17", 
-            "number of persons in working age (15-65)", "number of elderly in the age of 65+",
-            "standard deviation of age within cases", "age of principal applicant", 
-            "number of females", "number of males", "proportion of cases with only female members", 
-            "proportion of cases with only male members", "proportion of cases with female principal applicants",
-            "proportion of dependent persons (children < 14 & elderly 65+) / total", 
-            "proportion of dependent children < 14 / total", "proportion of dependent elderly 65 + / total")
+
+titles <- c("Average # of individuals per case", 
+            "Average # of children in the age of 0-14",
+            "Average # of adolescent in the age of 15-17", 
+            "Average # of persons in working age (15-65)",
+            "Average # of elderly in the age of 65+",
+            "standard deviation of age within cases",
+            "Average age of principal applicant", 
+            "Average # of females",
+            "Average # of males",
+            "% of cases with only female members", 
+            "% of cases with only male members",
+            "% of cases with female principal applicants",
+            "% of dependent persons (children < 14 & elderly 65+) / total", 
+            "% of dependent children < 14 / total",
+            "% of dependent elderly 65 + / total")
 
 map.list <- list()
 final.maps.adm1 <- list()
@@ -37,18 +43,24 @@ for (n in 1:length(adm1.list)) {
   this.country.name <- toString(country[n,3])
 
   
+  cat(paste("Now creating maps for country ", this.country.name, "\n"))
+  
   ## calculate max x- and y-distance in geojson to select optimal zoom level of basemap
   dx <- (max(data$long))-(min(data$long))
   dy <- (max(data$lat))-(min(data$lat))
   
-  if( dx <= 20 && dy <= 20) {
+  
+  ## Not loading base map
+  cat (" Now loading base map \n")
+  
+  if( dx <= 20 && dx >= 13 && dy >= 13 && dy <= 20) {
         basemap <- get_map(location = this.country.name, zoom = 5, maptype="terrain")
 
-    if ( dx <= 13 && dy <= 13) {
+    if ( dx <= 13 && dy <= 13 && dx >= 5 && dy >= 5) {
             basemap <- get_map(location = this.country.name, zoom = 6, maptype="terrain")
     }
 
-    if ( dx <= 5 && dy <= 5) {
+    if ( dx <= 5 && dy <= 5 && dx >= 2 && dy >= 2) {
             basemap <- get_map(location = this.country.name, zoom = 7, maptype="terrain")
     }
 
@@ -58,7 +70,8 @@ for (n in 1:length(adm1.list)) {
   }
   
 
-
+  
+  cat (" Starting generating thematic maps \n")
 ## inner loop goes through all variables in each country
   for (i in 1:length(list.adm1)) {
   data.map <-   fortify(adm1.list[[n]][[1]][[i]][[1]])
@@ -86,6 +99,8 @@ for (n in 1:length(adm1.list)) {
   
   
   
+  cat(paste("now creating themtic map",titles[i] , "for country ", this.country.name, "\n"))
+  
   # creating choropleth map of variable
   p.map <- ggmap(basemap) +
     #ggplot(data.map[!data.map[,9] %in% data.map[data.map$hole,][,9],], aes(x = long, y = lat, group = idprogres)) +
@@ -98,7 +113,7 @@ for (n in 1:length(adm1.list)) {
     labs(x = NULL, y = NULL, 
          title = paste0(this.country.name," as country of Asylum by Governorate\nAverage ",titles[i]),
          subtitle =  paste0("Percentage of mapped cases: ",consistency.table[n,3],"% rounded to one decimal place\n(consistent data rows as percent of absolute number of registered cases in ",this.country.name,")"),
-         caption = "Source:\nData: UNHCR proGres\nShapefiles: UNHCR Github repository 'p-codes'\nBasemap: Google") + 
+         caption = "Source: UNHCR proGres Registration") + 
     scale_fill_manual( values = rev(magma(8, alpha = 0.8)[2:7]), breaks = rev(brks.scale),
                        drop = FALSE,
                        labels = labels.scale,
@@ -183,8 +198,8 @@ for (n in 1:length(adm1.list)) {
   map.list[[i]] <- p
   
   # ## safe final plot
-  # path <- paste0("out/maps/",this.country.code,"/adm1/data_viz/",this.country.code,"_ADM1_",colname,".png")
-  # ggsave(path, p, width=15, height=8,units="in", dpi=300)
+  path <- paste0("out/maps/",this.country.code,"/adm1/",this.country.code,"_ADM1_",colname,".png")
+  ggsave(path, p, width=15, height=8,units="in", dpi=300)
   
   }
   final.maps.adm1[[n]] <- map.list
