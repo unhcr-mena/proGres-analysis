@@ -13,10 +13,10 @@ progres.case <- read.csv("data/progrescase.csv")
 
 ### Data cleaning ###########################
 ## let's have a look at how many complete cases we have 
-nrows <- nrow(data.progrescase) # how many rows of data
-ncomplete <- sum(complete.cases(data.progrescase)) # how many complete rows
+nrows <- nrow(progres.case) # how many rows of data
+ncomplete <- sum(complete.cases(progres.case)) # how many complete rows
 incomplete.rows <- 1-(ncomplete/nrows) # shows how much percent of the data are complete
-incomplete.rows 
+cat(paste("Number of incomplete.rows", incomplete.rows, "\n")) 
 ## removing of all incomplete rows would eliminate ~40% of the data
 #
 # -> add level 'noData' to categorical data to show on every map how much percent of data is included
@@ -526,8 +526,8 @@ progres.case$CountryOriginCategory <- recode(progres.case$CountryOrigin,"'SYR'='
                                         'SCG'='OTH';
                                         'SOL'='OTH';
                                         'SUR'='OTH';
-                                        'YUG'='OTH'
-                                        '-'='OTH';
+                                         'YUG'='OTH';
+                                         '-'='OTH';
                                         # '-'='Unknown';
                                          'U'='OTH';
                                          NA = 'OTH';
@@ -1079,7 +1079,7 @@ write.csv(progres.case.sp, file = "data/progrescase-1.csv",na="")
 
 
 rm(progres.case, freq1.coa,freq1.coo,freq2.coa,freq2.coo,SpecificNeedsCodesV2)  
-rm(progres.specificneed.case2)
+rm(progres.specificneed.case2, freq.rel, incomplete.rows, ncomplete,nrows)
 
 
 #data <- progres.case.sp

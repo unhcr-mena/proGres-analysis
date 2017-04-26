@@ -468,7 +468,9 @@ theme.base <- function(...) {
 theme.choropleth <- function(...) {
   theme(
     plot.title = element_text(hjust = 0, color = "black", size = 19, face="bold"),
-    plot.subtitle = element_text(hjust = 0, color = "black", size = 13, debug = F),
+    plot.subtitle = element_text(hjust = 0, color = "black", size = 12, debug = F),
+    plot.background = element_rect(fill = "#f5f5f2", color = NA),
+    plot.margin = unit(c(.5,2,1,1.5), "cm"),
     
     legend.direction = "horizontal",
     legend.position = "bottom", #c(0.5, 0.01),
@@ -482,8 +484,6 @@ theme.choropleth <- function(...) {
     
     panel.grid.major = element_line(color = "#f5f5f2", size = 0.2),
     panel.background = element_rect(fill = "#f5f5f2", color = NA),
-    plot.background = element_rect(fill = "#f5f5f2", color = NA),
-    plot.margin = unit(c(.5,2,1,1.5), "cm"),
     
     ...
   )
@@ -492,18 +492,20 @@ theme.choropleth <- function(...) {
 ## theme for bubble map absolute number of datarows
 theme.symbol <-  function(...) {
   theme(
-    legend.title = element_text(size=12, face="bold", color = "black", hjust = 1),  
-    plot.title = element_text(size=12, face="bold", color = "black", hjust = 1), 
-    plot.subtitle = element_text(size=17, face="bold", color = "black", hjust = 1),  
+    plot.background = element_rect(fill = "white", color = NA), 
+    plot.margin = unit(c(0.3,0.3,0.3,0,3), "cm"), 
+   # plot.title = element_text(size=12, face="bold", color = "black", hjust = 1), 
+   # plot.subtitle = element_text(size=17, face="bold", color = "black", hjust = 1),   
+   
+    legend.title = element_text(size=12, face="bold", color = "black", hjust = 1),
     legend.direction = "vertical",
     legend.position = "right", #c(0.5, 0.01),
     legend.background = element_rect(fill = "white", color = NA),
     legend.text = element_text(size = 12, color = "black"),
     legend.margin = unit(c(1,.5,0.2,.5), "cm"),
+   
     panel.background = element_rect(fill = "white", color = NA), 
-    plot.background = element_rect(fill = "white", color = NA), 
     panel.grid.major = element_line(color = "white", size = 0.2),
-    plot.margin = unit(c(0.3,0.3,0.3,0,3), "cm"),
     
     ...
   )
@@ -511,7 +513,10 @@ theme.symbol <-  function(...) {
 
 ## theme for choropleth map margin of error
 theme.confidence <- function(...) {
-  theme(
+  theme( 
+    plot.background = element_rect(fill = "white", color = NA), 
+    plot.margin = unit(c(0.3,1.05,0.3,0,3), "cm"),
+    
     legend.title = element_text(size=12, face="bold", color = "black"), 
     legend.direction = "vertical",
     legend.position = "right", #c(0.15, 1),                              
@@ -522,10 +527,8 @@ theme.confidence <- function(...) {
     legend.key.width = unit(6, units = "mm"),             #width of legend
     legend.key.size = unit(1.5, 'lines'),
     
-    panel.background = element_rect(fill = "white", color = NA), 
-    plot.background = element_rect(fill = "white", color = NA), 
+    panel.background = element_rect(fill = "white", color = NA),
     panel.grid.major = element_line(color = "white", size = 0.2),
-    plot.margin = unit(c(0.3,1.05,0.3,0,3), "cm"),
     
     ...
   )

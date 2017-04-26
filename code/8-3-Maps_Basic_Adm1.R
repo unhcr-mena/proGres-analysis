@@ -5,25 +5,6 @@
 #keep(country, list.adm1, list.adm2, adm1.list, adm2.list, mapdata.list.adm1, mapdata.list.adm2, map.data.adm1, map.data.adm2, consistency.table, sure = TRUE)
 
 
-
-
-
-titles <- c("Average # of individuals per case", 
-            "Average # of children in the age of 0-14",
-            "Average # of adolescent in the age of 15-17", 
-            "Average # of persons in working age (15-65)",
-            "Average # of elderly in the age of 65+",
-            "standard deviation of age within cases",
-            "Average age of principal applicant", 
-            "Average # of females",
-            "Average # of males",
-            "% of cases with only female members", 
-            "% of cases with only male members",
-            "% of cases with female principal applicants",
-            "% of dependent persons (children < 14 & elderly 65+) / total", 
-            "% of dependent children < 14 / total",
-            "% of dependent elderly 65 + / total")
-
 map.list <- list()
 final.maps.adm1 <- list()
 
@@ -33,7 +14,7 @@ final.maps.adm1 <- list()
 ## outer loop goes through every country
 for (n in 1:length(adm1.list)) {
   
-  # n <- 1
+  # n <- 2
   data <- adm1.list[[n]][[1]][[1]][[1]]
   
   ## compute centers of polygons as position of circles in symbol map
@@ -77,6 +58,7 @@ for (n in 1:length(adm1.list)) {
   cat (" Starting generating thematic maps \n")
 ## inner loop goes through all variables in each country
   for (i in 1:length(list.adm1)) {
+    # i <-1
   data.map <-   fortify(adm1.list[[n]][[1]][[i]][[1]])
   
   ## use variable name of data as file name later 
@@ -102,7 +84,7 @@ for (n in 1:length(adm1.list)) {
   
   
   
-  cat(paste("now creating themtic map",titles[i] , "for country ", this.country.name, "\n"))
+  cat(paste("now creating thematic map",i, titles[i] , "for country ", this.country.name, "\n"))
   
   # creating choropleth map of variable
   p.map <- ggmap(basemap) +
@@ -114,9 +96,10 @@ for (n in 1:length(adm1.list)) {
     theme.base() +
     theme.choropleth() +     # map text and styling
     labs(x = NULL, y = NULL, 
-         title = paste0(this.country.name," as country of Asylum by Governorate\nAverage ",titles[i]),
-         subtitle =  paste0("Percentage of mapped cases: ",consistency.table[n,3],"% rounded to one decimal place\n(consistent data rows as percent of absolute number of registered cases in ",this.country.name,")"),
-         caption = "Source: UNHCR proGres Registration") + 
+         title = paste0("Refugees in ", this.country.name,", breakdown per Governorate\n",
+                        titles[i]),
+         subtitle =  paste0("% of mapped cases: ",consistency.table[n,3],"%\n"),
+         caption = "Source: UNHCR proGres Registration, based on consistent data rows.") + 
     scale_fill_manual( values = rev(magma(8, alpha = 0.8)[2:7]), breaks = rev(brks.scale),
                        drop = FALSE,
                        labels = labels.scale,
@@ -138,8 +121,7 @@ for (n in 1:length(adm1.list)) {
     theme.base() +
     theme.symbol() +
     labs(x = NULL, y = NULL, 
-         title = paste0("Total number of registered cases in ",this.country.name,":"),
-         subtitle = paste0(consistency.table[n,2]," cases")) +
+         title = paste0("# of registered cases: ",consistency.table[n,2])) +
     coord_equal()
   p.number
   
@@ -167,26 +149,31 @@ for (n in 1:length(adm1.list)) {
     geom_polygon(colour = "#707272", aes(fill = error.breaks)) +
     geom_polygon(data=n.is.one,  aes(x = long, y = lat, group = group, fill= "#D7DBDD")) +
 
-    scale_fill_manual(values = c("#D7DBDD","#696969", color), guide = guide_legend(title = "Margin of Error"), labels = c('No data', "N* = 1", labels)) +
+    scale_fill_manual(values = c("#D7DBDD","#696969", color), 
+                      guide = guide_legend(title = "Error in %"), 
+                      labels = c('No data', "N* = 1", labels)) +
     #scale_color_manual(values = "#696969", name = 'the fill', guide_legend(order = 2, title = "gg"),labels = c('m1')) +
       coord_equal() +
     theme.base() + # map text and styling
     theme.confidence() +
     labs(x = NULL, y = NULL,
-         title = "",
-         caption = "*N is total number of cases.\nMargin of Error can't be calculated in this case.")
+         title = "Margin of Error",
+         caption = "Error cannot be calculated when there's no case.")
   } else
   {
     p.confidence <- ggplot(data.map, aes(x = long, y = lat, group = group)) +
       #scale_alpha(name = "", range = c(0.6, 0), guide = F)  + 
       #geom_polygon(aes(alpha = 0.3, fill="#D7DBDD")) +     # administrative polygons
       geom_polygon(colour = "#707272", aes(fill = error.breaks)) +  
-      scale_fill_manual(values = legend, guide = guide_legend(title = "Margin of Error"), na.value = "#D7DBDD") +
+      scale_fill_manual(values = legend, 
+                        guide = guide_legend(title = "Error in %"), 
+                        na.value = "#D7DBDD") +
       coord_equal() +
       theme.base() + # map text and styling
-      theme.confidence() + 
-      labs(x = NULL, y = NULL, 
-           title = "")
+      theme.confidence()  +
+      labs(x = NULL, y = NULL,
+           title = "Margin of Error",
+           caption = "Error cannot be calculated when there's no case.")
   }
   p.confidence
   
@@ -207,4 +194,4 @@ for (n in 1:length(adm1.list)) {
   }
   final.maps.adm1[[n]] <- map.list
 }
-
+rm(this.country.code, this.country.name,path,p.number,p.map,p.confidence,p,natural.breaks)

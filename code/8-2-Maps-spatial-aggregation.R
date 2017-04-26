@@ -239,3 +239,10 @@ titles <- c("Average # of individuals per case",
             "% of dependent persons (children < 14 & elderly 65+) / total", 
             "% of dependent children < 14 / total",
             "% of dependent elderly 65 + / total")
+
+## kep ,consistency.table, adm1.list, adm2.list, list.adm1,list.adm2,
+
+rm(adm1,adm1.sex,adm2,adm2.sex,df_CountryAsylum,
+   map.data,map.data.adm1,map.data.adm2,mapdata.list.adm1, mapdata.list.adm2,
+   original.progrescase,map.data.fortified,
+   adm.sex.list,data.country.list,destfilepath,filename,i,iso3,json.raw,n,pcode,pct.adm1,pct.adm2,total)
