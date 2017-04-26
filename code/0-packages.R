@@ -456,8 +456,11 @@ theme.base <- function(...) {
       axis.ticks = element_blank(),
       axis.title.x = element_blank(),
       axis.title.y = element_blank(),
-      panel.spacing = unit(c(-.1,1,0.02,1), "cm"),
+      
+      
       plot.caption = element_text(size = 9, hjust = 0, color = "#595851"),
+      
+      panel.spacing = unit(c(-.1,1,0.02,1), "cm"),
       panel.grid.minor = element_blank(),
       panel.border = element_blank(),
       ...
@@ -477,7 +480,7 @@ theme.choropleth <- function(...) {
     legend.text.align = 1,                                                #postition of label: 0=left, 1=right
     legend.background = element_rect(fill = "#f5f5f2", color = NA),
     legend.text = element_text(size = 12, hjust = 0, color = "black"),
-    legend.margin = unit(c(1,.5,0.2,.5), "cm"),
+    legend.spacing = unit(c(1,.5,0.2,.5), "cm"),
     legend.key.height = unit(4, units = "mm"),                             #height of legend
     legend.key.width = unit(100/length(labels), units = "mm"),             #width of legend
     legend.title = element_text(size = 0),           #put to 0 to remove title but keep space
@@ -502,7 +505,7 @@ theme.symbol <-  function(...) {
     legend.position = "right", #c(0.5, 0.01),
     legend.background = element_rect(fill = "white", color = NA),
     legend.text = element_text(size = 12, color = "black"),
-    legend.margin = unit(c(1,.5,0.2,.5), "cm"),
+    legend.spacing = unit(c(1,.5,0.2,.5), "cm"),
    
     panel.background = element_rect(fill = "white", color = NA), 
     panel.grid.major = element_line(color = "white", size = 0.2),
@@ -522,7 +525,7 @@ theme.confidence <- function(...) {
     legend.position = "right", #c(0.15, 1),                              
     legend.background = element_rect(fill = "white", color = NA),
     legend.text = element_text(size = 12, color = "black"),
-    legend.margin = unit(c(1,.5,0.2,.5), "cm"),
+    legend.spacing = unit(c(1,.5,0.2,.5), "cm"),
     legend.key.height = unit(7, units = "mm"),            #height of legend
     legend.key.width = unit(6, units = "mm"),             #width of legend
     legend.key.size = unit(1.5, 'lines'),

@@ -190,7 +190,9 @@ for (n in 1:length(adm2.list)) {
   
 }
 
-
+rm(this.country.code, this.country.name,path,p.number,p.map,p.confidence,p,natural.breaks,n,map.list,
+   legend,labels.scale,labels,idx,i,final.maps.adm2,dx,dy,color,colname,brks.scale,brks,
+   n.is.one,basemap, distcenters,data.map,data)
 
 
 # n=1

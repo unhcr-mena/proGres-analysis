@@ -14,7 +14,7 @@ final.maps.adm1 <- list()
 ## outer loop goes through every country
 for (n in 1:length(adm1.list)) {
   
-  # n <- 2
+  # n <- 1
   data <- adm1.list[[n]][[1]][[1]][[1]]
   
   ## compute centers of polygons as position of circles in symbol map
@@ -58,7 +58,7 @@ for (n in 1:length(adm1.list)) {
   cat (" Starting generating thematic maps \n")
 ## inner loop goes through all variables in each country
   for (i in 1:length(list.adm1)) {
-    # i <-1
+    # i <- 10
   data.map <-   fortify(adm1.list[[n]][[1]][[i]][[1]])
   
   ## use variable name of data as file name later 
@@ -115,8 +115,8 @@ for (n in 1:length(adm1.list)) {
     geom_polygon(colour = "#979A9A", fill="#D7DBDD", aes(alpha = 0.3)) +   
     geom_point(data=distcenters, aes(x=long, y=lat, size=N, fill=N), shape=21, alpha=0.5, colour="black", stroke=1) + # prop. symbols for absolute number
     scale_size_area(max_size = 12) + # # If you want zero value to have zero size, use scale_size_area instead of scale_size
-    guides(fill=guide_legend("Absolute number of cases"), 
-           size = guide_legend("Absolute number of cases")) +
+    guides(fill=guide_legend(""), 
+           size = guide_legend("")) +
     scale_fill_gradient(low="#9999ff", high="#00007f")+
     theme.base() +
     theme.symbol() +
@@ -153,7 +153,7 @@ for (n in 1:length(adm1.list)) {
                       guide = guide_legend(title = "Error in %"), 
                       labels = c('No data', "N* = 1", labels)) +
     #scale_color_manual(values = "#696969", name = 'the fill', guide_legend(order = 2, title = "gg"),labels = c('m1')) +
-      coord_equal() +
+    coord_equal() +
     theme.base() + # map text and styling
     theme.confidence() +
     labs(x = NULL, y = NULL,
@@ -194,4 +194,6 @@ for (n in 1:length(adm1.list)) {
   }
   final.maps.adm1[[n]] <- map.list
 }
-rm(this.country.code, this.country.name,path,p.number,p.map,p.confidence,p,natural.breaks)
+rm(this.country.code, this.country.name,path,p.number,p.map,p.confidence,p,natural.breaks,n,map.list,
+   legend,labels.scale,labels,idx,i,final.maps.adm1,dx,dy,color,colname,brks.scale,brks,
+   n.is.one,basemap, distcenters,data.map,data)

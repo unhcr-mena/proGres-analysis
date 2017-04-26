@@ -38,7 +38,7 @@ country<- country[country$P_Code %in% c("LBN", "JOR", "IRQ", "ARE")   , ]
 #############################################################
 ### Organising folders and getting linked geodata from the repo
 #############################################################
-source("code/8-2-getgeodata.R")
+#source("code/8-2-getgeodata.R")
 
 #############################################################
 ### Aggregating information at admin level and merging with shape
