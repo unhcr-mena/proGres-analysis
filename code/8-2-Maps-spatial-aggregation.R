@@ -3,109 +3,11 @@
 
 source("code/0-packages.R")
 
-
-#############################################################################
-## Create folders
-
-## create output folder & file path
-mainDir <- "data"
-subDir <- "/mapping/geojson"
-dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-
-
-
-
 ## clear workspace except necessary data frame function
 #keep(data.progrescase, sure = TRUE)
 
-original.progrescase <- read.csv("data/progrescase_maps.csv")
+original.progrescase <- read.csv("data/progrescase-1.csv")
 data.progrescase <- original.progrescase
-
-##############################
-## add iso3 countrycodes for merge with geojson later
-country.codes <- read.csv("data/countrycodes.csv")
-
-##############################
-## create country code conversion table only for existent countries
-all.countries <- data.frame(unique(data.progrescase$CountryAsylum))
-colnames(all.countries) <- "P_Code"
-country <- merge(all.countries, country.codes, all.x=TRUE)
-country$ISO_Alpha_3Code <- as.factor(country$ISO_Alpha_3Code)
-country$ISO_Alpha_3Code <- factor(country$ISO_Alpha_3Code)
-
-## exceptions in dataframe "country" which would lead to breakup in loop
-country<- country[!country$P_Code == "ALG", ] #no idprogres in geojson
-country<- country[!country$P_Code == "GCC", ] #
-country<- country[!country$P_Code == "MAU", ] #needs to be checked in adm2
-country<- country[!country$P_Code == "ISR", ] #remove as long as geojson has different columnnames
-country<- country[!country$P_Code == "LBY", ] #no geojson adm2
-country<- country[!country$P_Code == "MOR", ] #no geojson adm2
-country<- country[!country$P_Code == "TUN", ] #no geojson adm2
-
-## temporally excluded for better performance
-country<- country[!country$P_Code == "IRN", ] #no geojson adm2
-country<- country[!country$P_Code == "SYR", ] #no geojson adm2
-country<- country[!country$P_Code == "TUR", ] #no geojson adm2
-country<- country[!country$P_Code == "YEM", ] #no geojson adm2
-
-
-#############################################################################################
-## Donwload geojson from Repo
-
-for (i in 1:nrow(country)) {
-  iso3 <- country[i,2]
-  filename <- paste0(iso3,"_ADM1.geojson")
-  destfilepath <- paste0("data/mapping/geojson/", filename )
-  geojsonurl <- paste0("http://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM1.geojson")
-  ## only download geojson if not existing for better performance
-  if(!file.exists(destfilepath)){
-    res <- tryCatch(download.file(geojsonurl, destfile=destfilepath ),
-                    error=function(e) 1)
-  }
-  
-  filename <- paste0(iso3,"_ADM2.geojson")
-  destfilepath <- paste0("data/mapping/geojson/", filename )
-  geojsonurl <- paste0("http://raw.githubusercontent.com/unhcr-mena/p-codes/gh-pages/geojson/",iso3,"/ADM2.geojson")
-  
-  if(!file.exists(destfilepath)){
-    res <- tryCatch(download.file(geojsonurl, destfile=destfilepath ),
-                    error=function(e) 1)
-  }
-  
-}
-
-##################################################################################
-## create output folder for maps
-for (i in 1:nrow(country)) {
-  mainDir <- "out"
-  subDir <- paste0("/maps/",country[i,2],"/adm1/data_viz")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  subDir <- paste0("/maps/",country[i,2],"/adm2/data_viz")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  ## create output folder for maps with only Syrians
-  subDir <- paste0("/maps/",country[i,2],"/adm1/only_syrian")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  subDir <- paste0("/maps/",country[i,2],"/adm2/only_syrian")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  ## create output folder for detail maps
-  subDir <- paste0("/maps/",country[i,2],"/adm1/detail_maps")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  subDir <- paste0("/maps/",country[i,2],"/adm2/detail_maps")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  ## create output folder for further analysis
-  subDir <- paste0("/maps/",country[i,2],"/adm1/analysis")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-  
-  subDir <- paste0("/maps/",country[i,2],"/adm2/analysis")
-  dir.create(file.path(mainDir, subDir), showWarnings = FALSE, recursive=TRUE)
-}
-
 
 #############################################################################################
 ##############################
@@ -180,8 +82,6 @@ for (i in 1:nrow(country)) {
   map.data.fortified <- fortify(json.raw, region = "id")
   map.data <- plyr::join(map.data.fortified, json.raw@data, by="id") #joining dataframe with geojson-data
   map.data.adm1 <- map.data[, c("long", "lat", "group", "hole", "admname", "iso3", "idprogres")] # subset with only needed columns to accelerate performance
-  
-  
   
   ############################################################################
   cat("Fortifying level 2 \n")
@@ -323,3 +223,19 @@ for (i in 1:nrow(country)) {
 
 }
   
+
+titles <- c("Average # of individuals per case", 
+            "Average # of children in the age of 0-14",
+            "Average # of adolescent in the age of 15-17", 
+            "Average # of persons in working age (15-65)",
+            "Average # of elderly in the age of 65+",
+            "standard deviation of age within cases",
+            "Average age of principal applicant", 
+            "Average # of females",
+            "Average # of males",
+            "% of cases with only female members", 
+            "% of cases with only male members",
+            "% of cases with female principal applicants",
+            "% of dependent persons (children < 14 & elderly 65+) / total", 
+            "% of dependent children < 14 / total",
+            "% of dependent elderly 65 + / total")

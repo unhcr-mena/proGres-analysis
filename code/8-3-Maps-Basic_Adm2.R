@@ -4,21 +4,6 @@
 
 
 
-titles <- c("Average # of individuals per case", 
-            "Average # of children in the age of 0-14",
-            "Average # of adolescent in the age of 15-17", 
-            "Average # of persons in working age (15-65)",
-            "Average # of elderly in the age of 65+",
-            "standard deviation of age within cases",
-            "Average age of principal applicant", 
-            "Average # of females",
-            "Average # of males",
-            "% of cases with only female members", 
-            "% of cases with only male members",
-            "% of cases with female principal applicants",
-            "% of dependent persons (children < 14 & elderly 65+) / total", 
-            "% of dependent children < 14 / total",
-            "% of dependent elderly 65 + / total")
 
 map.list <- list()
 final.maps.adm2 <- list()

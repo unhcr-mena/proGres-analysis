@@ -9,6 +9,24 @@ source("code/0-packages.R")
 progres.case <- read.csv("data/progrescase.csv")
 #str(progres.case)
 
+
+
+### Data cleaning ###########################
+## let's have a look at how many complete cases we have 
+nrows <- nrow(data.progrescase) # how many rows of data
+ncomplete <- sum(complete.cases(data.progrescase)) # how many complete rows
+incomplete.rows <- 1-(ncomplete/nrows) # shows how much percent of the data are complete
+incomplete.rows 
+## removing of all incomplete rows would eliminate ~40% of the data
+#
+# -> add level 'noData' to categorical data to show on every map how much percent of data is included
+# -> remove missing data in numerical data within creation of map and only in relevant columns to lose as less data as possible
+
+# data.progrescase.complete <- na.omit(data.progrescase) # would delete all incomplete rows
+
+
+
+
 #################################
 # Recoding ethnicity & religion
 
@@ -80,7 +98,8 @@ progres.case$Case.size <- recode(progres.case$Case.size,"'1'='Case.size.1';
                                                                       '65'='Case.size.7.and.more';
                                                                       '67'='Case.size.7.and.more';
                                                                       '83'='Case.size.7.and.more';
-                                                                      '42'='Case.size.7.and.more'")
+                                                                      '42'='Case.size.7.and.more';
+                                                                       NA = 'noData'")
 
 prop.table(table(progres.case$Case.size, useNA = "ifany"))
 
@@ -297,7 +316,9 @@ progres.case$YearArrivalCategory2 <- as.factor(recode(progres.case$YearArrival,"
                                                                       '2012'='2012';
                                                                       '2013'='2013';
                                                                       '2014'='2014';
-                                                                      '2015'='2015'"))
+                                                                      '2015'='2015';
+                                                                       NA = 'noData';
+                                                                       ''='noData'"))
 
 
 progres.case$YearArrivalCategory <- as.factor(recode(progres.case$YearArrival,"'1899'='2011.or.before.or.unkown';
@@ -396,7 +417,9 @@ progres.case$YearArrivalCategory <- as.factor(recode(progres.case$YearArrival,"'
                                                      '2014'='2014';
                                                      '2015'='2015';
                                                      '2016'='2016.and.2017';
-                                                     '2017'='2016.and.2017'"))
+                                                     '2017'='2016.and.2017';
+                                                     NA = 'noData';
+                                                     ''='noData'"))
 
 progres.case$YearArrivalCategory[is.na(progres.case$YearArrivalCategory)] <- "2011.or.before.or.unkown"
 
@@ -487,7 +510,6 @@ progres.case$CountryOriginCategory <- recode(progres.case$CountryOrigin,"'SYR'='
                                         'GNB'='AFR';
                                         'DOM'='OTH';
                                         'ISR'='MENA';
-                                        '-'='OTH';
                                         'ARM'='ASIA';
                                         'AZE'='ASIA';
                                         'BLR'='OTH';
@@ -504,7 +526,12 @@ progres.case$CountryOriginCategory <- recode(progres.case$CountryOrigin,"'SYR'='
                                         'SCG'='OTH';
                                         'SOL'='OTH';
                                         'SUR'='OTH';
-                                        'YUG'='OTH'")
+                                        'YUG'='OTH'
+                                        '-'='OTH';
+                                        # '-'='Unknown';
+                                         'U'='OTH';
+                                         NA = 'OTH';
+                                         ''= 'OTH'")
 
 progres.case$CountryOriginCategory <- factor(progres.case$CountryOriginCategory, levels = c("SYR","IRQ","AFG","IRN","HORN","AFR", "MENA", "ASIA", "OTH"))
 
