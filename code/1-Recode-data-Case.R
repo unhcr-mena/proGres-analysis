@@ -24,8 +24,36 @@ cat(paste("Number of incomplete.rows", incomplete.rows, "\n"))
 
 # data.progrescase.complete <- na.omit(data.progrescase) # would delete all incomplete rows
 
+##################################
+## Defining family profile
+## Case single
+progres.case$nonnuclear <- progres.case$Num_Inds - progres.case$couple - progres.case$minordependant
 
+prop.table(table(progres.case$couple, useNA = "ifany"))
+prop.table(table(progres.case$minordependant, useNA = "ifany"))
+prop.table(table(progres.case$nonnuclear, useNA = "ifany"))
 
+## Check numbers
+View(progres.case[ , c("Num_Inds","couple","minordependant","nonnuclear")])
+
+progres.case$familyprofile <- ""
+progres.case$familyprofile[progres.case$Num_Inds==1] <- "single"
+prop.table(table(progres.case$familyprofile, useNA = "ifany"))
+
+progres.case$familyprofile[progres.case$Num_Inds==2 & progres.case$couple==1] <- "couple.no.kids"
+prop.table(table(progres.case$familyprofile, useNA = "ifany"))
+
+progres.case$familyprofile[progres.case$Num_Inds>1 & progres.case$nonnuclear==1 & progres.case$couple==0 & progres.case$minordependant > 0 ] <- "uniparental.with.kids"
+prop.table(table(progres.case$familyprofile, useNA = "ifany"))
+
+progres.case$familyprofile[ progres.case$minordependant > 0 &  progres.case$nonnuclear ==1 & progres.case$couple==1 ] <- "couple.with.kids.no.dependant"
+prop.table(table(progres.case$familyprofile, useNA = "ifany"))
+
+progres.case$familyprofile[ progres.case$nonnuclear > 1 ] <- "non.nuclear.or.adult.dependant"
+prop.table(table(progres.case$familyprofile, useNA = "ifany"))
+
+progres.case$familyprofile[progres.case$familyprofile==""] <- "non.nuclear.or.adult.dependant"
+prop.table(table(progres.case$familyprofile, useNA = "ifany"))
 
 #################################
 # Recoding ethnicity & religion

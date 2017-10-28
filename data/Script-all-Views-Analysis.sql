@@ -47,6 +47,7 @@ SELECT I.CaseNo,
     I.[CoA_L3] coal3, 
     I.[CoALocationLevel3ID] coal3id,
     I.[CoA_LocationLevel4ID] coal4id,
+    I.[CoA_Phone] phone,
     Cal_1.Num_Inds,
     Cal_1.Child_0_14,
     Cal_1.Youth_15_17,
@@ -55,6 +56,8 @@ SELECT I.CaseNo,
     Cal_1.Male,
     Cal_1.Female,
     Cal_1.NOGender,
+    Cal_1.couple,
+    Cal_1.minordependant,
  
     Cal_1.AVG_Age,
     Cal_1.STDEV_Age,
@@ -88,10 +91,12 @@ LEFT JOIN
         Count( CASE WHEN(IndividualAge < 19 AND IndividualAge > 14) THEN(IndividualGUID) ELSE(NULL) END) Youth_15_17,
         Count( CASE WHEN(IndividualAge < 65 AND IndividualAge > 14) THEN(IndividualGUID) ELSE(NULL) END) Work_15_64,
         Count( CASE WHEN(IndividualAge > 64) THEN(IndividualGUID) ELSE(NULL) END) Eldern_65,
-        Count( CASE WHEN(Sex = 'M') THEN(Sex) ELSE(NULL) END) Male,
+		Count( CASE WHEN(Sex = 'M') THEN(Sex) ELSE(NULL) END) Male,
         Count( CASE WHEN(Sex = 'F') THEN(Sex) ELSE(NULL) END) Female,
-	   Count( CASE WHEN(Sex not in  ('F','M')) THEN('Empty')  END) NOGender
-	    FROM[DWH].[dbo].[T_AllIndividuals] WHERE Current_process_Status IN('a') GROUP BY CaseNo) AS Cal_1
+	    Count( CASE WHEN(Sex not in  ('F','M')) THEN('Empty')  END) NOGender,
+	    Count( CASE WHEN(Relationship ='HUS' or Relationship ='EXM' or Relationship ='WIF' or Relationship ='EXF' or Relationship ='CLH' or Relationship ='CLW') THEN(IndividualGUID) ELSE(NULL) END) couple,
+		Count( CASE WHEN(Relationship ='SCF' or Relationship ='SCM' or Relationship ='FCF' or Relationship ='FCM' or Relationship ='SON' or Relationship ='DAU' and IndividualAge < 19) THEN(IndividualGUID) ELSE(NULL) END) minordependant
+    FROM[DWH].[dbo].[T_AllIndividuals] WHERE Current_process_Status IN('a') GROUP BY CaseNo) AS Cal_1
 ON I.CaseNo = Cal_1.CaseNo
 
 WHERE I.Current_process_Status = 'A' AND I.Relationship = 'PA'
@@ -133,6 +138,139 @@ pivot(
 as CountSpecificNeeds--Pivot table alias
 
 
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+--Now aggregating at the case level 
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+--Aggregation at the case level
+
+DROP TABLE T_SPneedsCaseLevel;
+
+select C.[CaseNo],
+SUM(C.[CR]) as Child_at_risk,
+SUM(C.[CR - AF]) as Child_at_risk_associated_with_armed_forces_or_groups,
+SUM(C.[CR - CC]) as Child_at_risk_carer,
+SUM(C.[CR - CH]) as Child_at_risk_headed_household,
+SUM(C.[CR - CL]) as Child_at_risk_in_conflict_with_the_law,
+SUM(C.[CR - CP]) as Child_at_risk_parent,
+SUM(C.[CR - CS]) as Child_at_risk_spouse,
+SUM(C.[CR - LO]) as Child_at_risk_engaged_in_other_forms_of_child_labour,
+SUM(C.[CR - LW]) as Child_at_risk_engaged_in_worst_forms_of_child_labour,
+SUM(C.[CR - MS]) as Child_at_riskMinor_spouse,
+SUM(C.[CR - NE]) as Child_at_risk_of_not_attending_school,
+SUM(C.[CR - SE]) as Child_at_risk_with_special_education_needs,
+SUM(C.[CR - TP]) as Child_at_risk_Teenage_pregnancy,
+SUM(C.[DS]) as Disability,
+SUM(C.[DS - BD]) as Disability_Visual_impairment_including_blindness_,
+SUM(C.[DS - DF]) as Disability_Hearing_Impairment_including_deafness_,
+SUM(C.[DS - MM]) as Disability_Mental_disability_moderate,
+SUM(C.[DS - MS]) as Disability_Mental_disability_severe,
+SUM(C.[DS - PM]) as Disability_Physical_disability_moderate,
+SUM(C.[DS - PS]) as Disability_Physical_disability_severe,
+SUM(C.[DS - SD]) as Disability_Speech_impairment_disability,
+SUM(C.[ER]) as Older_person_at_risk,
+SUM(C.[ER - FR]) as Older_person_at_risk_unable_to_care_for_self,
+SUM(C.[ER - MC]) as Older_person_at_risk_with_children,
+SUM(C.[ER - NF]) as Older_person_at_risk_Unaccompanied_older_person,
+SUM(C.[ER - OC]) as Older_person_at_risk_without_younger_family_members,
+SUM(C.[ER - SC]) as Older_person_at_risk_with_separated_children,
+SUM(C.[ER - UR]) as Older_person_at_risk_Single_without_accompy_family_members,
+SUM(C.[FU]) as Family_unity,
+SUM(C.[FU - FR]) as Family_unity_reunification_required,
+SUM(C.[FU - TR]) as Family_unity_Tracing_required,
+SUM(C.[LP]) as Specific_legal_and_physical_protection_needs,
+SUM(C.[LP - AF]) as Specific_legal_and_physical_protection_needs_Formerly_associated_with_armed_forces_or_groups,
+SUM(C.[LP - AN]) as Specific_legal_and_physical_protection_needs_Violence_abuse_or_neglect,
+SUM(C.[LP - AP]) as Specific_legal_and_physical_protection_needs_Alleged_perpetrator,
+SUM(C.[LP - BN]) as Specific_legal_and_physical_protection_needs_Unmet_basic_needs,
+SUM(C.[LP - CR]) as Specific_legal_and_physical_protection_needs_Criminal_record,
+SUM(C.[LP - DA]) as Specific_legal_and_physical_protection_needs_Detained_held_in_country_of_asylum,
+SUM(C.[LP - DN]) as Specific_legal_and_physical_protection_needs_Currently_detained_held_in_country_of_asylum,
+SUM(C.[LP - DO]) as Specific_legal_and_physical_protection_needs_Detained_held_in_country_of_origin,
+SUM(C.[LP - DP]) as Specific_legal_and_physical_protection_needs_Formerly_detained_held_in_country_of_asylum,
+SUM(C.[LP - DT]) as Specific_legal_and_physical_protection_needs_Detained_held_elsewhere,
+SUM(C.[LP - ES]) as Specific_legal_and_physical_protection_needs_Individual_excluded_or_marginalised_from_society,
+SUM(C.[LP - FR]) as Specific_legal_and_physical_protection_needs_Family_reunion_required,
+SUM(C.[LP - IH]) as Specific_legal_and_physical_protection_needs_In_hiding,
+SUM(C.[LP - LS]) as Specific_legal_and_physical_protection_needs_Lack_of_durable_solutions_prospects,
+SUM(C.[LP - MD]) as Specific_legal_and_physical_protection_needs_Multiple_displacements,
+SUM(C.[LP - MM]) as Specific_legal_and_physical_protection_needs_Mixed_marriage,
+SUM(C.[LP - MS]) as Specific_legal_and_physical_protection_needs_Marginalized_from_society_or_community,
+SUM(C.[LP - NA]) as Specific_legal_and_physical_protection_needs_No_access_to_services,
+SUM(C.[LP - ND]) as Specific_legal_and_physical_protection_needs_No_legal_documentation,
+SUM(C.[LP - PV]) as Specific_legal_and_physical_protection_needs_Durable_solutions_related_vulnerability,
+SUM(C.[LP - RD]) as Specific_legal_and_physical_protection_needs_At_risk_of_removal,
+SUM(C.[LP - RP]) as Specific_legal_and_physical_protection_needs_At_risk_due_to_profile,
+SUM(C.[LP - RR]) as Specific_legal_and_physical_protection_needs_At_risk_of_refoulement,
+SUM(C.[LP - ST]) as Specific_legal_and_physical_protection_needs_Security_threat_to_UNHCR_partner_staff_or_others,
+SUM(C.[LP - TA]) as Specific_legal_and_physical_protection_needs_Survivor_of_torture_violence_in_asylum,
+SUM(C.[LP - TC]) as Specific_legal_and_physical_protection_needs_Tracing_required,
+SUM(C.[LP - TD]) as Specific_legal_and_physical_protection_needs_At_risk_of_deportation,
+SUM(C.[LP - TO]) as Specific_legal_and_physical_protection_needs_Survivor_of_torture_violence_in_home_country,
+SUM(C.[LP - TR]) as Specific_legal_and_physical_protection_needs_At_risk_of_refoulement2,
+SUM(C.[LP - UP]) as Specific_legal_and_physical_protection_needs_Urgent_need_of_physical_protection,
+SUM(C.[LP - VA]) as Specific_legal_and_physical_protection_needs_Victim_of_domestic_violence_SGBV_in_asylum,
+SUM(C.[LP - VF]) as Specific_legal_and_physical_protection_needs_Victim_of_domestic_violence_SGBV_during_flight,
+SUM(C.[LP - VO]) as Specific_legal_and_physical_protection_needs_Victim_of_domestic_violence_SGBV_in_home_country,
+SUM(C.[LP - VP]) as Specific_legal_and_physical_protection_needs_Alleged_perpetrator_of_violence,
+SUM(C.[LP - WP]) as Specific_legal_and_physical_protection_needs_Absence_of_witness_protection,
+SUM(C.[PG]) as Pregnant_or_lactating,
+SUM(C.[PG - HR]) as Pregnant_or_lactating_High_risk_pregnancy,
+SUM(C.[PG - LC]) as Pregnant_or_lactating_Lactating,
+SUM(C.[SC]) as Unaccompanied_or_separated_child,
+SUM(C.[SC - CH]) as Unaccompanied_or_separated_Single_Child_headed_household,
+SUM(C.[SC - FC]) as Unaccompanied_or_separated_Child_in_foster_care,
+SUM(C.[SC - IC]) as Unaccompanied_or_separated_Child_in_institutional_care,
+SUM(C.[SC - NC]) as Unaccompanied_or_separated_Neglected_child_with_extended_family,
+SUM(C.[SC - SC]) as Unaccompanied_or_separated_child_Separated_child,
+SUM(C.[SC - UC]) as Unaccompanied_or_separated_child_Unaccompanied_child,
+SUM(C.[SC - UF]) as Unaccompanied_or_separated_child_Child_in_foster_care2,
+SUM(C.[SC - UM]) as Unaccompanied_or_separated_child_Unaccompanied_minor,
+SUM(C.[SM]) as Serious_medical_condition,
+SUM(C.[SM - AD]) as Serious_medical_condition_Addiction,
+SUM(C.[SM - CC]) as Serious_medical_condition_Critical_medical,
+SUM(C.[SM - CI]) as Serious_medical_condition_Chronic_illness,
+SUM(C.[SM - DP]) as Serious_medical_condition_Difficult_pregnancy,
+SUM(C.[SM - MI]) as Serious_medical_condition_Mental_illness,
+SUM(C.[SM - MN]) as Serious_medical_condition_Malnutrition,
+SUM(C.[SM - OT]) as Serious_medical_condition_Other_medical_condition,
+SUM(C.[SP]) as Single_parent,
+SUM(C.[SP - CG]) as Single_parent_Single_HR_caregiver,
+SUM(C.[SP - GP]) as Single_parent_Single_HR_grandparent,
+SUM(C.[SP - PT]) as Single_parent_Single_HR_parent,
+SUM(C.[SV]) as SGBV,
+SUM(C.[SV - FM]) as SGBV_Threat_of_forced_marriage,
+SUM(C.[SV - GM]) as SGBV_Female_genital_mutilation,
+SUM(C.[SV - HK]) as SGBV_Threat_of_honour_killing_violence,
+SUM(C.[SV - HP]) as SGBV_Harmful_traditional_practices,
+SUM(C.[SV - SS]) as SGBV_Survival_sex,
+SUM(C.[SV - VA]) as SGBV_Exposure_to_SGBV,
+SUM(C.[SV - VF]) as SGBV_Exposure_to_SGBV_during_flight,
+SUM(C.[SV - VO]) as SGBV_Exposure_to_SGBV_in_country_of_origin,
+SUM(C.[TR]) as Torture,
+SUM(C.[TR - HO]) as Torture_Forced_to_egregious_acts,
+SUM(C.[TR - PI]) as Torture_Psych_and_or_physical_impairment_due_to_torture,
+SUM(C.[TR - WV]) as Torture_Witness_of_violence_to_other,
+SUM(C.[WR]) as Woman_at_risk,
+SUM(C.[WR - GM]) as Woman_at_risk_Threat_of_female_genital_mutilation,
+SUM(C.[WR - HR]) as Woman_at_risk_Single_female_household_representative,
+SUM(C.[WR - LC]) as Woman_at_risk_Lactating_at_risk,
+SUM(C.[WR - PY]) as Woman_at_risk_In_polygamous_marriage_or_relationship,
+SUM(C.[WR - SF]) as Woman_at_risk_Single_woman,
+SUM(C.[WR - UW]) as Woman_at_risk_Woman_unaccompanied_by_adult_male_family_member,
+SUM(C.[WR - WF]) as Woman_at_risk_Woman_associated_with_fighting_forces,
+SUM(C.[WR - WR]) as Woman_at_risk_Woman_at_risk_unspecified
+
+INTO T_SPneedsCaseLevel
+
+FROM [DWH].[dbo].[T_SPneedsBreak] C
+
+--ORDER BY IndividualID--order
+GROUP BY[CaseNo]
+
+
 --- List events of specific interest for analysis and rank them by date in case there woudl be duplicate
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
@@ -163,7 +301,7 @@ from
     (SELECT  [EventReasonCode]
       ,[EventReasonLanguageCode]
       ,[EventReasonText]
-  FROM [proGres].[dbo].[codeEventReasonText] WHERE [EventReasonLanguageCode] = 'ENG') B ON B.[EventReasonCode]= A.[ReasonCode]
+  FROM [proGres_IRQER].[dbo].[codeEventReasonText] WHERE [EventReasonLanguageCode] = 'ENG') B ON B.[EventReasonCode]= A.[ReasonCode]
 
     WHERE[EventLogstatus] < > 'x'
     --AND[ResultID] in ('RST04', 'RST06', 'RST19') 
@@ -184,7 +322,7 @@ ORDER BY[IndividualID], [EventID]
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-DROP TABLE T_EventsSpecificInd;
+--DROP TABLE T_EventsSpecificInd;
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
 SELECT
@@ -297,7 +435,7 @@ WHERE (C.EventLogResultEffectiveDate IS NOT NULL) OR
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-DROP TABLE   T_EventsSpecificIndSPneeds ;
+--DROP TABLE   T_EventsSpecificIndSPneeds ;
 
 SELECT A.[IndividualID],
               A.[CaseNo],
@@ -479,137 +617,7 @@ SELECT A.[IndividualID],
 
 
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
---Now aggregating at the case level 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
---Aggregation at the case level
-
-DROP TABLE T_SPneedsCaseLevel;
-
-select C.[CaseNo],
-SUM(C.[CR]) as Child_at_risk,
-SUM(C.[CR - AF]) as Child_at_risk_associated_with_armed_forces_or_groups,
-SUM(C.[CR - CC]) as Child_at_risk_carer,
-SUM(C.[CR - CH]) as Child_at_risk_headed_household,
-SUM(C.[CR - CL]) as Child_at_risk_in_conflict_with_the_law,
-SUM(C.[CR - CP]) as Child_at_risk_parent,
-SUM(C.[CR - CS]) as Child_at_risk_spouse,
-SUM(C.[CR - LO]) as Child_at_risk_engaged_in_other_forms_of_child_labour,
-SUM(C.[CR - LW]) as Child_at_risk_engaged_in_worst_forms_of_child_labour,
-SUM(C.[CR - MS]) as Child_at_riskMinor_spouse,
-SUM(C.[CR - NE]) as Child_at_risk_of_not_attending_school,
-SUM(C.[CR - SE]) as Child_at_risk_with_special_education_needs,
-SUM(C.[CR - TP]) as Child_at_risk_Teenage_pregnancy,
-SUM(C.[DS]) as Disability,
-SUM(C.[DS - BD]) as Disability_Visual_impairment_including_blindness_,
-SUM(C.[DS - DF]) as Disability_Hearing_Impairment_including_deafness_,
-SUM(C.[DS - MM]) as Disability_Mental_disability_moderate,
-SUM(C.[DS - MS]) as Disability_Mental_disability_severe,
-SUM(C.[DS - PM]) as Disability_Physical_disability_moderate,
-SUM(C.[DS - PS]) as Disability_Physical_disability_severe,
-SUM(C.[DS - SD]) as Disability_Speech_impairment_disability,
-SUM(C.[ER]) as Older_person_at_risk,
-SUM(C.[ER - FR]) as Older_person_at_risk_unable_to_care_for_self,
-SUM(C.[ER - MC]) as Older_person_at_risk_with_children,
-SUM(C.[ER - NF]) as Older_person_at_risk_Unaccompanied_older_person,
-SUM(C.[ER - OC]) as Older_person_at_risk_without_younger_family_members,
-SUM(C.[ER - SC]) as Older_person_at_risk_with_separated_children,
-SUM(C.[ER - UR]) as Older_person_at_risk_Single_without_accompy_family_members,
-SUM(C.[FU]) as Family_unity,
-SUM(C.[FU - FR]) as Family_unity_reunification_required,
-SUM(C.[FU - TR]) as Family_unity_Tracing_required,
-SUM(C.[LP]) as Specific_legal_and_physical_protection_needs,
-SUM(C.[LP - AF]) as Specific_legal_and_physical_protection_needs_Formerly_associated_with_armed_forces_or_groups,
-SUM(C.[LP - AN]) as Specific_legal_and_physical_protection_needs_Violence_abuse_or_neglect,
-SUM(C.[LP - AP]) as Specific_legal_and_physical_protection_needs_Alleged_perpetrator,
-SUM(C.[LP - BN]) as Specific_legal_and_physical_protection_needs_Unmet_basic_needs,
-SUM(C.[LP - CR]) as Specific_legal_and_physical_protection_needs_Criminal_record,
-SUM(C.[LP - DA]) as Specific_legal_and_physical_protection_needs_Detained_held_in_country_of_asylum,
-SUM(C.[LP - DN]) as Specific_legal_and_physical_protection_needs_Currently_detained_held_in_country_of_asylum,
-SUM(C.[LP - DO]) as Specific_legal_and_physical_protection_needs_Detained_held_in_country_of_origin,
-SUM(C.[LP - DP]) as Specific_legal_and_physical_protection_needs_Formerly_detained_held_in_country_of_asylum,
-SUM(C.[LP - DT]) as Specific_legal_and_physical_protection_needs_Detained_held_elsewhere,
-SUM(C.[LP - ES]) as Specific_legal_and_physical_protection_needs_Individual_excluded_or_marginalised_from_society,
-SUM(C.[LP - FR]) as Specific_legal_and_physical_protection_needs_Family_reunion_required,
-SUM(C.[LP - IH]) as Specific_legal_and_physical_protection_needs_In_hiding,
-SUM(C.[LP - LS]) as Specific_legal_and_physical_protection_needs_Lack_of_durable_solutions_prospects,
-SUM(C.[LP - MD]) as Specific_legal_and_physical_protection_needs_Multiple_displacements,
-SUM(C.[LP - MM]) as Specific_legal_and_physical_protection_needs_Mixed_marriage,
-SUM(C.[LP - MS]) as Specific_legal_and_physical_protection_needs_Marginalized_from_society_or_community,
-SUM(C.[LP - NA]) as Specific_legal_and_physical_protection_needs_No_access_to_services,
-SUM(C.[LP - ND]) as Specific_legal_and_physical_protection_needs_No_legal_documentation,
-SUM(C.[LP - PV]) as Specific_legal_and_physical_protection_needs_Durable_solutions_related_vulnerability,
-SUM(C.[LP - RD]) as Specific_legal_and_physical_protection_needs_At_risk_of_removal,
-SUM(C.[LP - RP]) as Specific_legal_and_physical_protection_needs_At_risk_due_to_profile,
-SUM(C.[LP - RR]) as Specific_legal_and_physical_protection_needs_At_risk_of_refoulement,
-SUM(C.[LP - ST]) as Specific_legal_and_physical_protection_needs_Security_threat_to_UNHCR_partner_staff_or_others,
-SUM(C.[LP - TA]) as Specific_legal_and_physical_protection_needs_Survivor_of_torture_violence_in_asylum,
-SUM(C.[LP - TC]) as Specific_legal_and_physical_protection_needs_Tracing_required,
-SUM(C.[LP - TD]) as Specific_legal_and_physical_protection_needs_At_risk_of_deportation,
-SUM(C.[LP - TO]) as Specific_legal_and_physical_protection_needs_Survivor_of_torture_violence_in_home_country,
-SUM(C.[LP - TR]) as Specific_legal_and_physical_protection_needs_At_risk_of_refoulement2,
-SUM(C.[LP - UP]) as Specific_legal_and_physical_protection_needs_Urgent_need_of_physical_protection,
-SUM(C.[LP - VA]) as Specific_legal_and_physical_protection_needs_Victim_of_domestic_violence_SGBV_in_asylum,
-SUM(C.[LP - VF]) as Specific_legal_and_physical_protection_needs_Victim_of_domestic_violence_SGBV_during_flight,
-SUM(C.[LP - VO]) as Specific_legal_and_physical_protection_needs_Victim_of_domestic_violence_SGBV_in_home_country,
-SUM(C.[LP - VP]) as Specific_legal_and_physical_protection_needs_Alleged_perpetrator_of_violence,
-SUM(C.[LP - WP]) as Specific_legal_and_physical_protection_needs_Absence_of_witness_protection,
-SUM(C.[PG]) as Pregnant_or_lactating,
-SUM(C.[PG - HR]) as Pregnant_or_lactating_High_risk_pregnancy,
-SUM(C.[PG - LC]) as Pregnant_or_lactating_Lactating,
-SUM(C.[SC]) as Unaccompanied_or_separated_child,
-SUM(C.[SC - CH]) as Unaccompanied_or_separated_Single_Child_headed_household,
-SUM(C.[SC - FC]) as Unaccompanied_or_separated_Child_in_foster_care,
-SUM(C.[SC - IC]) as Unaccompanied_or_separated_Child_in_institutional_care,
-SUM(C.[SC - NC]) as Unaccompanied_or_separated_Neglected_child_with_extended_family,
-SUM(C.[SC - SC]) as Unaccompanied_or_separated_child_Separated_child,
-SUM(C.[SC - UC]) as Unaccompanied_or_separated_child_Unaccompanied_child,
-SUM(C.[SC - UF]) as Unaccompanied_or_separated_child_Child_in_foster_care2,
-SUM(C.[SC - UM]) as Unaccompanied_or_separated_child_Unaccompanied_minor,
-SUM(C.[SM]) as Serious_medical_condition,
-SUM(C.[SM - AD]) as Serious_medical_condition_Addiction,
-SUM(C.[SM - CC]) as Serious_medical_condition_Critical_medical,
-SUM(C.[SM - CI]) as Serious_medical_condition_Chronic_illness,
-SUM(C.[SM - DP]) as Serious_medical_condition_Difficult_pregnancy,
-SUM(C.[SM - MI]) as Serious_medical_condition_Mental_illness,
-SUM(C.[SM - MN]) as Serious_medical_condition_Malnutrition,
-SUM(C.[SM - OT]) as Serious_medical_condition_Other_medical_condition,
-SUM(C.[SP]) as Single_parent,
-SUM(C.[SP - CG]) as Single_parent_Single_HR_caregiver,
-SUM(C.[SP - GP]) as Single_parent_Single_HR_grandparent,
-SUM(C.[SP - PT]) as Single_parent_Single_HR_parent,
-SUM(C.[SV]) as SGBV,
-SUM(C.[SV - FM]) as SGBV_Threat_of_forced_marriage,
-SUM(C.[SV - GM]) as SGBV_Female_genital_mutilation,
-SUM(C.[SV - HK]) as SGBV_Threat_of_honour_killing_violence,
-SUM(C.[SV - HP]) as SGBV_Harmful_traditional_practices,
-SUM(C.[SV - SS]) as SGBV_Survival_sex,
-SUM(C.[SV - VA]) as SGBV_Exposure_to_SGBV,
-SUM(C.[SV - VF]) as SGBV_Exposure_to_SGBV_during_flight,
-SUM(C.[SV - VO]) as SGBV_Exposure_to_SGBV_in_country_of_origin,
-SUM(C.[TR]) as Torture,
-SUM(C.[TR - HO]) as Torture_Forced_to_egregious_acts,
-SUM(C.[TR - PI]) as Torture_Psych_and_or_physical_impairment_due_to_torture,
-SUM(C.[TR - WV]) as Torture_Witness_of_violence_to_other,
-SUM(C.[WR]) as Woman_at_risk,
-SUM(C.[WR - GM]) as Woman_at_risk_Threat_of_female_genital_mutilation,
-SUM(C.[WR - HR]) as Woman_at_risk_Single_female_household_representative,
-SUM(C.[WR - LC]) as Woman_at_risk_Lactating_at_risk,
-SUM(C.[WR - PY]) as Woman_at_risk_In_polygamous_marriage_or_relationship,
-SUM(C.[WR - SF]) as Woman_at_risk_Single_woman,
-SUM(C.[WR - UW]) as Woman_at_risk_Woman_unaccompanied_by_adult_male_family_member,
-SUM(C.[WR - WF]) as Woman_at_risk_Woman_associated_with_fighting_forces,
-SUM(C.[WR - WR]) as Woman_at_risk_Woman_at_risk_unspecified
-
-INTO T_SPneedsCaseLevel
-
-FROM [DWH].[dbo].[T_SPneedsBreak] C
-
---ORDER BY IndividualID--order
-GROUP BY[CaseNo]
 
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
@@ -787,3 +795,90 @@ FROM[DWH].[dbo].[T_EventsSpecificPA] A
 
 LEFT OUTER JOIN[DWH].[dbo].[T_SPneedsCaseLevel] C
 ON A.[CaseNo] = C.[CaseNo]
+
+
+-------------------
+--- Dpeart
+
+
+--DROP TABLE [caseprofile_spontaneousDeparture];
+ 
+SELECT I.CaseNo,
+    I.CoO CountryOrigin,
+    I.[CoO_L1] cool1,
+    I.[LocationLevel1ID] cool1id,
+    I.[CoO_L2] cool2,
+    I.[LocationLevel2ID] cool2id,
+    I.[CoO_L3] cool3,
+    I.[LocationLevel3ID] cool3id,
+    I.[LocationLevel4ID] cool4id,  
+    I.CoA CountryAsylum,
+    I.[CoA_L1] coal1,
+    I.[CoA_LocationLevel1ID] coal1id,
+    I.[CoA_L2] coal2,
+    I.[CoA_LocationLevel2ID] coal2id,
+    I.[CoA_L3] coal3,
+    I.[CoALocationLevel3ID] coal3id,
+    I.[CoA_LocationLevel4ID] coal4id,
+    Cal_1.Num_Inds,
+    Cal_1.Child_0_14,
+    Cal_1.Youth_15_17,
+    Cal_1.Work_15_64,
+    Cal_1.Eldern_65,
+    Cal_1.Male,
+    Cal_1.Female,
+    Cal_1.NOGender,
+    Cal_1.AVG_Age,
+    Cal_1.STDEV_Age,
+    DATENAME(mm, I.ArrivalDate) Montharrival,
+    DATENAME(yyyy, I.ArrivalDate) YearArrival,
+    I.MarriageStatusCode dem_marriage,
+    I.Relationship dem_relation,
+    I.IndividualAge dem_age,
+    I.AgeGroup dem_agegroup,
+    I.Sex dem_sex,
+    I.Ethnicity dem_ethn,
+    I.Religion dem_religion,
+    I.NationalityCode dem_birth_country,
+    I.OccupationCode occupationcode,
+    I.Occupation occupation,
+    I.EducationLevelCode edu_highest,
+    I.RefStatus,
+    DATENAME(yyyy, RefugeeStatusDate) RefugeeStatusDate,
+    I.RefStatCategory ,
+    DATENAME(mm, Cal_2.Spontaneous_Dep_Event_Date) MonthDepDate,
+    DATENAME(yyyy, Cal_2.Spontaneous_Dep_Event_Date) YearDepDate
+    
+	
+	INTO [caseprofile_spontaneousDeparture]
+ 
+FROM[DWH].[dbo].[T_AllIndividuals] I
+ 
+LEFT JOIN
+    (SELECT CaseNo,
+        COUNT(DISTINCT IndividualGUID) Num_Inds,
+        AVG(IndividualAge) AVG_Age,
+        STDEV(IndividualAge) STDEV_Age,
+        Count( CASE WHEN(IndividualAge < 15) THEN(IndividualGUID) ELSE(NULL) END) Child_0_14,
+        Count( CASE WHEN(IndividualAge < 19 AND IndividualAge > 14) THEN(IndividualGUID) ELSE(NULL) END) Youth_15_17,
+        Count( CASE WHEN(IndividualAge < 65 AND IndividualAge > 14) THEN(IndividualGUID) ELSE(NULL) END) Work_15_64,
+        Count( CASE WHEN(IndividualAge > 64) THEN(IndividualGUID) ELSE(NULL) END) Eldern_65,
+        Count( CASE WHEN(Sex = 'M') THEN(Sex) ELSE(NULL) END) Male,
+        Count( CASE WHEN(Sex = 'F') THEN(Sex) ELSE(NULL) END) Female,
+          Count( CASE WHEN(Sex not in  ('F','M')) THEN('Empty')  END) NOGender
+           FROM [DWH].[dbo].[T_AllIndividuals] WHERE Current_process_Status IN('a') and COO = 'SYR' GROUP BY CaseNo) AS Cal_1
+ON I.CaseNo = Cal_1.CaseNo
+ 
+LEFT JOIN 
+	(Select A.CaseNo ,
+		Max(B.EventLogEffectiveDate) Spontaneous_Dep_Event_Date 
+		from [DWH].[dbo].[T_AllIndividuals] A 
+		inner join [DWH].[dbo].[T_Events] B 
+		on (a.IndividualID = b.IndividualID) 
+		where B.EventID = 'REG38' and A.CoO = 'SYR'
+		Group by A.CaseNo
+	) 
+As Cal_2 on (I.CaseNo = Cal_2.CaseNo)
+ 
+WHERE I.Current_process_Status = 'A' AND I.Relationship = 'PA' and I.CoO = 'SYR' AND Cal_2.Spontaneous_Dep_Event_Date IS NOT NULL;
+ 
