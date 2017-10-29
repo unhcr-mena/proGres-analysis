@@ -1103,7 +1103,7 @@ prop.table(table(progres.case.sp$Woman.at.Risk, useNA = "ifany"))
 ######## Saving reworked case information
 ###################################################
 #names(progres.case.sp)
-write.csv(progres.case.sp, file = "data/progrescase-1.csv",na="")
+write.csv(progres.case.sp, file = "data/progrescase-1.csv",na="", row.names = FALSE)
 
 
 rm(progres.case, freq1.coa,freq1.coo,freq2.coa,freq2.coo,SpecificNeedsCodesV2)  
