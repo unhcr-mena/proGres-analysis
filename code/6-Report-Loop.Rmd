@@ -61,7 +61,7 @@ kable(ctrname )
 # Introduction
 
 
-Many reports are already produced from proGres but they mostly look at univariate analysis, i.e esch variable within the dataset is displayed one by one. The present document is an attempt to explore various dimensions interact between each others. Data are extracted from the regional datawarehouse maintained by the Regional Operation Data Managers..
+Many reports are already produced from proGres but they mostly look at univariate analysis, i.e each variable within the dataset is displayed one by one. The present document is an attempt to explore various dimensions interact between each others. Data are extracted from the regional datawarehouse maintained by the Regional Operation Data Managers.
 
 This analysis covers two set of information:
  * data aggregated at the refugee refugee household level and is based on the information that is consolidated 
