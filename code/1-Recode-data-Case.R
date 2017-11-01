@@ -955,93 +955,93 @@ rm(progres.specificneed.case)
 
 
 progres.specificneed.case2$At.Risk.count <- progres.specificneed.case2$At.Risk
-progres.specificneed.case2$At.Risk <- as.factor(ifelse(progres.specificneed.case2$At.Risk>=1, "yes", NA))  
+progres.specificneed.case2$At.Risk <- as.factor(ifelse(progres.specificneed.case2$At.Risk>=1, "yes", "no"))  
 progres.specificneed.case2$At.Risk <- as.character(progres.specificneed.case2$At.Risk)
-progres.specificneed.case2$At.Risk[is.na(progres.specificneed.case2$At.Risk)]<- NA
+progres.specificneed.case2$At.Risk[is.na(progres.specificneed.case2$At.Risk)]<- "no"
 progres.specificneed.case2$At.Risk <- as.factor(progres.specificneed.case2$At.Risk)
 
 progres.specificneed.case2$Child.Labour.count <- progres.specificneed.case2$Child.Labour
-progres.specificneed.case2$Child.Labour <- as.factor(ifelse(progres.specificneed.case2$Child.Labour>=1, "yes", NA))  
+progres.specificneed.case2$Child.Labour <- as.factor(ifelse(progres.specificneed.case2$Child.Labour>=1, "yes", "no"))  
 progres.specificneed.case2$Child.Labour <- as.character(progres.specificneed.case2$Child.Labour)
-progres.specificneed.case2$Child.Labour[is.na(progres.specificneed.case2$Child.Labour)]<- NA
+progres.specificneed.case2$Child.Labour[is.na(progres.specificneed.case2$Child.Labour)]<- "no"
 progres.specificneed.case2$Child.Labour <- as.factor(progres.specificneed.case2$Child.Labour)
 
 
 progres.specificneed.case2$Child.marriage..parent.or.pregnancy.count <- progres.specificneed.case2$Child.marriage..parent.or.pregnancy
-progres.specificneed.case2$Child.marriage..parent.or.pregnancy <- as.factor(ifelse(progres.specificneed.case2$Child.marriage..parent.or.pregnancy>=1, "yes", NA))  
+progres.specificneed.case2$Child.marriage..parent.or.pregnancy <- as.factor(ifelse(progres.specificneed.case2$Child.marriage..parent.or.pregnancy>=1, "yes", "no"))  
 progres.specificneed.case2$Child.marriage..parent.or.pregnancy <- as.character(progres.specificneed.case2$Child.marriage..parent.or.pregnancy)
-progres.specificneed.case2$Child.marriage..parent.or.pregnancy[is.na(progres.specificneed.case2$Child.marriage..parent.or.pregnancy)]<- NA
+progres.specificneed.case2$Child.marriage..parent.or.pregnancy[is.na(progres.specificneed.case2$Child.marriage..parent.or.pregnancy)]<- "no"
 progres.specificneed.case2$Child.marriage..parent.or.pregnancy <- as.factor(progres.specificneed.case2$Child.marriage..parent.or.pregnancy)
 
 
 progres.specificneed.case2$Family.Needs.count <- progres.specificneed.case2$Family.Needs
-progres.specificneed.case2$Family.Needs <- as.factor(ifelse(progres.specificneed.case2$Family.Needs>=1, "yes", NA))  
+progres.specificneed.case2$Family.Needs <- as.factor(ifelse(progres.specificneed.case2$Family.Needs>=1, "yes", "no"))  
 progres.specificneed.case2$Family.Needs <- as.character(progres.specificneed.case2$Family.Needs)
-progres.specificneed.case2$Family.Needs[is.na(progres.specificneed.case2$Family.Needs)]<- NA
+progres.specificneed.case2$Family.Needs[is.na(progres.specificneed.case2$Family.Needs)]<- "no"
 progres.specificneed.case2$Family.Needs <- as.factor(progres.specificneed.case2$Family.Needs)
 
 
 progres.specificneed.case2$Marginalised.count <- progres.specificneed.case2$Marginalised
-progres.specificneed.case2$Marginalised <- as.factor(ifelse(progres.specificneed.case2$Marginalised>=1, "yes", NA))  
+progres.specificneed.case2$Marginalised <- as.factor(ifelse(progres.specificneed.case2$Marginalised>=1, "yes", "no"))  
 progres.specificneed.case2$Marginalised <- as.character(progres.specificneed.case2$Marginalised)
-progres.specificneed.case2$Marginalised[is.na(progres.specificneed.case2$Marginalised)]<- NA
+progres.specificneed.case2$Marginalised[is.na(progres.specificneed.case2$Marginalised)]<- "no"
 progres.specificneed.case2$Marginalised <- as.factor(progres.specificneed.case2$Marginalised)
 
 
 progres.specificneed.case2$Medical.count <- progres.specificneed.case2$Medical
-progres.specificneed.case2$Medical <- as.factor(ifelse(progres.specificneed.case2$Medical>=1, "yes", NA))  
+progres.specificneed.case2$Medical <- as.factor(ifelse(progres.specificneed.case2$Medical>=1, "yes", "no"))  
 progres.specificneed.case2$Medical <- as.character(progres.specificneed.case2$Medical)
-progres.specificneed.case2$Medical[is.na(progres.specificneed.case2$Medical)]<- NA
+progres.specificneed.case2$Medical[is.na(progres.specificneed.case2$Medical)]<- "no"
 progres.specificneed.case2$Medical <- as.factor(progres.specificneed.case2$Medical)
 
 
 progres.specificneed.case2$Need.of.Care.count <- progres.specificneed.case2$Need.of.Care
-progres.specificneed.case2$Need.of.Care <- as.factor(ifelse(progres.specificneed.case2$Need.of.Care>=1, "yes", NA))  
+progres.specificneed.case2$Need.of.Care <- as.factor(ifelse(progres.specificneed.case2$Need.of.Care>=1, "yes", "no"))  
 progres.specificneed.case2$Need.of.Care <- as.character(progres.specificneed.case2$Need.of.Care)
-progres.specificneed.case2$Need.of.Care[is.na(progres.specificneed.case2$Need.of.Care)]<- NA
+progres.specificneed.case2$Need.of.Care[is.na(progres.specificneed.case2$Need.of.Care)]<- "no"
 progres.specificneed.case2$Need.of.Care <- as.factor(progres.specificneed.case2$Need.of.Care)
 
 
 progres.specificneed.case2$Problem.with.violence.law.recruitment.count <- progres.specificneed.case2$Problem.with.violence.law.recruitment
-progres.specificneed.case2$Problem.with.violence.law.recruitment <- as.factor(ifelse(progres.specificneed.case2$Problem.with.violence.law.recruitment>=1, "yes", NA))  
+progres.specificneed.case2$Problem.with.violence.law.recruitment <- as.factor(ifelse(progres.specificneed.case2$Problem.with.violence.law.recruitment>=1, "yes", "no"))  
 progres.specificneed.case2$Problem.with.violence.law.recruitment <- as.character(progres.specificneed.case2$Problem.with.violence.law.recruitment)
-progres.specificneed.case2$Problem.with.violence.law.recruitment[is.na(progres.specificneed.case2$Problem.with.violence.law.recruitment)]<- NA
+progres.specificneed.case2$Problem.with.violence.law.recruitment[is.na(progres.specificneed.case2$Problem.with.violence.law.recruitment)]<- "no"
 progres.specificneed.case2$Problem.with.violence.law.recruitment <- as.factor(progres.specificneed.case2$Problem.with.violence.law.recruitment)
 
 
 progres.specificneed.case2$Separated.Child.count <- progres.specificneed.case2$Separated.Child
-progres.specificneed.case2$Separated.Child <- as.factor(ifelse(progres.specificneed.case2$Separated.Child>=1, "yes", NA))  
+progres.specificneed.case2$Separated.Child <- as.factor(ifelse(progres.specificneed.case2$Separated.Child>=1, "yes", "no"))  
 progres.specificneed.case2$Separated.Child <- as.character(progres.specificneed.case2$Separated.Child)
-progres.specificneed.case2$Separated.Child[is.na(progres.specificneed.case2$Separated.Child)]<- NA
+progres.specificneed.case2$Separated.Child[is.na(progres.specificneed.case2$Separated.Child)]<- "no"
 progres.specificneed.case2$Separated.Child <- as.factor(progres.specificneed.case2$Separated.Child)
 
 
 progres.specificneed.case2$Single.Parent.count <- progres.specificneed.case2$Single.Parent
-progres.specificneed.case2$Single.Parent <- as.factor(ifelse(progres.specificneed.case2$Single.Parent>=1, "yes", NA))  
+progres.specificneed.case2$Single.Parent <- as.factor(ifelse(progres.specificneed.case2$Single.Parent>=1, "yes", "no"))  
 progres.specificneed.case2$Single.Parent <- as.character(progres.specificneed.case2$Single.Parent)
-progres.specificneed.case2$Single.Parent[is.na(progres.specificneed.case2$Single.Parent)]<- NA
+progres.specificneed.case2$Single.Parent[is.na(progres.specificneed.case2$Single.Parent)]<- "no"
 progres.specificneed.case2$Single.Parent <- as.factor(progres.specificneed.case2$Single.Parent)
 
 
 progres.specificneed.case2$Unaccompanied.count <- progres.specificneed.case2$Unaccompanied
-progres.specificneed.case2$Unaccompanied <- as.factor(ifelse(progres.specificneed.case2$Unaccompanied>=1, "yes", NA))  
+progres.specificneed.case2$Unaccompanied <- as.factor(ifelse(progres.specificneed.case2$Unaccompanied>=1, "yes", "no"))  
 progres.specificneed.case2$Unaccompanied <- as.character(progres.specificneed.case2$Unaccompanied)
-progres.specificneed.case2$Unaccompanied[is.na(progres.specificneed.case2$Unaccompanied)]<- NA
+progres.specificneed.case2$Unaccompanied[is.na(progres.specificneed.case2$Unaccompanied)]<- "no"
 progres.specificneed.case2$Unaccompanied <- as.factor(progres.specificneed.case2$Unaccompanied)
 
 
 progres.specificneed.case2$Victim.of.Violence.count <- progres.specificneed.case2$Victim.of.Violence
-progres.specificneed.case2$Victim.of.Violence <- as.factor(ifelse(progres.specificneed.case2$Victim.of.Violence>=1, "yes", NA))  
+progres.specificneed.case2$Victim.of.Violence <- as.factor(ifelse(progres.specificneed.case2$Victim.of.Violence>=1, "yes", "no"))  
 progres.specificneed.case2$Victim.of.Violence <- as.character(progres.specificneed.case2$Victim.of.Violence)
-progres.specificneed.case2$Victim.of.Violence[is.na(progres.specificneed.case2$Victim.of.Violence)]<- NA
+progres.specificneed.case2$Victim.of.Violence[is.na(progres.specificneed.case2$Victim.of.Violence)]<- "no"
 progres.specificneed.case2$Victim.of.Violence <- as.factor(progres.specificneed.case2$Victim.of.Violence)
 
 
 
 progres.specificneed.case2$Woman.at.Risk.count <- progres.specificneed.case2$Woman.at.Risk
-progres.specificneed.case2$Woman.at.Risk <- as.factor(ifelse(progres.specificneed.case2$Woman.at.Risk>=1, "yes", NA))  
+progres.specificneed.case2$Woman.at.Risk <- as.factor(ifelse(progres.specificneed.case2$Woman.at.Risk>=1, "yes", "no"))  
 progres.specificneed.case2$Woman.at.Risk <- as.character(progres.specificneed.case2$Woman.at.Risk)
-progres.specificneed.case2$Woman.at.Risk[is.na(progres.specificneed.case2$Woman.at.Risk)]<- NA
+progres.specificneed.case2$Woman.at.Risk[is.na(progres.specificneed.case2$Woman.at.Risk)]<- "no"
 progres.specificneed.case2$Woman.at.Risk <- as.factor(progres.specificneed.case2$Woman.at.Risk)
 
 
