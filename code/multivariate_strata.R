@@ -32,6 +32,7 @@ prop.table(table(progres.case.sp$familyprofile, progres.case.sp$CountryOriginCat
 this.country <- "MOR"
 progres.case.thiscountry <- progres.case.sp[progres.case.sp$CountryAsylum==this.country, ]
 
+write.csv(progres.case.thiscountry, file = "data/progrescase-sample.csv", na="", row.names = FALSE)
 
 #############################################################
 ## Work on the variables and the dataset
