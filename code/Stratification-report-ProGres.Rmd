@@ -30,11 +30,11 @@ Another reason for weighting, one that is conceptually unrelated to the first re
 
 In order to keep sample size at a reasonable level, the following variables are used for simulation:
 
- *	Confidence interval: 90, 95%, 97.5% & 99% is tested 
+ *	Confidence interval: 90, 95% & 99% are tested 
  
- *	Width of Confidence Interval (i.e. margin of error): "+ or - 5%","+ or - 2.5%""+ or - 1%"  are tested
+ *	Width of Confidence Interval (i.e. margin of error): "±5%", "±3%", "±2%" and "± 1%"  are tested
  
- *	Expected value of Attribute: This represents the main attribute of the survey (it coudl be "what the is the persentage of the population that has the capacity to integrate?", "what the is the persentage of the population that is ready to return to its country of origin", "what the is the persentage of the population that is at risk of being poor?). This attribute is often defined based on the output form previous surveys or from expert knowledge. 30%, 50% & 70%  are tested
+ *	Expected value of Attribute: This represents the main attribute of the survey (it coudl be "what the is the persentage of the population that has the capacity to integrate?", "what the is the persentage of the population that is ready to return to its country of origin", "what the is the persentage of the population that is at risk of being poor?). This attribute is often defined based on the output form previous surveys or from expert knowledge. 10%, 30% & 50%  are tested
  
 
 ## Explore potential stratification 
@@ -79,6 +79,17 @@ data <- progres.case.thiscountry
 
 # Simulate sampling size 
 
+## Concepts
+
+__Confidence level__ represents the probability of the same result if you re-sampled, all other things equal.It is a measure of how certain you are that your sample accurately reflects the population, within its margin of error. Common standards used by researchers are 90%, 95%, and 99%.
+
+__Margin of error -or- Precision __ is a percentage that describes the variability of the estimate: how closely the answer your sample gave is to the "true value" is in your population. The smaller the margin of error is, the closer you are to having the exact answer at a given confidence level. A smaller margin of error means that you must have a larger sample size given the same population. Common standards used by researchers are: ± 5%, ± 3%, ± 2% , ± 1%).
+
+__Proportion of the attribute__ estimates the prevalence or mean & STDev of the key indicator (e.g. 30% return intention). Prevalence is the total number of cases for a variable of interest that is typically binary within a population divided by its total population (for instance intention to return). Mean is the expected value of a variable of interest that is typically continuous within a prescribed range for a given population.
+
+## Sample size
+
+
 ```{r sampling, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
 
 
@@ -90,41 +101,60 @@ data <- progres.case.thiscountry
 ## This is the total number of people in the group you are trying to reach with the survey. 
 N <- nrow(progres.case.thiscountry)
 
-confidence.level <- c(0.90,0.95,0.99)
-margin.error <- c(0.05,0.025,0.01)
-proportion.attribute <- c(0.3,0.5,0.7)
+confidence.level <- as.data.frame(c(0.90,0.95,0.99))
+margin.error <- as.data.frame(c(0.05,0.03,0.02,0.01))
+proportion.attribute <- as.data.frame(c(0.1,0.3,0.5))
 
-#  Decide on the confidence level
-#  It represents the probability of the same result if you re-sampled, all other things equal.
-# A measure of how certain you are that your sample accurately reflects the population, within its margin of error.
-## Common standards used by researchers are 90%, 95%, and 99%.
-cl <- 0.95
-z <- abs(qt((1-cl)/2, (N-1)))
+## Temp reuslt frame
+result <- data.frame(c(0.1))
+names(result)[1] <- "confidence.level"
+result$margin.error <- as.numeric(0.1)
+result$proportion.attribute <- as.numeric(0.1)
+result$sample.size <- as.numeric(0.1)
 
-# Decide on the margin of error - Precision  
-# This percentage describes the variability of the estimate: how closely the answer your sample gave is
-# to the "true value" is in your population. 
-# The smaller the margin of error is, the closer you are to having the exact answer at a given confidence level.
-# A smaller margin of error means that you must have a larger sample size given the same population.
-## Common standards used by researchers are: ± 5%, ± 3% , ± 1%)
-e <- 0.025
+for (i in 1:nrow(confidence.level)) { 
+  for (j in 1:nrow(margin.error))  { 
+    for  (k in 1:nrow(proportion.attribute))  { 
+      #  Decide on the confidence level
+      cl <- as.numeric(confidence.level[ i , 1])
+      z <- abs(qt((1-cl)/2, (N-1)))
+      
+      # Decide on the margin of error - Precision  
+      e <- as.numeric(margin.error [ j , 1])
+      
+      # fill the proportion of the attribute
+      p <- as.numeric(proportion.attribute[ k,1])
+      q <- 1-p
+      
+      #compute the sample size for a large population
+      n0 <- (z^2)*p*q/(e^2)
+      n0 <- round(n0, digits = 0)
+      
+      ## Adjust
+      n <- n0/(1+((n0-1)/N))
+      n <- round(n, digits = 0)
 
-# fill the proportion of the attribute
-## Estimate of the prevalence or mean & STDev of the key indicator (e.g. 30% retunr intention). 
-#### Prevalence is the total number of cases for a variable of interest that is typically binary 
-#### within a population divided by its total population (for instance intention to return). 
-#### Mean is the expected value of a variable of interest that is typically continuous 
-#### within a prescribed range for a given population (for instance expenditure per case)
-p <- 0.5
-q <- 1-p
+      ## Interim frame
+      result1 <- data.frame(c(0.1))
+      names(result1)[1] <- "confidence.level"
+      result1$confidence.level <- cl
+      result1$margin.error <- e
+      result1$proportion.attribute <- p
+      result1$sample.size <- n
+      
+      ## Binding
+      result <- rbind(result, result1)
+      rm(result1)
+    }
+  }
+}
 
-#compute the sample size for a large population
-n0 <- (z^2)*p*q/(e^2)
-n0 <- round(n0, digits = 0)
+result <- result[2:nrow(result), ]
+result <- result[order(result$sample.size, decreasing = TRUE), ]
 
-## Adjust
-n <- n0/(1+((n0-1)/N))
-n <- round(n, digits = 0)
+cat(paste0("Displaying sample size estimation for a total number of ", N," basic sampling units"))
+
+kable(result, row.names = FALSE)
 
 ```
 
@@ -132,7 +162,7 @@ n <- round(n, digits = 0)
 
 ##### Page Break
 
-# Explore Strata
+# Explore Variables
 
 ## Country of Origin
 
@@ -150,17 +180,17 @@ data.prop <- cbind(data.fre,data.prop)
 data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
 
 data.prop2 <- data.prop[ , c("CountryOrigin","Count","Frequency")]
-if (nrow(data.prop2)> 10 ) {
-cat(paste0("There was ",nrow(data.prop2) ," modalities\n"))
-cat("Table after recategorisation - Top 10 modalities\n")
-## Print table
-data.prop2 <- data.prop2[1:10, ] 
-kable(data.prop2, row.names = NA)
-} else  {data.prop2 <- data.prop2 
-## Print table
-cat("Table without recategorisation")
-kable(data.prop2, row.names = NA)
-}
+if (nrow(data.prop2)> 12 ) {
+  cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+  cat("Table after recategorisation - Top 12 modalities\n")
+  ## Print table
+  data.prop2 <- data.prop2[1:12, ] 
+  kable(data.prop2, row.names = FALSE)
+  } else  {data.prop2 <- data.prop2 
+  ## Print table
+  cat("Table without recategorisation")
+  kable(data.prop2, row.names = FALSE)
+  }
 
 ## Recategorise Country of Origin for sampling
 data$CountryOrigin2 <- recode(data$CountryOrigin,"'SYR'='Syria';
@@ -278,17 +308,17 @@ data.prop <- cbind(data.fre,data.prop)
 data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
 
 data.prop2 <- data.prop[ , c("CountryOrigin","Count","Frequency")]
-if (nrow(data.prop2)> 10 ) {
-cat(paste0("There was ",nrow(data.prop2) ," modalities\n"))
-cat("Table after recategorisation - Top 10 modalities\n")
-## Print table
-data.prop2 <- data.prop2[1:10, ] 
-kable(data.prop2, row.names = NA)
-} else  {data.prop2 <- data.prop2 
-## Print table
-cat("Table after recategorisation")
-kable(data.prop2, row.names = NA)
-}
+if (nrow(data.prop2)> 12 ) {
+  cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+  cat("Table after recategorisation - Top 12 modalities\n")
+  ## Print table
+  data.prop2 <- data.prop2[1:12, ] 
+  kable(data.prop2, row.names = FALSE)
+  } else  {data.prop2 <- data.prop2 
+  ## Print table
+  cat("Table after recategorisation")
+  kable(data.prop2, row.names = FALSE)
+  }
 
 
 
@@ -316,16 +346,16 @@ data.prop <- cbind(data.fre,data.prop)
 
 data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
 data.prop2 <- data.prop[ , c("Asylum_Level_1","Count","Frequency")]
-if (nrow(data.prop2)> 10 ) {
-    cat(paste0("There was ",nrow(data.prop2) ," modalities\n"))
-    cat("Table after recategorisation - Top 10 modalities\n")
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table after recategorisation - Top 12 modalities\n")
     ## Print table
-    data.prop2 <- data.prop2[1:10, ] 
-    kable(data.prop2, row.names = NA)
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
     } else  {data.prop2 <- data.prop2 
     ## Print table
-    cat("Table before recategorisation")
-    kable(data.prop2, row.names = NA)
+    cat("Table")
+    kable(data.prop2, row.names = FALSE)
     }
 
 
@@ -342,16 +372,16 @@ data.prop <- cbind(data.fre,data.prop)
 
 data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
 data.prop2 <- data.prop[ , c("Asylum_Level_2","Count","Frequency")]
-if (nrow(data.prop2)> 10 ) {
-    cat(paste0("There was ",nrow(data.prop2) ," modalities.\n"))
-    cat("Table after recategorisation - Top 10 modalities.\n")
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences.\n"))
+    cat("Table after recategorisation - Top 12 modalities.\n")
     ## Print table
-    data.prop2 <- data.prop2[1:10, ] 
-    kable(data.prop2, row.names = NA)
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
     } else  {data.prop2 <- data.prop2 
     ## Print table
-    cat("Table before recategorisation")
-    kable(data.prop2, row.names = NA)
+    cat("Table")
+    kable(data.prop2, row.names = FALSE)
     }
 
 
@@ -367,16 +397,16 @@ data.prop <- cbind(data.fre,data.prop)
 
 data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
 data.prop2 <- data.prop[ , c("Asylum_Level_2plus","Count","Frequency")]
-if (nrow(data.prop2)> 10 ) {
-    cat(paste0("There was ",nrow(data.prop2) ," modalities.\n"))
-    cat("Table after recategorisation - Top 10 modalities.\n")
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table after recategorisation - Top 12 modalities.\n")
     ## Print table
-    data.prop2 <- data.prop2[1:10, ] 
-    kable(data.prop2, row.names = NA)
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
     } else  {data.prop2 <- data.prop2 
     ## Print table
-    cat("Table before recategorisation")
-    kable(data.prop2, row.names = NA)
+    cat("Table")
+    kable(data.prop2, row.names = FALSE)
     }
 
 ```
@@ -398,16 +428,16 @@ data.prop <- cbind(data.fre,data.prop)
 
 data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
 data.prop2 <- data.prop[ , c("Family_Profile","Count","Frequency")]
-if (nrow(data.prop2)> 10 ) {
-    cat(paste0("There was ",nrow(data.prop2) ," modalities\n"))
-    cat("Table after recategorisation - Top 10 modalities\n")
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table - Top 12 modalities\n")
     ## Print table
-    data.prop2 <- data.prop2[1:10, ] 
-    kable(data.prop2, row.names = NA)
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
     } else  {data.prop2 <- data.prop2 
     ## Print table
-    cat("Table before recategorisation")
-    kable(data.prop2, row.names = NA)
+    cat("Table")
+    kable(data.prop2, row.names = FALSE)
     }
 
 data$familyprofile2 <- as.character(data$familyprofile)
@@ -423,21 +453,23 @@ data.prop <- cbind(data.fre,data.prop)
 
 data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
 data.prop2 <- data.prop[ , c("Family_Profile","Count","Frequency")]
-if (nrow(data.prop2)> 10 ) {
-    cat(paste0("There was ",nrow(data.prop2) ," modalities\n"))
-    cat("Table after recategorisation - Top 10 modalities\n")
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table after recategorisation - Top 12 modalities\n")
     ## Print table
-    data.prop2 <- data.prop2[1:10, ] 
-    kable(data.prop2, row.names = NA)
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
     } else  {data.prop2 <- data.prop2 
     ## Print table
     cat("Table after recategorisation")
-    kable(data.prop2, row.names = NA)
+    kable(data.prop2, row.names = FALSE)
     }
 
 ```
 
-## Gender of PA
+
+
+## Gender of Principal Applicant
 
 ```{r strata3, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
 data$dem_sex <- as.character(data$dem_sex)
@@ -452,29 +484,84 @@ data.prop <- cbind(data.fre,data.prop)
 
 data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
 data.prop2 <- data.prop[ , c("Gender_of_Principal_Applicant","Count","Frequency")]
-if (nrow(data.prop2)> 10 ) {
-    cat(paste0("There was ",nrow(data.prop2) ," modalities\n"))
-    cat("Table after recategorisation - Top 10 modalities\n")
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table after recategorisation - Top 12 modalities\n")
     ## Print table
-    data.prop2 <- data.prop2[1:10, ] 
-    kable(data.prop2, row.names = NA)
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
     } else  {data.prop2 <- data.prop2 
     ## Print table
-    cat("Table before recategorisation")
-    kable(data.prop2, row.names = NA)
+    cat("Table")
+    kable(data.prop2, row.names = FALSE)
+    }
+
+```
+
+## Status of Principal Applicant 
+
+```{r strata5, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
+data$dem_sex <- as.character(data$RefStatus)
+
+data.prop <- as.data.frame(prop.table(table(data$RefStatus, useNA = "ifany")))
+names(data.prop)[1] <- "Status_of_Principal_Applicant"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$RefStatus, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+data.prop2 <- data.prop[ , c("Status_of_Principal_Applicant","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table  - Top 12 modalities\n")
+    ## Print table
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
+    } else  {data.prop2 <- data.prop2 
+    ## Print table
+    cat("Table ")
+    kable(data.prop2, row.names = FALSE)
     }
 
 
+data.prop.cross <- as.data.frame(prop.table(table(data$RefStatus,data$CountryOrigin, useNA = "ifany")))
+names(data.prop.cross)[1] <- "Status_of_Principal_Applicant"
+names(data.prop.cross)[2] <- "Country of Origin"
+data.prop.cross$Frequency <- paste(round(data.prop.cross$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre.cross <- as.data.frame(table(data$RefStatus,data$CountryOrigin, useNA = "ifany"))
+names(data.fre.cross)[3] <- "Count"
+data.prop.cross <- cbind(data.fre.cross,data.prop.cross)
+
+data.prop.cross <- data.prop.cross[ order(data.prop.cross$Freq, decreasing = TRUE), ]
+
+
+data.prop.cross2 <- data.prop.cross[ , c("Status_of_Principal_Applicant","Country of Origin","Count","Frequency")]
+if (nrow(data.prop.cross2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop.cross[data.prop.cross$Freq> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table - Top 12 modalities\n")
+    ## Print table
+    data.prop.cross2 <- data.prop.cross2[1:12, ] 
+    kable(data.prop.cross2, row.names = FALSE)
+    } else  {data.prop.cross2 <- data.prop2 
+    ## Print table
+    cat("Table ")
+    kable(data.prop.cross2, row.names = FALSE)
+    }
 
 ```
 
 
-## Potential strata
 
-### Option 1: Origin, address
+# Potential strata
+
+## Option 1: Origin, address
 
 ```{r strata31, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
-data$stratum <- paste(data$CountryOrigin2, data$coal2Cat2)
+
+data$stratum <- paste(data$CountryOrigin2, data$coal2)
 
 data.prop <- as.data.frame(prop.table(table(data$stratum, useNA = "ifany")))
 names(data.prop)[1] <- "Stratum"
@@ -486,24 +573,24 @@ data.prop <- cbind(data.fre,data.prop)
 
 data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
 data.prop2 <- data.prop[ , c("Stratum","Count","Frequency")]
-if (nrow(data.prop2)> 10 ) {
-    cat(paste0("There was ",nrow(data.prop2) ," modalities\n"))
-    cat("Table after recategorisation - Top 10 modalities\n")
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table  - Top 12 strata \n")
     ## Print table
-    data.prop2 <- data.prop2[1:10, ] 
-    kable(data.prop2, row.names = NA)
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
     } else  {data.prop2 <- data.prop2 
     ## Print table
     cat("Stratum")
-    kable(data.prop2, row.names = NA)
+    kable(data.prop2, row.names = FALSE)
     }
 ```
 
-### Option 2: Origin, address, family profile
+## Option 2: Origin, address, family profile
 
 ```{r strata32, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
 
-data$stratum <- paste(data$CountryOrigin2, data$coal2Cat2, data$familyprofile2)
+data$stratum <- paste(data$CountryOrigin2, data$coal2, data$familyprofile2)
 
 data.prop <- as.data.frame(prop.table(table(data$stratum, useNA = "ifany")))
 names(data.prop)[1] <- "Stratum"
@@ -515,25 +602,25 @@ data.prop <- cbind(data.fre,data.prop)
 
 data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
 data.prop2 <- data.prop[ , c("Stratum","Count","Frequency")]
-if (nrow(data.prop2)> 10 ) {
-    cat(paste0("There was ",nrow(data.prop2) ," modalities\n"))
-    cat("Table after recategorisation - Top 10 modalities\n")
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table   - Top 12 strata \n")
     ## Print table
-    data.prop2 <- data.prop2[1:10, ] 
-    kable(data.prop2, row.names = NA)
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
     } else  {data.prop2 <- data.prop2 
     ## Print table
     cat("Stratum")
-    kable(data.prop2, row.names = NA)
+    kable(data.prop2, row.names = FALSE)
     }
 
 ```
 
-### Option1: Origin, address, family profile, gender PA
+## Option 3: Origin, address, family profile, gender PA
 
 ```{r strata33, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
 
-data$stratum <- paste(data$CountryOrigin2, data$coal1, data$familyprofile2,  data$dem_sex, sep="/")
+data$stratum <- paste(data$CountryOrigin2, data$coal2, data$familyprofile2,  data$dem_sex, sep="/")
 #data$stratum <- paste(data$CountryOrigin2, data$coal2Cat2, data$familyprofile2)
 #data$stratum <- paste(data$CountryOrigin2, data$coal2Cat2)
 
@@ -546,17 +633,18 @@ names(data.fre)[2] <- "Count"
 data.prop <- cbind(data.fre,data.prop)
 
 data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+
 data.prop2 <- data.prop[ , c("Stratum","Count","Frequency")]
-if (nrow(data.prop2)> 10 ) {
-    cat(paste0("There was ",nrow(data.prop2) ," modalities\n"))
-    cat("Table after recategorisation - Top 10 modalities\n")
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table   - Top 12 strata \n")
     ## Print table
-    data.prop2 <- data.prop2[1:10, ] 
-    kable(data.prop2, row.names = NA)
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
     } else  {data.prop2 <- data.prop2 
     ## Print table
     cat("Stratum")
-    kable(data.prop2, row.names = NA)
+    kable(data.prop2, row.names = FALSE)
     }
 
 
@@ -570,4 +658,3 @@ if (nrow(data.prop2)> 10 ) {
 
 
 
-##### Page Break
