@@ -104,7 +104,7 @@ for( i in 1:nrow(chapters) )
   cat("mainDirroot <- substring(mainDir, 0 , nchar(mainDir)- 5)", file = chapter.name , sep="\n", append=TRUE)
   cat("## Load all required packages", file = chapter.name , sep="\n", append=TRUE)
   cat("source(paste0(mainDirroot,\"/code/0-packages.R\"))", file = chapter.name , sep="\n", append=TRUE)
-  cat("source(paste0(mainDirroot,\"/code/0-theme.R\"))", file = chapter.name , sep="\n", append=TRUE)
+ # cat("source(paste0(mainDirroot,\"/code/0-theme.R\"))", file = chapter.name , sep="\n", append=TRUE)
   cat("library(koboloadeR)", file = chapter.name , sep="\n", append=TRUE)
   cat("## Provide below the name of the form in xsl form - format should be xls not xlsx", file = chapter.name , sep="\n", append=TRUE)
   cat(paste0("form <- \"",form,"\""), file = chapter.name , sep="\n", append=TRUE)
@@ -215,14 +215,16 @@ for( i in 1:nrow(chapters) )
         ## - if not ordinal order according to frequency - if ordinal order according to order in the dico
         if (questions.ordinal == "ordinal" ) {
           ### get the list of options in the right order
-          cat(paste0("list.ordinal <- as.character(dico[ dico$listname ==", questions.listname,"\" & dico$type==\"select_one_d\", c(\"labelchoice\") ])"),file = chapter.name ,sep = "\n",append = TRUE)
+          cat(paste0("list.ordinal <- as.character(dico[ dico$listname ==\"", questions.listname,"\" & dico$type==\"select_one_d\", c(\"labelchoice\") ])"),file = chapter.name ,sep = "\n",append = TRUE)
           cat(paste0("frequ[ ,1] <- factor(frequ[ ,1],levels(list.ordinal))"),file = chapter.name ,sep = "\n",append = TRUE)
         } else {
           cat(paste0("frequ[ ,1] = factor(frequ[ ,1],levels(frequ[ ,1])[order(frequ$Freq, decreasing = FALSE)])"),file = chapter.name ,sep = "\n",append = TRUE)
           cat(paste0("frequ <- frequ[ order(frequ[ , 1]) ,  ]"),file = chapter.name ,sep = "\n",append = TRUE)
         }
 
-
+        ## take only top 10
+        cat(paste0("frequ <- frequ[ order(frequ$Freq, decreasing = TRUE) ,  ]"),file = chapter.name ,sep = "\n",append = TRUE)
+        cat(paste0("frequ <- frequ[ 1:10 ,  ]"),file = chapter.name ,sep = "\n",append = TRUE)
         cat(paste0("names(frequ)[1] <- \"", questions.shortname,"\""),file = chapter.name ,sep = "\n",append = TRUE)
         cat(paste0("kable(frequ, caption=\"__Table__:", questions.label,"\") %>% kable_styling ( position = \"center\")"),file = chapter.name ,sep = "\n",append = TRUE)
         cat(paste0("## Frequency table with NA in order to get non response rate"),file = chapter.name ,sep = "\n",append = TRUE)
@@ -244,7 +246,7 @@ for( i in 1:nrow(chapters) )
 
 
         if (questions.ordinal == "ordinal" ) {
-          cat(paste0("list.ordinal <- as.character(dico[ dico$listname ==", questions.listname,"\" & dico$type==\"select_one_d\", c(\"labelchoice\") ])"),file = chapter.name ,sep = "\n",append = TRUE)
+          cat(paste0("list.ordinal <- as.character(dico[ dico$listname ==\"", questions.listname,"\" & dico$type==\"select_one_d\", c(\"labelchoice\") ])"),file = chapter.name ,sep = "\n",append = TRUE)
           cat(paste0("frequ3[ ,1] <- factor(frequ3[ ,1],levels(list.ordinal))"),file = chapter.name ,sep = "\n",append = TRUE)
         } else {
           cat(paste0("frequ3[ ,1] = factor(frequ3[ ,1],levels(frequ3[ ,1])[order(frequ3$mean, decreasing = FALSE)])"),file = chapter.name ,sep = "\n",append = TRUE)
@@ -254,6 +256,10 @@ for( i in 1:nrow(chapters) )
         cat(paste0("frequ3[ ,5] <- paste0(round(frequ3[ ,3]*100,digits=1),\"%\")"),file = chapter.name ,sep = "\n",append = TRUE)
         cat(paste0("names(frequ3)[5] <- \"freqper2\""),file = chapter.name ,sep = "\n",append = TRUE)
 
+        ## take only top 10
+        cat(paste0("frequ3 <- frequ3[ order(frequ3$Freq, decreasing = TRUE) ,  ]"),file = chapter.name ,sep = "\n",append = TRUE)
+        cat(paste0("frequ3 <- frequ3[ 1:10 ,  ]"),file = chapter.name ,sep = "\n",append = TRUE)
+        
         cat(paste0("\n"),file = chapter.name ,sep = "\n",append = TRUE)
         cat(paste0("## and now the graph"),file = chapter.name ,sep = "\n",append = TRUE)
         cat(paste0("ggplot(frequ3, aes(x=frequ3$Var1, y=frequ3$mean)) +"),file = chapter.name ,sep = "\n",append = TRUE)

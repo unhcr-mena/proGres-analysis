@@ -18,6 +18,7 @@ packages <- c(
   ## Missing value imputation
   # "missForest",  "missMDA", "Amelia",
   
+  "simFrame","sampling",
   
   ## Outlier Detection
   # "outliers",  "evir",

@@ -1,0 +1,824 @@
+---
+title: "Sampling Strategy Report. "
+author: "Prepared by UNHCR"
+date: "Amman, prepared on the `r format(Sys.Date(),  '%d %B %Y')`"
+output:
+  word_document:
+    fig_caption: yes
+    fig_height: 5
+    fig_width: 8
+    toc: yes
+    toc_depth: 2
+    reference_docx: style-unhcr-portrait.docx
+---
+
+
+# Developing a Sampling strategy
+
+When data are used without weights, each record counts the same as any other record and this implies the following assumptions:
+
+ *	Each record has equal probabilities of being selected. 
+ 
+ *	Non-coverage and nonresponse are equal among all segments of the population. 
+ 
+During data collection, the conditions that actually happen may be different than the preceding assumptions, and the differences can become large enough to affect the results of the data set. Weighting each record appropriately can help to adjust for these differences (or assumption violations).The reliability of a survey and the consistency of its result is heavily linked to the sampling strategy used to perform it. Through stratification, the sampling strategy should allow for good representation of the population characteristics keeping considerations to limit the sample size within acceptable ranges. 
+
+Another reason for weighting, one that is conceptually unrelated to the first reason, is to make the total number of cases equal to some desired number in case of Non-coverage and nonresponse of the full sample. Such _raking_ (or "[post-stratification](https://www.r-bloggers.com/survey-computing-your-own-post-stratification-weights-in-r/") serves as a blanket adjustment  and forces the total number of cases to equal population estimates for each geographic region. 
+
+
+## Develop simulations for sampling sizes
+
+In order to keep sample size at a reasonable level, the following variables are used for simulation:
+
+ *	Confidence interval: 90, 95% & 99% are tested 
+ 
+ *	Width of Confidence Interval (i.e. margin of error): "±5%", "±3%", "±2%" and "± 1%"  are tested
+ 
+ *	Expected value of Attribute: This represents the main attribute of the survey (it coudl be "what the is the percentage of the population that has the capacity to integrate?", "what the is the percentage of the population that is ready to return to its country of origin", "what the is the percentage of the population that is at risk of being poor?). This attribute is often defined based on the output form previous surveys or from expert knowledge. 10%, 30% & 50%  are tested
+ 
+
+## Explore potential stratification 
+
+In statistical surveys, when subpopulations within an overall population vary, it is advantageous to sample each subpopulation (stratum) independently. Stratification is the process of dividing members of the population into homogeneous subgroups before randomly sampling respondents.
+
+The strategy presented here assumes that the characteristics that are studied are homogeneous at the case level (i.e. Household) and that as a matter of rule, the case level should be used as the basic sampling unit.
+
+With the stratified random sample, there is an equal chance (probability) of selecting each unit from within a particular stratum (group) of the population when creating the sample.
+
+When variable have too many modalities, modalities grouped together if the number of cases per modality does not exceed 5% of the total number of cases. This approach allows to reduce the numbers of strata in order to avoid oversampling. 
+
+
+
+```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+mainDir <- getwd()
+mainDirroot <- substring(mainDir, 0 , nchar(mainDir)- 5)
+## Load all required packages
+source(paste0(mainDirroot,"/code/0-packages.R"))
+
+#############################################################
+## Install & load Required Library
+#############################################################
+
+### uncomment the next tow lines at first utilisation
+#install.packages("simFrame")
+#install.packages("sampling")
+
+library(simFrame)
+library(sampling)
+#rm(progres.case)
+progres.case.sp <- read.csv(paste0(mainDirroot,"/data/progrescase-1.csv"))
+
+
+## Subset on the country we are interested in...
+country <- "Morocco"
+this.country <- "MOR"
+progres.case.thiscountry <- progres.case.sp[progres.case.sp$CountryAsylum==this.country, ]
+data <- progres.case.thiscountry
+```
+
+
+# Simulate sampling size 
+
+## Concepts
+
+__Confidence level__ represents the probability of the same result if you re-sampled, all other things equal.It is a measure of how certain you are that your sample accurately reflects the population, within its margin of error. Common standards used by researchers are 90%, 95%, and 99%.
+
+__Margin of error -or- Precision __ is a percentage that describes the variability of the estimate: how closely the answer your sample gave is to the "true value" is in your population. The smaller the margin of error is, the closer you are to having the exact answer at a given confidence level. A smaller margin of error means that you must have a larger sample size given the same population. Common standards used by researchers are: ± 5%, ± 3%, ± 2% , ± 1%).
+
+__Proportion of the attribute__ estimates the prevalence or mean & STDev of the key indicator (e.g. 30% return intention). Prevalence is the total number of cases for a variable of interest that is typically binary within a population divided by its total population (for instance intention to return). Mean is the expected value of a variable of interest that is typically continuous within a prescribed range for a given population.
+
+## Sample size
+
+
+```{r sampling, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
+
+
+#############################################################
+## Configure sampling variables
+#############################################################
+
+#Confirm the the population size called here N
+## This is the total number of people in the group you are trying to reach with the survey. 
+N <- nrow(progres.case.thiscountry)
+
+confidence.level <- as.data.frame(c(0.90,0.95,0.99))
+margin.error <- as.data.frame(c(0.05,0.03,0.02,0.01))
+proportion.attribute <- as.data.frame(c(0.1,0.3,0.5))
+
+## Temp reuslt frame
+result <- data.frame(c(0.1))
+names(result)[1] <- "confidence.level"
+result$margin.error <- as.numeric(0.1)
+result$proportion.attribute <- as.numeric(0.1)
+result$sample.size <- as.numeric(0.1)
+
+for (i in 1:nrow(confidence.level)) { 
+  for (j in 1:nrow(margin.error))  { 
+    for  (k in 1:nrow(proportion.attribute))  { 
+      #  Decide on the confidence level
+      cl <- as.numeric(confidence.level[ i , 1])
+      z <- abs(qt((1-cl)/2, (N-1)))
+      
+      # Decide on the margin of error - Precision  
+      e <- as.numeric(margin.error [ j , 1])
+      
+      # fill the proportion of the attribute
+      p <- as.numeric(proportion.attribute[ k,1])
+      q <- 1-p
+      
+      #compute the sample size for a large population
+      n0 <- (z^2)*p*q/(e^2)
+      n0 <- round(n0, digits = 0)
+      
+      ## Adjust
+      n <- n0/(1+((n0-1)/N))
+      n <- round(n, digits = 0)
+
+      ## Interim frame
+      result1 <- data.frame(c(0.1))
+      names(result1)[1] <- "confidence.level"
+      result1$confidence.level <- cl
+      result1$margin.error <- e
+      result1$proportion.attribute <- p
+      result1$sample.size <- n
+      
+      ## Binding
+      result <- rbind(result, result1)
+      rm(result1)
+    }
+  }
+}
+
+result <- result[2:nrow(result), ]
+result <- result[order(result$sample.size, decreasing = TRUE), ]
+
+cat(paste0("Displaying sample size estimation for a total number of ", N," basic sampling units"))
+
+kable(result, row.names = FALSE)
+
+```
+
+## Decision
+
+Variable selection   | Value
+=====================|=====
+confidence.level	   | 0.90
+margin.error	       | 0.02
+proportion.attribute | 0.3
+		
+
+
+##### Page Break
+
+# Explore Variables
+
+## Country of Origin
+
+```{r strata1, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
+
+data$CountryOrigin <- as.character(data$CountryOrigin)
+
+data.prop <- as.data.frame(prop.table(table(data$CountryOrigin, useNA = "ifany")))
+names(data.prop)[1] <- "CountryOrigin"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$CountryOrigin, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+
+data.prop2 <- data.prop[ , c("CountryOrigin","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+  cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+  cat("Table after recategorisation - Top 12 modalities\n")
+  ## Print table
+  data.prop2 <- data.prop2[1:12, ] 
+  kable(data.prop2, row.names = FALSE)
+  } else  {data.prop2 <- data.prop2 
+  ## Print table
+  cat("Table without recategorisation")
+  kable(data.prop2, row.names = FALSE)
+  }
+
+## Recategorise Country of Origin for sampling
+data$CountryOrigin2 <- recode(data$CountryOrigin,"'SYR'='Syria';
+                                  'IRQ'='Iraq';
+                                  'SOM'='Other';
+                                  'AFG'='Other';
+                                  'IRN'='Other';
+                                  'SUD'='Other';
+                                  'ETH'='Other';
+                                  'ERT'='Other';
+                                  'PAL'='Palestine';
+                                  'TUR'='Other';
+                                  'PAK'='Other';
+                                  'YEM'='Yemen';
+                                  'SSD'='Other';
+                                  'NIG'='Other';
+                                  'ICO'='Cote Ivoire';
+                                  'COD'='Congo RDC';
+                                  'UGA'='Other';
+                                  'BGD'='Other';
+                                  'ARE'='Other';
+                                  'CMR'='Cameroun';
+                                  'UZB'='Other';
+                                  'COB'='Other';
+                                  'TKM'='Other';
+                                  'MLI'='Mali';
+                                  'GUI'='Guinea';
+                                  'CAR'='Central African Republic';
+                                  'LBY'='Other';
+                                  'KGZ'='Other';
+                                  'LEB'='Other';
+                                  'CHD'='Other';
+                                  'TJK'='Other';
+                                  'MOR'='Other';
+                                  'JOR'='Other';
+                                  'SEN'='Other';
+                                  'KUW'='Other';
+                                  'MNG'='Other';
+                                  'ALG'='Other';
+                                  'GHA'='Other';
+                                  'TUN'='Other';
+                                  'SLE'='Other';
+                                  'LBR'='Other';
+                                  'RUS'='Other';
+                                  'KEN'='Other';
+                                  'CHI'='Other';
+                                  'LKA'='Other';
+                                  'BDI'='Other';
+                                  'KAZ'='Other';
+                                  'PHI'='Other';
+                                  'ZZZ'='Other';
+                                  'MYA'='Other';
+                                  'SAU'='Other';
+                                  'BAH'='Other';
+                                  'RWA'='Other';
+                                  'IND'='Other';
+                                  'TOG'='Other';
+                                  'DJB'='Other';
+                                  'GAM'='Other';
+                                  'NGR'='Other';
+                                  'ZIM'='Other';
+                                  'ANG'='Other';
+                                  'BKF'='Other';
+                                  'NEP'='Other';
+                                  'SRV'='Other';
+                                  'BEN'='Other';
+                                  'TAN'='Other';
+                                  'UKR'='Other';
+                                  'MAD'='Other';
+                                  'GAB'='Other';
+                                  'INS'='Other';
+                                  'MAU'='Other';
+                                  'TIB'='Other';
+                                  'UAE'='Other';
+                                  'BSN'='Other';
+                                  'COI'='Other';
+                                  'OMN'='Other';
+                                  'GNB'='Other';
+                                  'DOM'='Other';
+                                  'ISR'='Other';
+                                  'ARM'='Other';
+                                  'AZE'='Other';
+                                  'BLR'='Other';
+                                  'CUB'='Other';
+                                  'FRA'='Other';
+                                  'HAI'='Other';
+                                  'RSA'='Other';
+                                  'ARG'='Other';
+                                  'GBR'='Other';
+                                  'KRN'='Other';
+                                  'MDA'='Other';
+                                  'MTS'='Other';
+                                  'PER'='Other';
+                                  'SCG'='Other';
+                                  'SOL'='Other';
+                                  'SUR'='Other';
+                                  'YUG'='Other';
+                                  '-'='Other';
+                                  # '-'='Unknown';
+                                  'U'='Other';
+                                  'ITA'='Other';
+                                  'SWA'='Other';
+                                  'EGU'='Other';
+                                  NA = 'Other';
+                                  ''= 'Other'") 
+
+data$CountryOrigin2 <- as.character(data$CountryOrigin2)
+data.prop <- as.data.frame(prop.table(table(data$CountryOrigin2, useNA = "ifany")))
+names(data.prop)[1] <- "CountryOrigin"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$CountryOrigin2, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+
+data.prop2 <- data.prop[ , c("CountryOrigin","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+  cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+  cat("Table after recategorisation - Top 12 modalities\n")
+  ## Print table
+  data.prop2 <- data.prop2[1:12, ] 
+  kable(data.prop2, row.names = FALSE)
+  } else  {data.prop2 <- data.prop2 
+  ## Print table
+  cat("Table after recategorisation")
+  kable(data.prop2, row.names = FALSE)
+  }
+
+
+
+
+```
+
+
+
+## Location in country Of Asylum
+
+```{r strata2, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
+
+## Recategorise Address in country of Asylum
+
+
+
+data$coal1 <- as.character(data$coal1)
+data.prop <- as.data.frame(prop.table(table(data$coal1, useNA = "ifany")))
+names(data.prop)[1] <- "Asylum_Level_1"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$coal1, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+data.prop2 <- data.prop[ , c("Asylum_Level_1","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table after recategorisation - Top 12 modalities\n")
+    ## Print table
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
+    } else  {data.prop2 <- data.prop2 
+    ## Print table
+    cat("Table")
+    kable(data.prop2, row.names = FALSE)
+    }
+
+
+
+
+data$coal2 <- as.character(data$coal2)
+data.prop <- as.data.frame(prop.table(table(data$coal2, useNA = "ifany")))
+names(data.prop)[1] <- "Asylum_Level_2"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$coal2, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+data.prop2 <- data.prop[ , c("Asylum_Level_2","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences.\n"))
+    cat("Table after recategorisation - Top 12 modalities.\n")
+    ## Print table
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
+    } else  {data.prop2 <- data.prop2 
+    ## Print table
+    cat("Table")
+    kable(data.prop2, row.names = FALSE)
+    }
+
+
+
+data$coal2plus <- as.character(paste(data$coal1,data$coal2, sep="-"))
+data.prop <- as.data.frame(prop.table(table(data$coal2plus, useNA = "ifany")))
+names(data.prop)[1] <- "Asylum_Level_2plus"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$coal2plus, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+data.prop2 <- data.prop[ , c("Asylum_Level_2plus","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table after recategorisation - Top 12 modalities.\n")
+    ## Print table
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
+    } else  {data.prop2 <- data.prop2 
+    ## Print table
+    cat("Table")
+    kable(data.prop2, row.names = FALSE)
+    }
+
+```
+
+
+
+## Family Profile
+
+```{r strata4, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
+data$familyprofile <- as.character(data$familyprofile)
+
+data.prop <- as.data.frame(prop.table(table(data$familyprofile, useNA = "ifany")))
+names(data.prop)[1] <- "Family_Profile"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$familyprofile, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+data.prop2 <- data.prop[ , c("Family_Profile","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table - Top 12 modalities\n")
+    ## Print table
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
+    } else  {data.prop2 <- data.prop2 
+    ## Print table
+    cat("Table")
+    kable(data.prop2, row.names = FALSE)
+    }
+
+data$familyprofile2 <- as.character(data$familyprofile)
+data$familyprofile2[data$familyprofile2=="couple.no.kids"] <- "case.without.minors"
+data$familyprofile2[data$familyprofile2=="non.nuclear.or.adult.dependant"] <- "case.without.minors"
+data.prop <- as.data.frame(prop.table(table(data$familyprofile2, useNA = "ifany")))
+names(data.prop)[1] <- "Family_Profile"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$familyprofile2, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+data.prop2 <- data.prop[ , c("Family_Profile","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table after recategorisation - Top 12 modalities\n")
+    ## Print table
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
+    } else  {data.prop2 <- data.prop2 
+    ## Print table
+    cat("Table after recategorisation")
+    kable(data.prop2, row.names = FALSE)
+    }
+
+```
+
+
+
+## Gender of Principal Applicant
+
+```{r strata3, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
+data$dem_sex <- as.character(data$dem_sex)
+
+data.prop <- as.data.frame(prop.table(table(data$dem_sex, useNA = "ifany")))
+names(data.prop)[1] <- "Gender_of_Principal_Applicant"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$dem_sex, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+data.prop2 <- data.prop[ , c("Gender_of_Principal_Applicant","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table after recategorisation - Top 12 modalities\n")
+    ## Print table
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
+    } else  {data.prop2 <- data.prop2 
+    ## Print table
+    cat("Table")
+    kable(data.prop2, row.names = FALSE)
+    }
+
+```
+
+## Status of Principal Applicant 
+
+```{r strata5, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
+data$RefStatus <- as.character(data$RefStatus)
+
+
+
+
+
+
+data.prop <- as.data.frame(prop.table(table(data$RefStatus, useNA = "ifany")))
+names(data.prop)[1] <- "Status_of_Principal_Applicant"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$RefStatus, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+data.prop2 <- data.prop[ , c("Status_of_Principal_Applicant","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table  - Top 12 modalities\n")
+    ## Print table
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
+    } else  {data.prop2 <- data.prop2 
+    ## Print table
+    cat("Table ")
+    kable(data.prop2, row.names = FALSE)
+    }
+
+#data.fre3 <- aggregate(data$Num_Inds, by=list(data$CountryOrigin, data$RefStatus), FUN=sum, na.rm=TRUE)
+#names(data.fre3)[3] <- "CountIndividual"
+#data.fre3$key <- paste(data.fre3$Group.1,data.fre3$Group.2,sep="-")
+
+
+data.prop2 <- as.data.frame(prop.table(table(data$CountryOrigin,data$RefStatus, useNA = "ifany")))
+names(data.prop2)[1] <- "CountryOrigin"
+names(data.prop2)[2] <- "RefStatus"
+data.prop2$FrequencyCase <- paste(round(data.prop2$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre2 <- as.data.frame(table(data$CountryOrigin,data$RefStatus, useNA = "ifany"))
+names(data.fre2)[3] <- "CountCase"
+
+data.prop2 <- cbind(data.fre2,data.prop2)
+
+data.fre3 <- aggregate(data$Num_Inds, by=list(data$CountryOrigin, data$RefStatus), FUN=sum, na.rm=TRUE)
+names(data.fre3)[3] <- "CountIndividual"
+data.fre3$key <- paste(data.fre3$Group.1,data.fre3$Group.2,sep="-")
+
+data.prop2 <- data.prop2[data.prop2$Freq>0, ]
+data.prop2$key <- paste(data.prop2$Var1,data.prop2$Var2,sep="-")
+
+data.prop4 <- merge(data.prop2,data.fre3, by="key" )
+
+data.prop4 <- data.prop4[ order(data.prop4$CountCase, decreasing = TRUE),c( "CountryOrigin", "RefStatus","CountIndividual", "CountCase", "FrequencyCase" )]
+
+
+if (nrow(data.prop4)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop2[data.prop2$Freq> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table - Top 12 modalities\n")
+    ## Print table
+    data.prop4 <- data.prop4[1:12, ] 
+    kable(data.prop4, row.names = FALSE)
+    } else  {data.prop4 <- data.prop2 
+    ## Print table
+    cat("Table ")
+    kable(data.prop4, row.names = FALSE)
+    }
+
+```
+
+
+
+# Potential strata
+
+## Option 1: Origin, address
+
+```{r strata31, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
+
+data$stratum <- paste(data$CountryOrigin2, data$coal2, sep="/")
+
+data.prop <- as.data.frame(prop.table(table(data$stratum, useNA = "ifany")))
+names(data.prop)[1] <- "Stratum"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$stratum, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+data.prop2 <- data.prop[ , c("Stratum","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table  - Top 12 strata \n")
+    ## Print table
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
+    } else  {data.prop2 <- data.prop2 
+    ## Print table
+    cat("Stratum")
+    kable(data.prop2, row.names = FALSE)
+    }
+```
+
+## Option 2: Origin, address, gender
+
+```{r strata32, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
+
+data$stratum <- paste(data$CountryOrigin2, data$coal2, data$dem_sex, sep="/")
+
+data.prop <- as.data.frame(prop.table(table(data$stratum, useNA = "ifany")))
+names(data.prop)[1] <- "Stratum"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$stratum, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+data.prop2 <- data.prop[ , c("Stratum","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table   - Top 12 strata \n")
+    ## Print table
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
+    } else  {data.prop2 <- data.prop2 
+    ## Print table
+    cat("Stratum")
+    kable(data.prop2, row.names = FALSE)
+    }
+
+```
+
+## Option 3: Origin, address, family profile
+
+```{r strata33, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
+
+data$stratum <- paste(data$CountryOrigin2, data$coal2, data$familyprofile2, sep="/")
+
+data.prop <- as.data.frame(prop.table(table(data$stratum, useNA = "ifany")))
+names(data.prop)[1] <- "Stratum"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$stratum, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+data.prop2 <- data.prop[ , c("Stratum","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table   - Top 12 strata \n")
+    ## Print table
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
+    } else  {data.prop2 <- data.prop2 
+    ## Print table
+    cat("Stratum")
+    kable(data.prop2, row.names = FALSE)
+    }
+
+```
+
+## Option 4: Origin, address, family profile, gender PA
+
+```{r strata34, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
+
+data$stratum <- paste(data$CountryOrigin2, data$coal2, data$familyprofile2,  data$dem_sex, sep="/")
+#data$stratum <- paste(data$CountryOrigin2, data$coal2Cat2, data$familyprofile2)
+#data$stratum <- paste(data$CountryOrigin2, data$coal2Cat2)
+
+data.prop <- as.data.frame(prop.table(table(data$stratum, useNA = "ifany")))
+names(data.prop)[1] <- "Stratum"
+data.prop$Frequency <- paste(round(data.prop$Freq * 100 ,digits=1),"%",sep="")
+
+data.fre <- as.data.frame(table(data$stratum, useNA = "ifany"))
+names(data.fre)[2] <- "Count"
+data.prop <- cbind(data.fre,data.prop)
+
+data.prop <- data.prop[ order(data.prop$Count, decreasing = TRUE), ]
+
+data.prop2 <- data.prop[ , c("Stratum","Count","Frequency")]
+if (nrow(data.prop2)> 12 ) {
+    cat(paste0("There was ",nrow(data.prop[data.prop$Count> 5, ]) ," modalities with more than 5 occurences\n"))
+    cat("Table   - Top 12 strata \n")
+    ## Print table
+    data.prop2 <- data.prop2[1:12, ] 
+    kable(data.prop2, row.names = FALSE)
+    } else  {data.prop2 <- data.prop2 
+    ## Print table
+    cat("Stratum")
+    kable(data.prop2, row.names = FALSE)
+    }
+
+
+
+```
+
+##### Page Break
+
+
+
+# Generate sample
+
+
+```{r sampling, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
+
+
+N <- nrow(data)
+
+
+### Build the config variable for the sample
+confidence.level	<-  0.90
+margin.error	 <-   0.02
+proportion.attribute <-   0.3
+
+cl <- as.numeric(confidence.level)
+z <- abs(qt((1-cl)/2, (N-1)))
+
+# Decide on the margin of error - Precision  
+e <- as.numeric(margin.error)
+
+# fill the proportion of the attribute
+p <- as.numeric(proportion.attribute)
+q <- 1-p
+
+#compute the sample size for a large population
+n0 <- (z^2)*p*q/(e^2)
+n0 <- round(n0, digits = 0)
+
+## Adjust
+n <- n0/(1+((n0-1)/N))
+n <- round(n, digits = 0)
+
+### Defin minimum stratum size 
+minstratasize <- 1
+
+#############################################################
+## Check phone issue
+#############################################################
+## Need some manual cleaning for those without phones
+#write.csv(unique(progres.case.thiscountry$phone),"data/nophone.csv", row.names = FALSE )
+
+
+## now reading the clean
+nophone <-  read.csv(paste0(mainDirroot,"/data/nophone2.csv"))
+nophone <- as.character(nophone$nophone)
+# first we subset the dataset in order to have only observations with a phone
+data.bckp1 <- data
+data <- data[ !(data$phone %in% nophone) , ]
+data <- data[data$phone !='' , ]
+
+
+#############################################################
+## Stratify the dataset using proportional allocation
+#############################################################
+data.bckp2 <- data
+#data$stratum <- paste(data$CountryOrigin2, data$coal2Cat2, data$familyprofile2)
+#data$stratum <- paste(data$CountryOrigin2, data$coal2Cat2)
+
+data$stratum <- paste(data$CountryOrigin2, data$coal2, data$dem_sex, sep="/")
+
+### checking allocation per stratum
+stratum <- as.data.frame(table(data$stratum)) 
+
+### In order to avoid errors during sampling - we need to take out statrum where there's not enough cases
+## R strata "arguments imply differing number of rows: 0, 1"
+## https://stackoverflow.com/questions/14735411/strata-from-sampling-returns-an-error-arguments-imply-differing-number-of-r
+stratum.keep <- stratum[ stratum$Freq > minstratasize,  ]
+
+stratum.keep.list <- as.character(stratum.keep$Var1)
+data.strat <- data[ data$stratum %in% stratum.keep.list, ]
+
+# levels(as.factor(data$stratum))
+data.strat$stratum <- as.character(data.strat$stratum )
+
+# We build the 'Strata' object
+st <- stratify(data.strat, c("stratum"))
+#summary(st)
+#str(st)
+## Numbers of strata
+#nrow(as.data.frame((n_size)))
+#max(st@nr)
+
+
+
+#compute the sample sizes of the strata using proportional allocation: nh = Nh/N*n for each strata h
+n_size <- numeric(max(st@nr))
+
+for (h in 1:max(st@nr)){
+  n_size[h] <- st@size[h]/N*n
+  n_size[h] <- round(n_size[h], digits = 0)
+}
+stratified_sample.srswor <- strata(data.strat[order(data.strat$stratum),  ], 
+                                   stratanames = c("stratum"),
+                                   size= n_size,
+                                   method="srswor",  ### Simple random sampling without replacement (srswor), 
+                                   description=TRUE)
+#names(data.strat)
+data.sample <- data.strat[order(data.strat$stratum), c("CountryOrigin2", "dem_sex","CaseNo", "phone", "coal1", "coal2" , "coal3", "Num_Inds") ]
+rownames(data.sample ) <- NULL
+data.sample$ID_unit <- row.names(data.sample)
+## Now merge
+data.sampled <- merge(x=data.sample, y=stratified_sample.srswor, by="ID_unit", all.y=TRUE )
+
+## names(data.sampled)
+data.sampled <- data.sampled[order(data.sampled$Stratum), c( "CaseNo", "phone", "coal1", "coal2",  "coal3","CountryOrigin2", "Prob", "Stratum"  ) ]
+
+kable(data.sampled, row.names = FALSE)
+
+```
+
+
