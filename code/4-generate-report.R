@@ -904,6 +904,8 @@ for( i in 1:nrow(chapters) )
 #```{r child = 'chapter1.Rmd'}
 #```
 
+
+
 ### Render now all reports
 cat(" Render now reports... \n")
 
