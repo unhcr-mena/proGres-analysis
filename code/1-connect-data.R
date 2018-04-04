@@ -7,12 +7,12 @@ library(RODBC)
 ## Db handle for progres Data warehouse
 #########################################
 
-progres <- readline("Give the odbc db name:")
-user <- readline("Give the username:")
-passw <- readline("Give the password:")
-dbhandleprogres <- odbcConnect(progres, uid=user, pwd=passw)
+#progres <- readline("Give the odbc db name:")
+#user <- readline("Give the username:")
+#passw <- rstudioapi::askForPassword("Database password")
+#dbhandleprogres <- odbcConnect(progres, uid=user, pwd=passw)
 
-## source("perso/password.R")
+source("perso/password.R")
 
 ## fetching the view containing information aggregated at the case level and the event
 progres.case <-  sqlFetch(dbhandleprogres, "caseprofile")
@@ -27,10 +27,6 @@ write.csv(progres.case, file = "data/progrescase.csv",na="")
 progres.specificneed <- sqlFetch(dbhandleprogres, "T_SPneedsBreak")
 write.csv(progres.specificneed, file = "data/progresspecificneed.csv",na="")
 
-
-## With Detailled Specific needs
-progres.specificneed.case <- sqlFetch(dbhandleprogres, "T_SPneedsCaseLevel")
-write.csv(progres.specificneed.case, file = "data/progresspecificneedcase.csv",na="")
 
 ## Event @ individual level
 
