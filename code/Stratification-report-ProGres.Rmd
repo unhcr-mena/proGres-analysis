@@ -714,7 +714,7 @@ if (nrow(data.prop2)> 12 ) {
 # Generate sample
 
 
-```{r sampling, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
+```{r samplers, echo=FALSE, warning=FALSE, cache=FALSE, tidy = TRUE, message=FALSE, comment = "", fig.height=8, size="small"}
 
 
 N <- nrow(data)
